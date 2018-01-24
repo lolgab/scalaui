@@ -1,7 +1,28 @@
 package scalaui
 
 import scala.scalanative.native
-import scala.scalanative.native.{CChar, CDouble, CFunctionPtr0, CFunctionPtr1, CFunctionPtr2, CFunctionPtr3, CInt, CSize, CString, CStruct1, CStruct12, CStruct5, CStruct6, CStruct7, CStruct9, CUnsignedInt, Ptr, UInt, ULong, extern}
+import scala.scalanative.native.{
+  CChar,
+  CDouble,
+  CFunctionPtr0,
+  CFunctionPtr1,
+  CFunctionPtr2,
+  CFunctionPtr3,
+  CInt,
+  CSize,
+  CString,
+  CStruct1,
+  CStruct12,
+  CStruct5,
+  CStruct6,
+  CStruct7,
+  CStruct9,
+  CUnsignedInt,
+  Ptr,
+  UInt,
+  ULong,
+  extern
+}
 
 @native.link("ui")
 @native.extern
@@ -730,4 +751,8 @@ object uiAlign {
   val uiAlignStart = 1
   val uiAlignCenter = 2
   val uiAlignEnd = 3
+}
+
+object uiAreaHandler {
+
 }

@@ -25,13 +25,13 @@ def greeting(): Unit = println("Hello World!")
 
 Then you create a button in your `Main` object, passing a name and the method name followed by a `_`:
 ```scala
-val myButton = new Button("My Button", greeting _)
+val button = new Button("My Button", greeting _)
 ```
 
 Then you create a window passing the button as content:
 
 ```scala
-val window = new Window("My Window", width = 200, height = 200, content = myButton)
+val window = new Window("My Window", width = 200, height = 200, content = button)
 ```
 
 Then you can actually trigger the creation of the window with all its components in your main method:

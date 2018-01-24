@@ -34,7 +34,7 @@ object ScalauiExample {
     new Group("Ciao", new Button("Ciao", scalaui.doNothing _)),
     progressBar
   )
-  lazy val pane = new VerticalPane(components)
+  lazy val pane = new VerticalPane(components, false)
   lazy val items = Seq(
     new MenuItem("Message box", msgBox _),
     SeparatorMenuItem,
