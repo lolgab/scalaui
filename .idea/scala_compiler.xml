@@ -1,0 +1,10 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<project version="4">
+  <component name="ScalaCompilerConfiguration">
+    <profile name="sbt 1" modules="scala-libui">
+      <plugins>
+        <plugin path="$USER_HOME$/.ivy2/cache/org.scala-native/nscplugin_2.11.12/jars/nscplugin_2.11.12-0.3.6.jar" />
+      </plugins>
+    </profile>
+  </component>
+</project>

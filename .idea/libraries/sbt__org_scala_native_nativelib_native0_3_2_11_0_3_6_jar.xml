@@ -1,0 +1,11 @@
+<component name="libraryTable">
+  <library name="sbt: org.scala-native:nativelib_native0.3_2.11:0.3.6:jar">
+    <CLASSES>
+      <root url="jar://$USER_HOME$/.ivy2/cache/org.scala-native/nativelib_native0.3_2.11/jars/nativelib_native0.3_2.11-0.3.6.jar!/" />
+    </CLASSES>
+    <JAVADOC />
+    <SOURCES>
+      <root url="jar://$USER_HOME$/.ivy2/cache/org.scala-native/nativelib_native0.3_2.11/srcs/nativelib_native0.3_2.11-0.3.6-sources.jar!/" />
+    </SOURCES>
+  </library>
+</component>
