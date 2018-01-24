@@ -42,5 +42,7 @@ def main(args: Array[String]) = {
 }
 ```
 You now should see a nice window with a button, let's click it:
+
 ![](https://image.ibb.co/bWFa1w/scalaui.png)
+
 ### It works! :tada::tada::tada:
