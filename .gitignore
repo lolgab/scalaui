@@ -1,7 +1,7 @@
 .ensime
 .ensime_cache
 .gitignore
-.idea
+.idea/
 project/target
 src/main/scala-2.11
 src/main/java
