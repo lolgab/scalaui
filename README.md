@@ -1,9 +1,10 @@
 # scalaui
 Scala Native GUI framework based on [libui](https://github.com/andlabs/libui)
 
-### Example text editor
-[scalaui-texteditor](https://github.com/lolgab/scalaui-texteditor/)
+## Example text editor
 ![How it looks like in elementary](https://image.ibb.co/cMVcgw/editor.png)
+
+[scalaui-texteditor](https://github.com/lolgab/scalaui-texteditor/)
 
 ## Getting Started
 Once you have setup you Scala Native project and enviroment, add the following to your build.sbt:
