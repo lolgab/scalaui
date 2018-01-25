@@ -259,7 +259,8 @@ object ui {
     extern
   def uiMultilineEntryOnChanged(
       e: Ptr[uiMultilineEntry],
-      f: CFunctionPtr2[Ptr[uiMultilineEntry], Ptr[Byte], Unit],
+      f: CFunctionPtr0[Unit],
+      //f: CFunctionPtr2[Ptr[uiMultilineEntry], Ptr[Byte], Unit],
       data: Ptr[Byte]): Unit = extern
   def uiMultilineEntryReadOnly(e: Ptr[uiMultilineEntry]): CInt = extern
   def uiMultilineEntrySetReadOnly(e: Ptr[uiMultilineEntry],

@@ -1,13 +1,9 @@
 package examples
 
-import reactify._
-
 import scalaui._
 
 object ScalauiExample {
-  val myVar = Var("Hi from reactify")
-  myVar.attach(println)
-  def buttonOnClick(): Unit = myVar := myVar + "."
+  def buttonOnClick(): Unit = println("Hi from scalaui!")
   def msgBox(): Unit = w.messageBox("Important", "remember to say thanks to Lorenzo :-)")
   def error(): Unit = w.errorBox("Error", "A nightmare happened :-O")
   lazy val label = new Label("My label :-)")
@@ -41,7 +37,7 @@ object ScalauiExample {
     new MenuItem("Error box", error _)
   )
   lazy val fileMenu = new Menu("File", items)
-  lazy val editMenu = new Menu("Edit")
+  lazy val editMenu = new Menu("Edit", Seq())
   lazy val menus = Seq(fileMenu, editMenu)
   lazy val w = new Window("My window", width = 200, height = 400, content = pane, menus = menus)
 

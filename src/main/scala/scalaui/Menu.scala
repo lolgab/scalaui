@@ -4,7 +4,7 @@ import scala.scalanative.native._
 import ui._
 
 
-class Menu(name: String, items: Seq[AppendableToMenu] = Seq()) extends GraphicObject {
+class Menu(name: String, items: Seq[AppendableToMenu]) extends GraphicObject {
   private[scalaui] def build(): Unit = Zone { implicit z =>
     control = uiNewMenu(toCString(name))
     for (item <- items) {
