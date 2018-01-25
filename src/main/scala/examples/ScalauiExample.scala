@@ -33,8 +33,8 @@ object ScalauiExample {
     new SpinBox(0, 100, scalaui.doNothing _),
     new Group("Ciao", new Button("Ciao", scalaui.doNothing _)),
     progressBar
-  )
-  lazy val pane = new VerticalPane(components, false)
+  ).map((_, false)) // make all not stratchy
+  lazy val pane = new VerticalPane(components)
   lazy val items = Seq(
     new MenuItem("Message box", msgBox _),
     SeparatorMenuItem,

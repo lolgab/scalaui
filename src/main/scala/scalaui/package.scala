@@ -17,12 +17,16 @@ package object scalaui {
     uiUninit()
   }
 
+  type Stratchy = Boolean
+
   implicit def toBoolean(i: CInt): Boolean = i match {
     case 0 => false
     case _ => true
   }
 
   implicit def toCInt(b: Boolean): CInt = if (b) 1 else 0
+
+  implicit def toTuplueStratchy(c: Component): (Component, Stratchy) = (c, false)
 
   def doNothing(): Unit = {}
 }

@@ -1,14 +1,14 @@
 package scalaui
 
-trait Container extends Component {
-  val children: Seq[Component]
+trait Container[Properties] extends Component {
+  val children: Seq[(Component, Properties)]
 
   private[scalaui] override def build(): Unit = {
-    for(child <- children) {
+    for((child, properties)<- children) {
       child.build()
-      appendChild(child)
+      appendChild(child, properties)
     }
   }
 
-  protected def appendChild(child: Component): Unit
+  protected def appendChild(child: Component, properties: Properties): Unit
 }
