@@ -1,6 +1,6 @@
 package scalaui
 
-import scala.scalanative.native.{CFunctionPtr0, CInt, Ptr, Zone, fromCString, toCString}
+import scala.scalanative.native.{CFunctionPtr0, Zone, fromCString, toCString}
 import scalaui._
 import ui._
 
@@ -9,7 +9,7 @@ class Window(title: String,
              height: Int,
              content: Component,
              menus: Seq[Menu] = Seq(),
-             val onClosing: CFunctionPtr0[Unit] = doNothing _)
+             val onClosing: CFunctionPtr0[Boolean] = doNothingThenClose _)
     extends GraphicObject {
 
   private[scalaui] def build(): Unit = Zone { implicit z =>

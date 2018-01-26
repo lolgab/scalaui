@@ -11,9 +11,10 @@ package object scalaui {
   }
 
   def onClosing(w: Ptr[uiWindow], data: Ptr[Byte]): CInt = {
-    data.cast[CFunctionPtr0[Unit]].apply()
-    uiQuit()
-    1
+    if(data.cast[CFunctionPtr0[Boolean]].apply()) {
+      uiQuit()
+      1
+    } else 0
   }
 
   def render(window: Window): Unit = {
@@ -42,5 +43,7 @@ package object scalaui {
   implicit def toTuplueStratchy(c: Component): (Component, Stratchy) =
     (c, false)
 
-  def doNothing(): Unit = {}
+  def doNothing(): Unit = ()
+
+  def doNothingThenClose(): Boolean = true
 }
