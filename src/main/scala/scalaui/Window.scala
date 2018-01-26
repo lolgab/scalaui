@@ -13,9 +13,8 @@ class Window(title: String,
     extends GraphicObject {
 
   private[scalaui] def build(): Unit = Zone { implicit z =>
-    control = uiNewWindow(toCString(title), width, height, menus.nonEmpty)
     for (menu <- menus) menu.build()
-
+    control = uiNewWindow(toCString(title), width, height, menus.nonEmpty)
     content.build()
     uiWindowSetChild(control, content.control)
   }
