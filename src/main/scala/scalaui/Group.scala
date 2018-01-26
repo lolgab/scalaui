@@ -11,9 +11,9 @@ class Group(t: String, content: Component, margin: Int = 0) extends Component {
     uiGroupSetMargined(control, margin)
   }
 
+  def title: String = fromCString(uiGroupTitle(control))
+
   def title_=(title: String): Unit = Zone { implicit z =>
     uiGroupSetTitle(control, toCString(title))
   }
-
-  def title: String = fromCString(uiGroupTitle(control))
 }

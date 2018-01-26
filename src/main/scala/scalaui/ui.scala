@@ -1,28 +1,7 @@
 package scalaui
 
 import scala.scalanative.native
-import scala.scalanative.native.{
-  CChar,
-  CDouble,
-  CFunctionPtr0,
-  CFunctionPtr1,
-  CFunctionPtr2,
-  CFunctionPtr3,
-  CInt,
-  CSize,
-  CString,
-  CStruct1,
-  CStruct12,
-  CStruct5,
-  CStruct6,
-  CStruct7,
-  CStruct9,
-  CUnsignedInt,
-  Ptr,
-  UInt,
-  ULong,
-  extern
-}
+import scala.scalanative.native.{CChar, CDouble, CFunctionPtr0, CFunctionPtr1, CFunctionPtr2, CFunctionPtr3, CInt, CSize, CString, CStruct1, CStruct12, CStruct5, CStruct6, CStruct7, CStruct9, CUnsignedInt, Ptr, UInt, ULong, extern}
 
 @native.link("ui")
 @native.extern
@@ -42,7 +21,7 @@ object ui {
   def uiQueueMain(f: CFunctionPtr1[Ptr[Byte], Unit], data: Ptr[Byte]): Unit =
     extern
 
-  def uiOnShouldQuit(f: CFunctionPtr1[Ptr[Byte], Unit], data: Ptr[Byte]): Unit =
+  def uiOnShouldQuit(f: CFunctionPtr1[Ptr[Byte], CInt], data: Ptr[Byte]): Unit =
     extern
 
   def uiFreeText(text: CString): Unit = extern
@@ -696,7 +675,7 @@ object uiDrawTextStretch {
 }
 
 object uiExtKey {
-  private var i = 1
+  private var i = 0
   private def index: CInt = { i += 1; i }
 
   val uiExtKeyEscape = index
