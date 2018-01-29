@@ -1,7 +1,28 @@
 package scalaui
 
 import scala.scalanative.native
-import scala.scalanative.native.{CChar, CDouble, CFunctionPtr0, CFunctionPtr1, CFunctionPtr2, CFunctionPtr3, CInt, CSize, CString, CStruct1, CStruct12, CStruct5, CStruct6, CStruct7, CStruct9, CUnsignedInt, Ptr, UInt, ULong, extern}
+import scala.scalanative.native.{
+  CChar,
+  CDouble,
+  CFunctionPtr0,
+  CFunctionPtr1,
+  CFunctionPtr2,
+  CFunctionPtr3,
+  CInt,
+  CSize,
+  CString,
+  CStruct1,
+  CStruct12,
+  CStruct5,
+  CStruct6,
+  CStruct7,
+  CStruct9,
+  CUnsignedInt,
+  Ptr,
+  UInt,
+  ULong,
+  extern
+}
 
 @native.link("ui")
 @native.extern
@@ -236,11 +257,10 @@ object ui {
     extern
   def uiMultilineEntryAppend(e: Ptr[uiMultilineEntry], text: CString): Unit =
     extern
-  def uiMultilineEntryOnChanged(
-      e: Ptr[uiMultilineEntry],
-      f: CFunctionPtr0[Unit],
-      //f: CFunctionPtr2[Ptr[uiMultilineEntry], Ptr[Byte], Unit],
-      data: Ptr[Byte]): Unit = extern
+  def uiMultilineEntryOnChanged(e: Ptr[uiMultilineEntry],
+                                f: CFunctionPtr0[Unit],
+                                //f: CFunctionPtr2[Ptr[uiMultilineEntry], Ptr[Byte], Unit],
+                                data: Ptr[Byte]): Unit = extern
   def uiMultilineEntryReadOnly(e: Ptr[uiMultilineEntry]): CInt = extern
   def uiMultilineEntrySetReadOnly(e: Ptr[uiMultilineEntry],
                                   readonly: CInt): Unit = extern
@@ -284,7 +304,7 @@ object ui {
              CFunctionPtr3[Ptr[Byte], Ptr[uiArea], Ptr[uiAreaDrawParams], Unit],
              CFunctionPtr3[Ptr[Byte], Ptr[uiArea], Ptr[uiAreaMouseEvent], Unit],
              CFunctionPtr3[Ptr[Byte], Ptr[uiArea], CInt, Unit],
-             CFunctionPtr1[Ptr[Byte], Unit],
+             CFunctionPtr2[Ptr[Byte], Ptr[uiArea], Unit],
              CFunctionPtr3[Ptr[Byte], Ptr[uiArea], Ptr[uiAreaKeyEvent], Unit]]
 
   def uiAreaSetSize(a: Ptr[uiArea], width: CInt, height: CInt): Unit = extern
@@ -312,6 +332,8 @@ object ui {
                                    CDouble,
                                    CDouble,
                                    CDouble]
+
+
 
   type uiDrawPath = extern
 
@@ -599,140 +621,320 @@ object ui {
   def uiGridSetPadded(g: Ptr[uiGrid], padded: CInt): Unit = extern
   def uiNewGrid(): Ptr[uiGrid] = extern
 }
-object uiWindowResizeEdge {
-  val uiWindowResizeEdgeLeft = 0
-  val uiWindowResizeEdgeTop = 1
-  val uiWindowResizeEdgeRight = 2
-  val uiWindowResizeEdgeBottom = 3
-  val uiWindowResizeEdgeTopLeft = 4
-  val uiWindowResizeEdgeTopRight = 5
-  val uiWindowResizeEdgeBottomLeft = 6
-  val uiWindowResizeEdgeBottomRigh = 7
-}
+object uiOps {
+  import ui._
 
-object uiAt {
-  val uiAtLeading = 0
-  val uiAtTop = 1
-  val uiAtTrailing = 2
-  val uiAtBottom = 3
-}
+  implicit class uiAreaHandlerOps(val ptr: Ptr[uiAreaHandler]) extends AnyVal {
+    def Draw: CFunctionPtr3[Ptr[Byte], Ptr[uiArea], Ptr[uiAreaDrawParams], Unit] = !ptr._1
+    def MouseEvent: CFunctionPtr3[Ptr[Byte], Ptr[uiArea], Ptr[uiAreaMouseEvent], Unit] = !ptr._2
+    def MouseCrossed: CFunctionPtr3[Ptr[Byte], Ptr[uiArea], CInt, Unit] = !ptr._3
+    def DragBroken: CFunctionPtr2[Ptr[Byte], Ptr[uiArea], Unit] = !ptr._4
+    def KeyEvent: CFunctionPtr3[Ptr[Byte], Ptr[uiArea], Ptr[uiAreaKeyEvent], Unit] = !ptr._5
 
-object uiDrawBrushType {
-  val uiDrawBrushTypeSolid = 0
-  val uiDrawBrushTypeLinearGradient = 1
-  val uiDrawBrushTypeRadialGradient = 2
-  val uiDrawBrushTypeImage = 3
-}
+    def Draw_=(v: CFunctionPtr3[Ptr[Byte], Ptr[uiArea], Ptr[uiAreaDrawParams], Unit]): Unit = !ptr._1
+    def MouseEvent_=(v: CFunctionPtr3[Ptr[Byte], Ptr[uiArea], Ptr[uiAreaMouseEvent], Unit]): Unit = !ptr._2
+    def MouseCrossed_=(v: CFunctionPtr3[Ptr[Byte], Ptr[uiArea], CInt, Unit]): Unit = !ptr._3
+    def DragBroken_=(v: CFunctionPtr2[Ptr[Byte], Ptr[uiArea], Unit]): Unit = !ptr._4
+    def KeyEvent_=(v: CFunctionPtr3[Ptr[Byte], Ptr[uiArea], Ptr[uiAreaKeyEvent], Unit]): Unit = !ptr._5
+  }
 
-object uiDrawLineCap {
-  val uiDrawLineCapFlat = 0
-  val uiDrawLineCapRound = 1
-  val uiDrawLineCapSquare = 2
-}
+  implicit class uiAreaDrawParamsOps(val ptr: Ptr[uiAreaDrawParams])
+    extends AnyVal {
+    def Context: Ptr[uiDrawContext] = !ptr._1
+    def AreaWidth: CDouble = !ptr._2
+    def AreaHeight: CDouble = !ptr._3
+    def ClipX: CDouble = !ptr._4
+    def ClipY: CDouble = !ptr._5
+    def ClipWidth: CDouble = !ptr._6
+    def ClipHeight: CDouble = !ptr._7
 
-object uiDrawLineJoin {
-  val uiDrawLineJoinMiter = 0
-  val uiDrawLineJoinRound = 1
-  val uiDrawLineJoinBevel = 2
-}
+    def Context_=(v: Ptr[uiDrawContext]): Unit = !ptr._1 = v
+    def AreaWidth_=(v: CDouble): Unit = !ptr._2 = v
+    def AreaHeight_=(v: CDouble): Unit = !ptr._3 = v
+    def ClipX_=(v: CDouble): Unit = !ptr._4 = v
+    def ClipY_=(v: CDouble): Unit = !ptr._5 = v
+    def ClipWidth_=(v: CDouble): Unit = !ptr._6 = v
+    def ClipHeight_=(v: CDouble): Unit = !ptr._7 = v
+  }
+
+  implicit class uiDrawMatrixOps(val ptr: Ptr[uiDrawMatrix]) extends AnyVal {
+    def M11: CDouble = !ptr._1
+    def M12: CDouble = !ptr._2
+    def M21: CDouble = !ptr._3
+    def M22: CDouble = !ptr._4
+    def M31: CDouble = !ptr._5
+    def M32: CDouble = !ptr._6
+
+    def M11_=(v: CDouble): Unit = !ptr._1 = v
+    def M12_=(v: CDouble): Unit = !ptr._2 = v
+    def M21_=(v: CDouble): Unit = !ptr._3 = v
+    def M22_=(v: CDouble): Unit = !ptr._4 = v
+    def M31_=(v: CDouble): Unit = !ptr._5 = v
+    def M32_=(v: CDouble): Unit = !ptr._6 = v
+  }
+
+  implicit class uiDrawBrushOps(val ptr: Ptr[uiDrawBrush]) extends AnyVal {
+    def Type: uiDrawBrushType = !ptr._1
+    def R: CDouble = !ptr._2
+    def G: CDouble = !ptr._3
+    def B: CDouble = !ptr._4
+    def A: CDouble = !ptr._5
+
+    def X0: CDouble = !ptr._6
+    def Y0: CDouble = !ptr._7
+    def X1: CDouble = !ptr._8
+    def Y1: CDouble = !ptr._9
+    def OuterRadius: CDouble = !ptr._10
+    def Stops: Ptr[uiDrawBrushGradientStop] = !ptr._11
+    def NumStops: CSize = !ptr._12
+
+    def Type_=(v: uiDrawBrushType): Unit = !ptr._1 = v
+    def R_=(v: CDouble): Unit = !ptr._2 = v
+    def G_=(v: CDouble): Unit = !ptr._3 = v
+    def B_=(v: CDouble): Unit = !ptr._4 = v
+    def A_=(v: CDouble): Unit = !ptr._5 = v
+    def X0_=(v: CDouble): Unit = !ptr._6 = v
+    def Y0_=(v: CDouble): Unit = !ptr._7 = v
+    def X1_=(v: CDouble): Unit = !ptr._8 = v
+    def Y1_=(v: CDouble): Unit = !ptr._9 = v
+    def OuterRadius_=(v: CDouble): Unit = !ptr._10 = v
+    def Stops_=(v: Ptr[uiDrawBrushGradientStop]): Unit = !ptr._11 = v
+    def NumStops_=(v: CSize): Unit = !ptr._12 = v
+  }
+
+  implicit class uiDrawBrushGradientStopOps(val ptr: Ptr[uiDrawBrushGradientStop])
+    extends AnyVal {
+    def Pos: CDouble = !ptr._1
+    def R: CDouble = !ptr._2
+    def G: CDouble = !ptr._3
+    def B: CDouble = !ptr._4
+    def A: CDouble = !ptr._5
+
+    def Pos(v: CDouble): Unit = !ptr._1 = v
+    def R(v: CDouble): Unit = !ptr._2 = v
+    def G(v: CDouble): Unit = !ptr._3 = v
+    def B(v: CDouble): Unit = !ptr._4 = v
+    def A(v: CDouble): Unit = !ptr._5 = v
+  }
+
+  implicit class uiDrawStrokeParamsOps(val ptr: Ptr[uiDrawStrokeParams])
+    extends AnyVal {
+    def Cap: uiDrawLineCap = !ptr._1
+    def Join: uiDrawLineJoin = !ptr._2
+    def Thickness: CDouble = !ptr._3
+    def MiterLimit: CDouble = !ptr._4
+    def Dashes: Ptr[CDouble] = !ptr._5
+    def NumDashes: CSize = !ptr._6
+    def DashPhase: CDouble = !ptr._7
+
+    def Cap_=(v: uiDrawLineCap): Unit = !ptr._1 = v
+    def Join_=(v: uiDrawLineJoin): Unit = !ptr._2 = v
+    def Thickness_=(v: CDouble): Unit = !ptr._3 = v
+    def MiterLimit_=(v: CDouble): Unit = !ptr._4 = v
+    def Dashes_=(v: Ptr[CDouble]): Unit = !ptr._5 = v
+    def NumDashes_=(v: CSize): Unit = !ptr._6 = v
+    def DashPhase_=(v: CDouble): Unit = !ptr._7 = v
+  }
+
+  implicit class uiDrawTextFontDescriptorOps(val ptr: Ptr[uiDrawTextFontDescriptor])
+    extends AnyVal {
+    def Family: CString = !ptr._1
+    def Size: CDouble = !ptr._2
+    def Weight: uiDrawTextWeight = !ptr._3
+    def Italic: uiDrawTextItalic = !ptr._4
+    def Stretch: uiDrawTextStretch = !ptr._5
+
+    def Family_=(v: CString): Unit = !ptr._1 = v
+    def Size_=(v: CDouble): Unit = !ptr._2 = v
+    def Weight_=(v: uiDrawTextWeight): Unit = !ptr._3 = v
+    def Italic_=(v: uiDrawTextItalic): Unit = !ptr._4 = v
+    def Stretch_=(v: uiDrawTextStretch): Unit = !ptr._5 = v
+  }
+
+  implicit class uiDrawTextFontMetricsOps(val ptr: Ptr[uiDrawTextFontMetrics])
+    extends AnyVal {
+    def Ascent: CDouble = !ptr._1
+    def Descent: CDouble = !ptr._2
+    def Leading: CDouble = !ptr._3
+    def UnderlinePos: CDouble = !ptr._4
+    def UnderlineThickness: CDouble = !ptr._5
+
+    def Ascent_=(v: CDouble): Unit = !ptr._1 = v
+    def Descent_=(v: CDouble): Unit = !ptr._2 = v
+    def Leading_=(v: CDouble): Unit = !ptr._3 = v
+    def UnderlinePos_=(v: CDouble): Unit = !ptr._4 = v
+    def UnderlineThickness_=(v: CDouble): Unit = !ptr._5 = v
+  }
+
+  implicit class uiAreaMouseEventOps(val ptr: Ptr[uiAreaMouseEvent])
+    extends AnyVal {
+    def X: CDouble = !ptr._1
+    def Y: CDouble = !ptr._2
+    def AreaWidth: CDouble = !ptr._3
+    def AreaHeight: CDouble = !ptr._4
+    def Down: CInt = !ptr._5
+    def Up: CInt = !ptr._6
+    def Count: CInt = !ptr._7
+    def Modifiers: uiModifiers = !ptr._8
+    def Held1To64: ULong = !ptr._9
+
+    def X_=(v: CDouble): Unit = !ptr._1 = v
+    def Y_=(v: CDouble): Unit = !ptr._2 = v
+    def AreaWidth_=(v: CDouble): Unit = !ptr._3 = v
+    def AreaHeight_=(v: CDouble): Unit = !ptr._4 = v
+    def Down_=(v: CInt): Unit = !ptr._5 = v
+    def Up_=(v: CInt): Unit = !ptr._6 = v
+    def Count_=(v: CInt): Unit = !ptr._7 = v
+    def Modifiers_=(v: uiModifiers): Unit = !ptr._8 = v
+    def Held1To64_=(v: ULong): Unit = !ptr._9 = v
+  }
+
+  implicit class uiAreaKeyEventOps(val ptr: Ptr[uiAreaKeyEvent])
+    extends AnyVal {
+    def Key: CChar = !ptr._1
+    def ExtKey: uiExtKey = !ptr._2
+    def Modifier: uiModifiers = !ptr._3
+    def Modifiers: uiModifiers = !ptr._4
+    def Up: CInt = !ptr._5
+
+    def Key(v: CChar): Unit = !ptr._1 = v
+    def ExtKey(v: uiExtKey): Unit = !ptr._2 = v
+    def Modifier(v: uiModifiers): Unit = !ptr._3 = v
+    def Modifiers(v: uiModifiers): Unit = !ptr._4 = v
+    def Up(v: CInt): Unit = !ptr._5 = v
+  }
+
+  object uiWindowResizeEdge {
+    val uiWindowResizeEdgeLeft = 0
+    val uiWindowResizeEdgeTop = 1
+    val uiWindowResizeEdgeRight = 2
+    val uiWindowResizeEdgeBottom = 3
+    val uiWindowResizeEdgeTopLeft = 4
+    val uiWindowResizeEdgeTopRight = 5
+    val uiWindowResizeEdgeBottomLeft = 6
+    val uiWindowResizeEdgeBottomRigh = 7
+  }
+
+  object uiAt {
+    val uiAtLeading = 0
+    val uiAtTop = 1
+    val uiAtTrailing = 2
+    val uiAtBottom = 3
+  }
+
+  object uiDrawBrushType {
+    val uiDrawBrushTypeSolid = 0
+    val uiDrawBrushTypeLinearGradient = 1
+    val uiDrawBrushTypeRadialGradient = 2
+    val uiDrawBrushTypeImage = 3
+  }
+
+  object uiDrawLineCap {
+    val uiDrawLineCapFlat = 0
+    val uiDrawLineCapRound = 1
+    val uiDrawLineCapSquare = 2
+  }
+
+  object uiDrawLineJoin {
+    val uiDrawLineJoinMiter = 0
+    val uiDrawLineJoinRound = 1
+    val uiDrawLineJoinBevel = 2
+  }
 
 //val uiDrawDefaultMiterLimit = 10.0
 
-object uiDrawFillMode {
-  val uiDrawFillModeWinding = 0
-  val uiDrawFillModeAlternate = 1
-}
+  object uiDrawFillMode {
+    val uiDrawFillModeWinding = 0
+    val uiDrawFillModeAlternate = 1
+  }
 
-object uiDrawTextWeight {
-  val uiDrawTextWeightThin = 0
-  val uiDrawTextWeightUltraLight = 1
-  val uiDrawTextWeightLight = 2
-  val uiDrawTextWeightBook = 3
-  val uiDrawTextWeightNormal = 4
-  val uiDrawTextWeightMedium = 5
-  val uiDrawTextWeightSemiBold = 6
-  val uiDrawTextWeightBold = 7
-  val uiDrawTextWeightUltraBold = 8
-  val uiDrawTextWeightHeavy = 9
-  val uiDrawTextWeightUltraHeavy = 10
-}
-object uiDrawTextItalic {
-  val uiDrawTextItalicNormal = 0
-  val uiDrawTextItalicOblique = 1
-  val uiDrawTextItalicItalic = 2
-}
+  object uiDrawTextWeight {
+    val uiDrawTextWeightThin = 0
+    val uiDrawTextWeightUltraLight = 1
+    val uiDrawTextWeightLight = 2
+    val uiDrawTextWeightBook = 3
+    val uiDrawTextWeightNormal = 4
+    val uiDrawTextWeightMedium = 5
+    val uiDrawTextWeightSemiBold = 6
+    val uiDrawTextWeightBold = 7
+    val uiDrawTextWeightUltraBold = 8
+    val uiDrawTextWeightHeavy = 9
+    val uiDrawTextWeightUltraHeavy = 10
+  }
+  object uiDrawTextItalic {
+    val uiDrawTextItalicNormal = 0
+    val uiDrawTextItalicOblique = 1
+    val uiDrawTextItalicItalic = 2
+  }
 
-object uiDrawTextStretch {
-  val uiDrawTextStretchUltraCondensed = 0
-  val uiDrawTextStretchExtraCondensed = 1
-  val uiDrawTextStretchCondensed = 2
-  val uiDrawTextStretchSemiCondensed = 3
-  val uiDrawTextStretchNormal = 4
-  val uiDrawTextStretchSemiExpanded = 5
-  val uiDrawTextStretchExpanded = 6
-  val uiDrawTextStretchExtraExpanded = 7
-  val uiDrawTextStretchUltraExpanded = 8
-}
+  object uiDrawTextStretch {
+    val uiDrawTextStretchUltraCondensed = 0
+    val uiDrawTextStretchExtraCondensed = 1
+    val uiDrawTextStretchCondensed = 2
+    val uiDrawTextStretchSemiCondensed = 3
+    val uiDrawTextStretchNormal = 4
+    val uiDrawTextStretchSemiExpanded = 5
+    val uiDrawTextStretchExpanded = 6
+    val uiDrawTextStretchExtraExpanded = 7
+    val uiDrawTextStretchUltraExpanded = 8
+  }
 
-object uiExtKey {
-  private var i = 0
-  private def index: CInt = { i += 1; i }
+  object uiExtKey {
+    private var i = 0
+    private def index = { i += 1; i }
 
-  val uiExtKeyEscape = index
-  val uiExtKeyInsert = index // equivalent to "Help" on Apple keyboards
-  val uiExtKeyDelete = index
-  val uiExtKeyHome = index
-  val uiExtKeyEnd = index
-  val uiExtKeyPageUp = index
-  val uiExtKeyPageDown = index
-  val uiExtKeyUp = index
-  val uiExtKeyDown = index
-  val uiExtKeyLeft = index
-  val uiExtKeyRight = index
-  val uiExtKeyFindex = index // Findex..Findex2 are guaranteed to be consecutive
-  val uiExtKeyF2 = index
-  val uiExtKeyF3 = index
-  val uiExtKeyF4 = index
-  val uiExtKeyF5 = index
-  val uiExtKeyF6 = index
-  val uiExtKeyF7 = index
-  val uiExtKeyF8 = index
-  val uiExtKeyF9 = index
-  val uiExtKeyF10 = index
-  val uiExtKeyF11 = index
-  val uiExtKeyF12 = index
-  val uiExtKeyN0 = index // numpad keys; independent of Num Lock state
-  val uiExtKeyN1 = index // N0..N9 are guaranteed to be consecutive
-  val uiExtKeyN2 = index
-  val uiExtKeyN3 = index
-  val uiExtKeyN4 = index
-  val uiExtKeyN5 = index
-  val uiExtKeyN6 = index
-  val uiExtKeyN7 = index
-  val uiExtKeyN8 = index
-  val uiExtKeyN9 = index
-  val uiExtKeyNDot = index
-  val uiExtKeyNEnter = index
-  val uiExtKeyNAdd = index
-  val uiExtKeyNSubtract = index
-  val uiExtKeyNMultiply = index
-  val uiExtKeyNDivide = index
-}
+    val uiExtKeyEscape = index
+    val uiExtKeyInsert = index // equivalent to "Help" on Apple keyboards
+    val uiExtKeyDelete = index
+    val uiExtKeyHome = index
+    val uiExtKeyEnd = index
+    val uiExtKeyPageUp = index
+    val uiExtKeyPageDown = index
+    val uiExtKeyUp = index
+    val uiExtKeyDown = index
+    val uiExtKeyLeft = index
+    val uiExtKeyRight = index
+    val uiExtKeyFindex = index // Findex..Findex2 are guaranteed to be consecutive
+    val uiExtKeyF2 = index
+    val uiExtKeyF3 = index
+    val uiExtKeyF4 = index
+    val uiExtKeyF5 = index
+    val uiExtKeyF6 = index
+    val uiExtKeyF7 = index
+    val uiExtKeyF8 = index
+    val uiExtKeyF9 = index
+    val uiExtKeyF10 = index
+    val uiExtKeyF11 = index
+    val uiExtKeyF12 = index
+    val uiExtKeyN0 = index // numpad keys; independent of Num Lock state
+    val uiExtKeyN1 = index // N0..N9 are guaranteed to be consecutive
+    val uiExtKeyN2 = index
+    val uiExtKeyN3 = index
+    val uiExtKeyN4 = index
+    val uiExtKeyN5 = index
+    val uiExtKeyN6 = index
+    val uiExtKeyN7 = index
+    val uiExtKeyN8 = index
+    val uiExtKeyN9 = index
+    val uiExtKeyNDot = index
+    val uiExtKeyNEnter = index
+    val uiExtKeyNAdd = index
+    val uiExtKeyNSubtract = index
+    val uiExtKeyNMultiply = index
+    val uiExtKeyNDivide = index
+  }
 
-object uiModifiers {
-  val uiModifierCtrl = 1 << 0
-  val uiModifierAlt = 1 << 1
-  val uiModifierShift = 1 << 2
-  val uiModifierSuper = 1 << 3
-}
+  object uiModifiers {
+    val uiModifierCtrl = 1 << 0
+    val uiModifierAlt = 1 << 1
+    val uiModifierShift = 1 << 2
+    val uiModifierSuper = 1 << 3
+  }
 
-object uiAlign {
-  val uiAlignFill = 0
-  val uiAlignStart = 1
-  val uiAlignCenter = 2
-  val uiAlignEnd = 3
-}
-
-object uiAreaHandler {
-
+  object uiAlign {
+    val uiAlignFill = 0
+    val uiAlignStart = 1
+    val uiAlignCenter = 2
+    val uiAlignEnd = 3
+  }
 }
