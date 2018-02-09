@@ -7,7 +7,7 @@ Scala Native GUI framework based on [libui](https://github.com/andlabs/libui)
 [scalaui-texteditor](https://github.com/lolgab/scalaui-texteditor/)
 
 ## Getting Started
-Once you have setup you Scala Native project and enviroment, you have to compile [libui](https://github.com/andlabs/libui) and, on linux, copy the `libui.so.0` and `libui.so` files to /usr/lib (probably you need to change their permissions too).
+Once you have setup your Scala Native project and enviroment, you have to compile [libui](https://github.com/andlabs/libui) and, on linux, copy the `libui.so.0` and `libui.so` files to /usr/lib (probably you need to change their permissions too).
 
 Then you have to add the following to your build.sbt:
 
