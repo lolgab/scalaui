@@ -1,14 +1,18 @@
 package scalaui
 
-trait Container[Properties] extends Component {
-  val children: Seq[(Component, Properties)]
+trait Container extends Component {
+  val children: Seq[StretchableComponent]
 
   private[scalaui] override def build(): Unit = {
-    for((child, properties)<- children) {
-      child.build()
-      appendChild(child, properties)
+    for (child <- children) {
+      child.component.build()
+      appendChild(child)
     }
   }
 
-  protected def appendChild(child: Component, properties: Properties): Unit
+  protected def appendChild(child: StretchableComponent): Unit
+
+  override private[scalaui] def free(): Unit = {
+    for (child <- children) child.component.free()
+  }
 }

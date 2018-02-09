@@ -4,7 +4,7 @@ import scalaui._
 object OnClosingExample {
   var n = 0
   val clicksToClose = 5
-  def message = s"Tried to close $n times! Try to close another ${clicksToClose - n} to close the window"
+  def message = s"Tried to close $n times! Try to close another ${clicksToClose - n} times to close the window"
 
   def onClosing(): Boolean = {
     n += 1
@@ -18,9 +18,9 @@ object OnClosingExample {
   }
 
   val label = new Label("Close the window!")
-  val window = new Window("My Window", 200, 200, content = label, onClosing = onClosing _)
+  val window = new Window("Closing Example", 200, 200, content = label, onClosing = onClosing _)
 
   def main(args: Array[String]): Unit = {
-    scalaui.render(window)
+    render(window)
   }
 }

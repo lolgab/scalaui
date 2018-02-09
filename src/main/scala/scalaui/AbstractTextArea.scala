@@ -1,7 +1,6 @@
 package scalaui
 
 import scala.scalanative.native.{Zone, fromCString, toCString}
-import scalaui._
 import ui._
 
 trait AbstractTextArea extends Component {

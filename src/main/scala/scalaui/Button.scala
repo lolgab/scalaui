@@ -12,7 +12,3 @@ class Button(text: String, onClick: CFunctionPtr0[Unit]) extends Component {
     uiButtonOnClicked(control, onClick, null)
   }
 }
-
-//object Button {
-//  def apply(text: String, onClick: CFunctionPtr0[Unit]): Button = new Button(text, onClick)
-//}

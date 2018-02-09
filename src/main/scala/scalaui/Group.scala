@@ -1,6 +1,6 @@
 package scalaui
 
-import scala.scalanative.native.{Zone, toCString, fromCString}
+import scala.scalanative.native.{Zone, fromCString, toCString}
 import ui._
 
 class Group(t: String, content: Component, margin: Int = 0) extends Component {
