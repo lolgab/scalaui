@@ -19,3 +19,9 @@ class SolidBrush(color: Color)
     extends Brush(color: Color) {
   control.Type = uiDrawBrushType.uiDrawBrushTypeSolid
 }
+
+//class GradientBrush(color: Color) extends Brush(color) {
+//  control.Type = uiDrawBrushType.
+//
+//  control.
+//}

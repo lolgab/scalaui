@@ -776,136 +776,136 @@ object uiOps {
   }
 
   object uiWindowResizeEdge {
-    val uiWindowResizeEdgeLeft        = 0.toUInt
-    val uiWindowResizeEdgeTop         = 1.toUInt
-    val uiWindowResizeEdgeRight       = 2.toUInt
-    val uiWindowResizeEdgeBottom      = 3.toUInt
-    val uiWindowResizeEdgeTopLeft     = 4.toUInt
-    val uiWindowResizeEdgeTopRight    = 5.toUInt
-    val uiWindowResizeEdgeBottomLeft  = 6.toUInt
-    val uiWindowResizeEdgeBottomRight = 7.toUInt
+    val uiWindowResizeEdgeLeft: UInt        = 0.toUInt
+    val uiWindowResizeEdgeTop: UInt         = 1.toUInt
+    val uiWindowResizeEdgeRight: UInt       = 2.toUInt
+    val uiWindowResizeEdgeBottom: UInt      = 3.toUInt
+    val uiWindowResizeEdgeTopLeft: UInt     = 4.toUInt
+    val uiWindowResizeEdgeTopRight: UInt    = 5.toUInt
+    val uiWindowResizeEdgeBottomLeft: UInt  = 6.toUInt
+    val uiWindowResizeEdgeBottomRight: UInt = 7.toUInt
   }
 
   object uiAt {
-    val uiAtLeading  = 0.toUInt
-    val uiAtTop      = 1.toUInt
-    val uiAtTrailing = 2.toUInt
-    val uiAtBottom   = 3.toUInt
+    val uiAtLeading: UInt  = 0.toUInt
+    val uiAtTop: UInt      = 1.toUInt
+    val uiAtTrailing: UInt = 2.toUInt
+    val uiAtBottom: UInt   = 3.toUInt
   }
 
   object uiDrawBrushType {
-    val uiDrawBrushTypeSolid          = 0.toUInt
-    val uiDrawBrushTypeLinearGradient = 1.toUInt
-    val uiDrawBrushTypeRadialGradient = 2.toUInt
-    val uiDrawBrushTypeImage          = 3.toUInt
+    val uiDrawBrushTypeSolid: UInt          = 0.toUInt
+    val uiDrawBrushTypeLinearGradient: UInt = 1.toUInt
+    val uiDrawBrushTypeRadialGradient: UInt = 2.toUInt
+    val uiDrawBrushTypeImage: UInt          = 3.toUInt
   }
 
   object uiDrawLineCap {
-    val uiDrawLineCapFlat   = 0.toUInt
-    val uiDrawLineCapRound  = 1.toUInt
-    val uiDrawLineCapSquare = 2.toUInt
+    val uiDrawLineCapFlat: UInt   = 0.toUInt
+    val uiDrawLineCapRound: UInt  = 1.toUInt
+    val uiDrawLineCapSquare: UInt = 2.toUInt
   }
 
   object uiDrawLineJoin {
-    val uiDrawLineJoinMiter = 0.toUInt
-    val uiDrawLineJoinRound = 1.toUInt
-    val uiDrawLineJoinBevel = 2.toUInt
+    val uiDrawLineJoinMiter: UInt = 0.toUInt
+    val uiDrawLineJoinRound: UInt = 1.toUInt
+    val uiDrawLineJoinBevel: UInt = 2.toUInt
   }
 
-  val uiDrawDefaultMiterLimit = 10.0
+  val uiDrawDefaultMiterLimit: CDouble = 10.0
 
   object uiDrawFillMode {
-    val uiDrawFillModeWinding   = 0.toUInt
-    val uiDrawFillModeAlternate = 1.toUInt
+    val uiDrawFillModeWinding: UInt   = 0.toUInt
+    val uiDrawFillModeAlternate: UInt = 1.toUInt
   }
 
   object uiDrawTextWeight {
-    val uiDrawTextWeightThin       = 0.toUInt
-    val uiDrawTextWeightUltraLight = 1.toUInt
-    val uiDrawTextWeightLight      = 2.toUInt
-    val uiDrawTextWeightBook       = 3.toUInt
-    val uiDrawTextWeightNormal     = 4.toUInt
-    val uiDrawTextWeightMedium     = 5.toUInt
-    val uiDrawTextWeightSemiBold   = 6.toUInt
-    val uiDrawTextWeightBold       = 7.toUInt
-    val uiDrawTextWeightUltraBold  = 8.toUInt
-    val uiDrawTextWeightHeavy      = 9.toUInt
-    val uiDrawTextWeightUltraHeavy = 10.toUInt
+    val uiDrawTextWeightThin: UInt       = 0.toUInt
+    val uiDrawTextWeightUltraLight: UInt = 1.toUInt
+    val uiDrawTextWeightLight: UInt      = 2.toUInt
+    val uiDrawTextWeightBook: UInt       = 3.toUInt
+    val uiDrawTextWeightNormal: UInt     = 4.toUInt
+    val uiDrawTextWeightMedium: UInt     = 5.toUInt
+    val uiDrawTextWeightSemiBold: UInt   = 6.toUInt
+    val uiDrawTextWeightBold: UInt       = 7.toUInt
+    val uiDrawTextWeightUltraBold: UInt  = 8.toUInt
+    val uiDrawTextWeightHeavy: UInt      = 9.toUInt
+    val uiDrawTextWeightUltraHeavy: UInt = 10.toUInt
   }
   object uiDrawTextItalic {
-    val uiDrawTextItalicNormal  = 0.toUInt
-    val uiDrawTextItalicOblique = 1.toUInt
-    val uiDrawTextItalicItalic  = 2.toUInt
+    val uiDrawTextItalicNormal: UInt  = 0.toUInt
+    val uiDrawTextItalicOblique: UInt = 1.toUInt
+    val uiDrawTextItalicItalic: UInt  = 2.toUInt
   }
 
   object uiDrawTextStretch {
-    val uiDrawTextStretchUltraCondensed = 0.toUInt
-    val uiDrawTextStretchExtraCondensed = 1.toUInt
-    val uiDrawTextStretchCondensed      = 2.toUInt
-    val uiDrawTextStretchSemiCondensed  = 3.toUInt
-    val uiDrawTextStretchNormal         = 4.toUInt
-    val uiDrawTextStretchSemiExpanded   = 5.toUInt
-    val uiDrawTextStretchExpanded       = 6.toUInt
-    val uiDrawTextStretchExtraExpanded  = 7.toUInt
-    val uiDrawTextStretchUltraExpanded  = 8.toUInt
+    val uiDrawTextStretchUltraCondensed: UInt = 0.toUInt
+    val uiDrawTextStretchExtraCondensed: UInt = 1.toUInt
+    val uiDrawTextStretchCondensed: UInt      = 2.toUInt
+    val uiDrawTextStretchSemiCondensed: UInt  = 3.toUInt
+    val uiDrawTextStretchNormal: UInt         = 4.toUInt
+    val uiDrawTextStretchSemiExpanded: UInt   = 5.toUInt
+    val uiDrawTextStretchExpanded: UInt       = 6.toUInt
+    val uiDrawTextStretchExtraExpanded: UInt  = 7.toUInt
+    val uiDrawTextStretchUltraExpanded: UInt  = 8.toUInt
   }
 
   object uiExtKey {
     private var i     = 0.toUInt
     private def index = { i += 1.toUInt; i }
 
-    val uiExtKeyEscape    = index
-    val uiExtKeyInsert    = index // equivalent to "Help" on Apple keyboards
-    val uiExtKeyDelete    = index
-    val uiExtKeyHome      = index
-    val uiExtKeyEnd       = index
-    val uiExtKeyPageUp    = index
-    val uiExtKeyPageDown  = index
-    val uiExtKeyUp        = index
-    val uiExtKeyDown      = index
-    val uiExtKeyLeft      = index
-    val uiExtKeyRight     = index
-    val uiExtKeyFindex    = index // Findex..Findex2 are guaranteed to be consecutive
-    val uiExtKeyF2        = index
-    val uiExtKeyF3        = index
-    val uiExtKeyF4        = index
-    val uiExtKeyF5        = index
-    val uiExtKeyF6        = index
-    val uiExtKeyF7        = index
-    val uiExtKeyF8        = index
-    val uiExtKeyF9        = index
-    val uiExtKeyF10       = index
-    val uiExtKeyF11       = index
-    val uiExtKeyF12       = index
-    val uiExtKeyN0        = index // numpad keys; independent of Num Lock state
-    val uiExtKeyN1        = index // N0..N9 are guaranteed to be consecutive
-    val uiExtKeyN2        = index
-    val uiExtKeyN3        = index
-    val uiExtKeyN4        = index
-    val uiExtKeyN5        = index
-    val uiExtKeyN6        = index
-    val uiExtKeyN7        = index
-    val uiExtKeyN8        = index
-    val uiExtKeyN9        = index
-    val uiExtKeyNDot      = index
-    val uiExtKeyNEnter    = index
-    val uiExtKeyNAdd      = index
-    val uiExtKeyNSubtract = index
-    val uiExtKeyNMultiply = index
-    val uiExtKeyNDivide   = index
+    val uiExtKeyEscape: UInt    = index
+    val uiExtKeyInsert: UInt    = index // equivalent to "Help" on Apple keyboards
+    val uiExtKeyDelete: UInt    = index
+    val uiExtKeyHome: UInt      = index
+    val uiExtKeyEnd: UInt       = index
+    val uiExtKeyPageUp: UInt    = index
+    val uiExtKeyPageDown: UInt  = index
+    val uiExtKeyUp: UInt        = index
+    val uiExtKeyDown: UInt      = index
+    val uiExtKeyLeft: UInt      = index
+    val uiExtKeyRight: UInt     = index
+    val uiExtKeyFindex: UInt    = index // Findex..Findex2 are guaranteed to be consecutive
+    val uiExtKeyF2: UInt        = index
+    val uiExtKeyF3: UInt        = index
+    val uiExtKeyF4: UInt        = index
+    val uiExtKeyF5: UInt        = index
+    val uiExtKeyF6: UInt        = index
+    val uiExtKeyF7: UInt        = index
+    val uiExtKeyF8: UInt        = index
+    val uiExtKeyF9: UInt        = index
+    val uiExtKeyF10: UInt       = index
+    val uiExtKeyF11: UInt       = index
+    val uiExtKeyF12: UInt       = index
+    val uiExtKeyN0: UInt        = index // numpad keys; independent of Num Lock state
+    val uiExtKeyN1: UInt        = index // N0..N9 are guaranteed to be consecutive
+    val uiExtKeyN2: UInt        = index
+    val uiExtKeyN3: UInt        = index
+    val uiExtKeyN4: UInt        = index
+    val uiExtKeyN5: UInt        = index
+    val uiExtKeyN6: UInt        = index
+    val uiExtKeyN7: UInt        = index
+    val uiExtKeyN8: UInt        = index
+    val uiExtKeyN9: UInt        = index
+    val uiExtKeyNDot: UInt      = index
+    val uiExtKeyNEnter: UInt    = index
+    val uiExtKeyNAdd: UInt      = index
+    val uiExtKeyNSubtract: UInt = index
+    val uiExtKeyNMultiply: UInt = index
+    val uiExtKeyNDivide: UInt   = index
   }
 
   object uiModifiers {
-    val uiModifierCtrl  = 1.toUInt << 0
-    val uiModifierAlt   = 1.toUInt << 1
-    val uiModifierShift = 1.toUInt << 2
-    val uiModifierSuper = 1.toUInt << 3
+    val uiModifierCtrl: UInt  = 1.toUInt << 0
+    val uiModifierAlt: UInt   = 1.toUInt << 1
+    val uiModifierShift: UInt = 1.toUInt << 2
+    val uiModifierSuper: UInt = 1.toUInt << 3
   }
 
   object uiAlign {
-    val uiAlignFill   = 0.toUInt
-    val uiAlignStart  = 1.toUInt
-    val uiAlignCenter = 2.toUInt
-    val uiAlignEnd    = 3.toUInt
+    val uiAlignFill: UInt   = 0.toUInt
+    val uiAlignStart: UInt  = 1.toUInt
+    val uiAlignCenter: UInt = 2.toUInt
+    val uiAlignEnd: UInt    = 3.toUInt
   }
 }

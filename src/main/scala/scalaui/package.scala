@@ -4,6 +4,9 @@ import scala.scalanative.native.{CFunctionPtr0, CInt, Ptr, sizeof, _}
 package object scalaui {
   import ui._
   import uiOps._
+
+  private var windows = List[Window]()
+
   private def onShouldQuit(data: Ptr[Byte]): CInt = {
     uiControlDestroy(data.cast[Ptr[uiWindow]])
     1
@@ -11,24 +14,36 @@ package object scalaui {
 
   private def onClosing(w: Ptr[uiWindow], data: Ptr[Byte]): CInt = {
     if (data.cast[CFunctionPtr0[Boolean]].apply()) {
-      uiQuit()
+      for (window <- windows; if window.control == w) {
+        windows = windows.filter(_ != window)
+        window.free()
+      }
+      if (windows == Nil) uiQuit()
       1
     } else 0
   }
 
   def render(window: Window): Unit = {
-    val options: Ptr[uiInitOptions] = malloc(sizeof[uiInitOptions])
-      .cast[Ptr[uiInitOptions]]
-    uiInit(options)
+    def create(): Unit = {
+      window.build()
+      uiWindowOnClosing(window.control, onClosing _, window.onClosing.cast[Ptr[Byte]])
+      uiOnShouldQuit(onShouldQuit _, window.control.cast[Ptr[Byte]])
+      uiControlShow(window.control)
+    }
 
-    window.build()
-    uiWindowOnClosing(window.control, onClosing _, window.onClosing.cast[Ptr[Byte]])
-    uiOnShouldQuit(onShouldQuit _, window.control.cast[Ptr[Byte]])
-    uiControlShow(window.control)
-
-    uiMain()
-    window.free()
-    uiUninit()
+    windows match {
+      case Nil =>
+        windows = window :: windows
+        val options: Ptr[uiInitOptions] = malloc(sizeof[uiInitOptions])
+          .cast[Ptr[uiInitOptions]]
+        uiInit(options)
+        create()
+        uiMain()
+        uiUninit()
+      case _ =>
+        windows = window :: windows
+        create()
+    }
   }
 
   type Width  = Int
@@ -225,8 +240,7 @@ package object scalaui {
             case uiModifiers.uiModifierAlt   => Key.Alt
             case uiModifiers.uiModifierShift => Key.Shift
             case uiModifiers.uiModifierSuper => Key.Super
-          }
-        else if (e.ExtKey != 0.toUInt)
+          } else if (e.ExtKey != 0.toUInt)
           e.ExtKey match {
             case uiExtKey.uiExtKeyEscape    => Key.Escape
             case uiExtKey.uiExtKeyInsert    => Key.Insert

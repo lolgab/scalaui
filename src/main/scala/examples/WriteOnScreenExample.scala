@@ -15,11 +15,11 @@ object WriteOnScreenExample {
       val r = new Rectangle(Point(0, 0), p.areaWidth, p.areaHeight)
       p.fill(r, whiteBrush)
       for ((s, font, point) <- texts) {
-        p.drawText(s, point, font, 300)
+        p.drawText(s, point, font, p.areaWidth - point.x)
       }
     }
 
-    override def onMouseEvent(ha: AreaHandler, area: Area, event: MouseEvent): Unit =
+    override def onMouseEvent(ha: AreaHandler, area: Area, event: MouseEvent): Unit = {
       event.down match {
         case MouseButton.Left =>
           val f = fontButton.font
@@ -32,6 +32,7 @@ object WriteOnScreenExample {
           area.queueRedraw()
         case _ =>
       }
+    }
 
     override def onMouseCrossed(ha: AreaHandler, area: Area, left: Boolean): Unit = {}
 
