@@ -4,8 +4,14 @@ import scala.scalanative.native.CFunctionPtr0
 import ui._
 
 class SpinBox(min: Int, max: Int, onChange: CFunctionPtr0[Unit] = doNothing _) extends Component {
-  def value: Int = uiSpinboxValue(control)
-  def value_=(v: Int): Unit = uiSpinboxSetValue(control, v)
+  def value: Int = {
+    require(initialized)
+    uiSpinboxValue(control)
+  }
+  def value_=(v: Int): Unit = {
+    require(initialized)
+    uiSpinboxSetValue(control, v)
+  }
 
   private[scalaui] override def build(): Unit = {
     control = uiNewSpinbox(min,max)

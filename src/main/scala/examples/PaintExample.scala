@@ -6,8 +6,17 @@ import scalaui._
 object PaintExample {
   val points = mutable.ListBuffer[Point]()
 
+  val width, height = 500
+
   object callbacks extends AreaCallbacks {
-    val whiteBrush = new SolidBrush(Color.White)
+    val whiteBrush = new GradientBrush(
+      Seq(
+        Color(0, 0, 1, 1),
+        Color(1, 0, 0, 1)
+      ),
+      Point(0, 0),
+      Point(width, height)
+    )
     val blackBrush = new SolidBrush(Color.Black)
 
     override def draw(ha: AreaHandler, area: Area, p: DrawParams): Unit = {
@@ -27,13 +36,12 @@ object PaintExample {
           points.append(Point(event.x, event.y))
           modified = true
         }
-      }
-      else if (event.down == MouseButton.Right) {
+      } else if (event.down == MouseButton.Right) {
         points.clear()
         modified = true
       }
 
-      if(modified) area.queueRedraw()
+      if (modified) area.queueRedraw()
     }
 
     override def onMouseCrossed(ha: AreaHandler, area: Area, left: Boolean): Unit = {}
@@ -48,7 +56,7 @@ object PaintExample {
 
   val pane = new VerticalPanel(area)
 
-  val window = new Window("Area Example", 500, 500, pane)
+  val window = new Window("Area Example", width, height, pane)
 
   def main(args: Array[String]): Unit = {
     render(window)

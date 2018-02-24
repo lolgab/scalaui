@@ -1,3 +1,3 @@
 package scalaui
 
-trait Component extends GraphicObject
+trait Component extends GraphicObject with Freeable

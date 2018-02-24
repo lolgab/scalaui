@@ -5,22 +5,46 @@ import scalaui.ui._
 import scalaui.uiOps._
 
 // TODO Generalize control for font, fontfamily etc.
-class Font(family: String = "",
-           size: Double = 0.0,
-           weight: Weight.Value = Weight.Normal,
-           italic: Italic.Value = Italic.Normal,
-           stretch: Stretch.Value = Stretch.Normal) {
+class Font private[scalaui] () extends Freeable {
   //TODO waiting for https://github.com/scala-native/scala-native/issues/367
   private[scalaui] var control: Ptr[uiDrawTextFont] = null
 
+  private var _family: String         = _
+  private var _size: Double           = _
+  private var _weight: Weight.Value   = _
+  private var _italic: Italic.Value   = _
+  private var _stretch: Stretch.Value = _
+
+  def this(family: String,
+           size: Double,
+           weight: Weight.Value = Weight.Normal,
+           italic: Italic.Value = Italic.Normal,
+           stretch: Stretch.Value = Stretch.Normal) = {
+    this()
+    _family = family
+    _size = size
+    _weight = weight
+    _italic = italic
+    _stretch = stretch
+
+    if(initialized) build()
+    else scalaui.fonts ::= this
+  }
+
   private[scalaui] def build(): Unit = Zone { implicit z =>
     val descriptor = alloc[uiDrawTextFontDescriptor]
-    descriptor.Family = toCString(family)
-    descriptor.Size = size
-    descriptor.Weight = weight.id.toUInt
-    descriptor.Italic = italic.id.toUInt
-    descriptor.Stretch = stretch.id.toUInt
+    descriptor.Family = toCString(_family)
+    descriptor.Size = _size
+    descriptor.Weight = _weight.id.toUInt
+    descriptor.Italic = _italic.id.toUInt
+    descriptor.Stretch = _stretch.id.toUInt
     control = uiDrawLoadClosestFont(descriptor)
+  }
+
+  override def free(): Unit = {
+    require(initialized)
+    uiDrawFreeTextFont(control)
+    scalaui.fonts = fonts.filter(_ != this)
   }
 
 //  TODO Scala Native doesn't allow it!
@@ -31,6 +55,7 @@ class Font(family: String = "",
 //  }
 
   def ascent: Double = {
+    require(initialized)
     val metrics = stackalloc[uiDrawTextFontMetrics]
     uiDrawTextFontGetMetrics(control, metrics)
     val res = metrics.Ascent
@@ -38,6 +63,7 @@ class Font(family: String = "",
   }
 
   def descent: Double = {
+    require(initialized)
     val metrics = stackalloc[uiDrawTextFontMetrics]
     uiDrawTextFontGetMetrics(control, metrics)
     val res = metrics.Descent
@@ -45,6 +71,7 @@ class Font(family: String = "",
   }
 
   def leading: Double = {
+    require(initialized)
     val metrics = stackalloc[uiDrawTextFontMetrics]
     uiDrawTextFontGetMetrics(control, metrics)
     val res = metrics.Leading
@@ -52,6 +79,7 @@ class Font(family: String = "",
   }
 
   def underlinePos: Double = {
+    require(initialized)
     val metrics = stackalloc[uiDrawTextFontMetrics]
     uiDrawTextFontGetMetrics(control, metrics)
     val res = metrics.UnderlinePos
@@ -59,6 +87,7 @@ class Font(family: String = "",
   }
 
   def underlineThickness: Double = {
+    require(initialized)
     val metrics = stackalloc[uiDrawTextFontMetrics]
     uiDrawTextFontGetMetrics(control, metrics)
     val res = metrics.UnderlineThickness

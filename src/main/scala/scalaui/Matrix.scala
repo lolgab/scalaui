@@ -18,27 +18,46 @@ class Matrix private (private[scalaui] val m: Ptr[uiDrawMatrix]) {
     case _ => throw new IndexOutOfBoundsException
   }
 
-  def setToIdentity(): Unit = uiDrawMatrixSetIdentity(m)
+  def setToIdentity(): Unit = {
+    require(initialized)
+    uiDrawMatrixSetIdentity(m)
+  }
 
-  def translate(p: Point): Unit =
+  def translate(p: Point): Unit = {
+    require(initialized)
     uiDrawMatrixTranslate(m, p.x, p.y)
+  }
 
-  def translate(p: Point, amount: Double): Unit =
+  def translate(p: Point, amount: Double): Unit = {
+    require(initialized)
     uiDrawMatrixTranslate(m, p.x, p.y, amount)
+  }
 
   //TODO find name for `to`
-  def scale(center: Point, to: Point): Unit =
+  def scale(center: Point, to: Point): Unit = {
+    require(initialized)
     uiDrawMatrixScale(m, center.x, center.x, to.x, to.y)
+  }
 
-  def skew(p: Point, amount: Point): Unit =
+  def skew(p: Point, amount: Point): Unit = {
+    require(initialized)
     uiDrawMatrixSkew(m, p.x, p.y, amount.x, amount.y)
+  }
 
-  def multiply(other: Matrix): Unit =
+  def multiply(other: Matrix): Unit = {
+    require(initialized)
     uiDrawMatrixMultiply(m, other.m)
+  }
 
-  def invertible: Boolean = uiDrawMatrixInvertible(m)
+  def invertible: Boolean = {
+    require(initialized)
+    uiDrawMatrixInvertible(m)
+  }
 
-  def invert: Boolean = uiDrawMatrixInvert(m)
+  def invert: Boolean = {
+    require(initialized)
+    uiDrawMatrixInvert(m)
+  }
 
   private def createPoint(p: Point, f: (Ptr[CDouble], Ptr[CDouble]) => Unit): Point = {
     val x, y = stackalloc[CDouble]
@@ -48,13 +67,19 @@ class Matrix private (private[scalaui] val m: Ptr[uiDrawMatrix]) {
     Point(!x, !y)
   }
 
-  def transformPoint(p: Point): Point =
+  def transformPoint(p: Point): Point = {
+    require(initialized)
     createPoint(p, uiDrawMatrixTransformPoint(m, _, _))
+  }
 
-  def transformSize(p: Point): Point =
+  def transformSize(p: Point): Point = {
+    require(initialized)
     createPoint(p, uiDrawMatrixTransformSize(m, _, _))
+  }
 
   //TODO context is private...
-  def transform(drawContext: DrawContext): Unit =
+  def transform(drawContext: DrawContext): Unit = {
+    require(initialized)
     uiDrawTransform(drawContext, m)
+  }
 }

@@ -8,10 +8,9 @@ class FontButton private (changeFont: CFunctionPtr2[Ptr[uiFontButton], Ptr[Byte]
                           onFontChange: CFunctionPtr0[Unit])
     extends Component {
   var createdFonts: Ptr[PointerList[uiDrawTextFont]] = null
-//    stdlib.malloc(sizeof[PointerList[uiDrawTextFont]]).cast[Ptr[PointerList[uiDrawTextFont]]]
 
   def font: Font = {
-    val f = new Font("", 0)
+    val f = new Font()
     f.control = uiFontButtonFont(control)
     createdFonts = f.control :: createdFonts
     f

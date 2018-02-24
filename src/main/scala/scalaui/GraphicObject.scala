@@ -15,6 +15,4 @@ trait GraphicObject {
   def enabled: Boolean = uiControlEnabled(control)
   def enable(): Unit = uiControlEnable(control)
   def disable(): Unit = uiControlDisable(control)
-
-  private[scalaui] def free(): Unit = {}
 }

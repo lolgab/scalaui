@@ -7,6 +7,11 @@ package object scalaui {
 
   private var windows = List[Window]()
 
+  private[scalaui] var fonts = List[Font]()
+
+  private var _initialized = false
+  private[scalaui] def initialized: Boolean = _initialized
+
   private def onShouldQuit(data: Ptr[Byte]): CInt = {
     uiControlDestroy(data.cast[Ptr[uiWindow]])
     1
@@ -38,6 +43,8 @@ package object scalaui {
           .cast[Ptr[uiInitOptions]]
         uiInit(options)
         create()
+        _initialized = true
+        for(f <- fonts) f.build()
         uiMain()
         uiUninit()
       case _ =>
@@ -227,10 +234,10 @@ package object scalaui {
 
     def key = if (e.Up == 1) Key.Up(_key) else Key.Down(_key)
 
-    def ctrlDown: Boolean  = e.Modifiers == uiModifiers.uiModifierCtrl
-    def altDown: Boolean   = e.Modifiers == uiModifiers.uiModifierAlt
-    def shiftDown: Boolean = e.Modifiers == uiModifiers.uiModifierShift
-    def superDown: Boolean = e.Modifiers == uiModifiers.uiModifierSuper
+    def ctrlDown: Boolean  = (e.Modifiers & uiModifiers.uiModifierCtrl) != 0.toUInt
+    def altDown: Boolean   = (e.Modifiers & uiModifiers.uiModifierAlt) != 0.toUInt
+    def shiftDown: Boolean = (e.Modifiers & uiModifiers.uiModifierShift) != 0.toUInt
+    def superDown: Boolean = (e.Modifiers & uiModifiers.uiModifierSuper) != 0.toUInt
 
     private def _key =
       if (e.Key == 0) {
@@ -285,6 +292,6 @@ package object scalaui {
           println("Should never happen! Maybe it is a bug!")
           Key.Coded(0)
         }
-      } else Key.Coded(e.Key.toChar)
+      } else Key.Coded(gdk.GdkUtils.keyValue(e.Key.toChar, e.Modifiers))
   }
 }

@@ -685,11 +685,11 @@ object uiOps {
     def B: CDouble   = !ptr._4
     def A: CDouble   = !ptr._5
 
-    def Pos(v: CDouble): Unit = !ptr._1 = v
-    def R(v: CDouble): Unit   = !ptr._2 = v
-    def G(v: CDouble): Unit   = !ptr._3 = v
-    def B(v: CDouble): Unit   = !ptr._4 = v
-    def A(v: CDouble): Unit   = !ptr._5 = v
+    def Pos_=(v: CDouble): Unit = !ptr._1 = v
+    def R_=(v: CDouble): Unit   = !ptr._2 = v
+    def G_=(v: CDouble): Unit   = !ptr._3 = v
+    def B_=(v: CDouble): Unit   = !ptr._4 = v
+    def A_=(v: CDouble): Unit   = !ptr._5 = v
   }
 
   implicit class uiDrawStrokeParamsOps(val ptr: Ptr[uiDrawStrokeParams]) extends AnyVal {
@@ -768,11 +768,11 @@ object uiOps {
     def Modifiers: uiModifiers = !ptr._4
     def Up: CInt               = !ptr._5
 
-    def Key(v: CChar): Unit             = !ptr._1 = v
-    def ExtKey(v: uiExtKey): Unit       = !ptr._2 = v
-    def Modifier(v: uiModifiers): Unit  = !ptr._3 = v
-    def Modifiers(v: uiModifiers): Unit = !ptr._4 = v
-    def Up(v: CInt): Unit               = !ptr._5 = v
+    def Key_=(v: CChar): Unit             = !ptr._1 = v
+    def ExtKey_=(v: uiExtKey): Unit       = !ptr._2 = v
+    def Modifier_=(v: uiModifiers): Unit  = !ptr._3 = v
+    def Modifiers_=(v: uiModifiers): Unit = !ptr._4 = v
+    def Up_=(v: CInt): Unit               = !ptr._5 = v
   }
 
   object uiWindowResizeEdge {
