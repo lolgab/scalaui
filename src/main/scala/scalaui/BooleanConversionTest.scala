@@ -1,5 +1,0 @@
-package scalaui
-
-object BooleanConversionTest {
-
-}
