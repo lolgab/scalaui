@@ -28,6 +28,7 @@ import scala.scalanative.native.{
 @native.link("ui")
 @native.extern
 object ui {
+  type uiForEach     = CUnsignedInt
   type uiInitOptions = CStruct1[CSize]
 
   def uiInit(options: Ptr[uiInitOptions]): CString = extern
@@ -436,68 +437,133 @@ object ui {
   def uiDrawSave(c: Ptr[uiDrawContext]): Unit    = extern
   def uiDrawRestore(c: Ptr[uiDrawContext]): Unit = extern
 
-  type uiDrawFontFamilies = extern
+  type uiAttribute = extern
+  def uiFreeAttribute(a: Ptr[uiAttribute]): Unit = extern
+  type uiAttributeType = CUnsignedInt
 
-  def uiDrawListFontFamilies(): Ptr[uiDrawFontFamilies]                = extern
-  def uiDrawFontFamiliesNumFamilies(ff: Ptr[uiDrawFontFamilies]): CInt = extern
-  def uiDrawFontFamiliesFamily(ff: Ptr[uiDrawFontFamilies], n: CInt): CString =
+  def uiAttributeGetType(a: Ptr[uiAttribute]): uiAttributeType = extern
+  def uiNewFamilyAttribute(family: CString): Ptr[uiAttribute]  = extern
+  def uiAttributeFamily(a: Ptr[uiAttribute]): CString          = extern
+  def uiNewSizeAttribute(size: CDouble): Ptr[uiAttribute]      = extern
+  def uiAttributeSize(a: Ptr[uiAttribute]): CDouble            = extern
+  type uiTextWeight = CUnsignedInt
+
+  def uiNewWeightAttribute(weight: uiTextWeight): Ptr[uiAttribute] = extern
+  def uiAttributeWeight(a: Ptr[uiAttribute]): uiTextWeight         = extern
+  type uiTextItalic = CUnsignedInt
+
+  def uiNewItalicAttribute(italic: uiTextItalic): Ptr[uiAttribute] = extern
+  def uiAttributeItalic(a: Ptr[uiAttribute]): uiTextItalic         = extern
+  type uiTextStretch = CUnsignedInt
+
+  def uiNewStretchAttribute(stretch: uiTextStretch): Ptr[uiAttribute]                       = extern
+  def uiAttributeStretch(a: Ptr[uiAttribute]): uiTextStretch                                = extern
+  def uiNewColorAttribute(r: CDouble, g: CDouble, b: CDouble, a: CDouble): Ptr[uiAttribute] = extern
+  def uiAttributeColor(a: Ptr[uiAttribute],
+                       r: Ptr[CDouble],
+                       g: Ptr[CDouble],
+                       b: Ptr[CDouble],
+                       alpha: Ptr[CDouble]): Unit = extern
+  def uiNewBackgroundAttribute(r: CDouble, g: CDouble, b: CDouble, a: CDouble): Ptr[uiAttribute] =
     extern
-  def uiDrawFreeFontFamilies(ff: Ptr[uiDrawFontFamilies]): Unit = extern
+  type uiUnderline = CUnsignedInt
 
-  type uiDrawTextLayout = extern
-  type uiDrawTextFont   = extern
+  def uiNewUnderlineAttribute(u: uiUnderline): Ptr[uiAttribute] = extern
+  def uiAttributeUnderline(a: Ptr[uiAttribute]): uiUnderline    = extern
+  type uiUnderlineColor = CUnsignedInt
 
-  type uiDrawTextWeight = CUnsignedInt
+  def uiNewUnderlineColorAttribute(u: uiUnderlineColor,
+                                   r: CDouble,
+                                   g: CDouble,
+                                   b: CDouble,
+                                   a: CDouble): Ptr[uiAttribute] = extern
+  def uiAttributeUnderlineColor(a: Ptr[uiAttribute],
+                                u: Ptr[uiUnderlineColor],
+                                r: Ptr[CDouble],
+                                g: Ptr[CDouble],
+                                b: Ptr[CDouble],
+                                alpha: Ptr[CDouble]): Unit = extern
+  type uiDrawTextAlign = CUnsignedInt
 
-  type uiDrawTextItalic = CUnsignedInt
+  type uiOpenTypeFeatures = extern
+  type uiOpenTypeFeaturesForEachFunc =
+    CFunctionPtr7[Ptr[uiOpenTypeFeatures], CChar, CChar, CChar, CChar, UInt, Ptr[Byte], uiForEach]
+  def uiNewOpenTypeFeatures: Ptr[uiOpenTypeFeatures]                                 = extern
+  def uiFreeOpenTypeFeatures(otf: Ptr[uiOpenTypeFeatures]): Unit                     = extern
+  def uiOpenTypeFeaturesClone(otf: Ptr[uiOpenTypeFeatures]): Ptr[uiOpenTypeFeatures] = extern
+  def uiOpenTypeFeaturesAdd(otf: Ptr[uiOpenTypeFeatures],
+                            a: CChar,
+                            b: CChar,
+                            c: CChar,
+                            d: CChar,
+                            value: UInt): Unit = extern
+  def uiOpenTypeFeaturesRemove(otf: Ptr[uiOpenTypeFeatures],
+                               a: CChar,
+                               b: CChar,
+                               c: CChar,
+                               d: CChar): Unit = extern
+  def uiOpenTypeFeaturesGet(otf: Ptr[uiOpenTypeFeatures],
+                            a: CChar,
+                            b: CChar,
+                            c: CChar,
+                            d: CChar,
+                            value: Ptr[UInt]): CInt = extern
+  def uiOpenTypeFeaturesForEach(otf: Ptr[uiOpenTypeFeatures],
+                                f: uiOpenTypeFeaturesForEachFunc,
+                                data: Ptr[Byte]): Unit                       = extern
+  def uiNewFeaturesAttribute(otf: Ptr[uiOpenTypeFeatures]): Ptr[uiAttribute] = extern
+  def uiAttributeFeatures(a: Ptr[uiAttribute]): Ptr[uiOpenTypeFeatures]      = extern
+  type uiAttributedString = extern
+  type uiAttributedStringForEachAttributeFunc =
+    CFunctionPtr5[Ptr[uiAttributedString], Ptr[uiAttribute], CSize, CSize, Ptr[Byte], uiForEach]
+  def uiNewAttributedString(initialString: CString): Ptr[uiAttributedString]               = extern
+  def uiFreeAttributedString(s: Ptr[uiAttributedString]): Unit                             = extern
+  def uiAttributedStringString(s: Ptr[uiAttributedString]): CString                        = extern
+  def uiAttributedStringLen(s: Ptr[uiAttributedString]): CSize                             = extern
+  def uiAttributedStringAppendUnattributed(s: Ptr[uiAttributedString], str: CString): Unit = extern
+  def uiAttributedStringInsertAtUnattributed(s: Ptr[uiAttributedString],
+                                             str: CString,
+                                             at: CSize): Unit                              = extern
+  def uiAttributedStringDelete(s: Ptr[uiAttributedString], start: CSize, end: CSize): Unit = extern
+  def uiAttributedStringSetAttribute(s: Ptr[uiAttributedString],
+                                     a: Ptr[uiAttribute],
+                                     start: CSize,
+                                     end: CSize): Unit = extern
+  def uiAttributedStringForEachAttribute(s: Ptr[uiAttributedString],
+                                         f: uiAttributedStringForEachAttributeFunc,
+                                         data: Ptr[Byte]): Unit                            = extern
+  def uiAttributedStringNumGraphemes(s: Ptr[uiAttributedString]): CSize                    = extern
+  def uiAttributedStringByteIndexToGrapheme(s: Ptr[uiAttributedString], pos: CSize): CSize = extern
+  def uiAttributedStringGraphemeToByteIndex(s: Ptr[uiAttributedString], pos: CSize): CSize = extern
 
-  type uiDrawTextStretch = CUnsignedInt
-
-  type uiDrawTextFontDescriptor = CStruct5[
+  type uiFontDescriptor = CStruct5[
     CString,
     CDouble,
-    uiDrawTextWeight,
-    uiDrawTextItalic,
-    uiDrawTextStretch
+    uiTextWeight,
+    uiTextItalic,
+    uiTextStretch
   ]
 
-  type uiDrawTextFontMetrics = CStruct5[
+  type uiDrawTextLayout = extern
+
+  type uiDrawTextLayoutParams = CStruct4[
+    Ptr[uiAttributedString],
+    Ptr[uiFontDescriptor],
     CDouble,
-    CDouble,
-    CDouble,
-    CDouble,
-    CDouble
+    uiDrawTextAlign
   ]
 
-  def uiDrawLoadClosestFont(desc: Ptr[uiDrawTextFontDescriptor]): Ptr[uiDrawTextFont] = extern
-  def uiDrawFreeTextFont(font: Ptr[uiDrawTextFont]): Unit                             = extern
-  def uiDrawTextFontHandle(font: Ptr[uiDrawTextFont]): ULong                          = extern
-  def uiDrawTextFontDescribe(font: Ptr[uiDrawTextFont], desc: Ptr[uiDrawTextFontDescriptor]): Unit =
+  def uiDrawNewTextLayout(params: Ptr[uiDrawTextLayoutParams]): Ptr[uiDrawTextLayout] =
     extern
-  def uiDrawTextFontGetMetrics(font: Ptr[uiDrawTextFont],
-                               metrics: Ptr[uiDrawTextFontMetrics]): Unit =
-    extern
-  def uiDrawNewTextLayout(text: CString,
-                          defaultFont: Ptr[uiDrawTextFont],
-                          width: CDouble): Ptr[uiDrawTextLayout] =
-    extern
-  def uiDrawFreeTextLayout(layout: Ptr[uiDrawTextLayout]): Unit                     = extern
-  def uiDrawTextLayoutSetWidth(layout: Ptr[uiDrawTextLayout], width: CDouble): Unit = extern
-  def uiDrawTextLayoutExtents(layout: Ptr[uiDrawTextLayout],
+  def uiDrawFreeTextLayout(tl: Ptr[uiDrawTextLayout]): Unit = extern
+  def uiDrawText(c: Ptr[uiDrawContext],
+                 layout: Ptr[uiDrawTextLayout],
+                 x: CDouble,
+                 y: CDouble): Unit = extern
+  def uiDrawTextLayoutExtents(tl: Ptr[uiDrawTextLayout],
                               width: Ptr[CDouble],
                               height: Ptr[CDouble]): Unit = extern
 
-  def uiDrawTextLayoutSetColor(layout: Ptr[uiDrawTextLayout],
-                               startChar: CInt,
-                               endChar: CInt,
-                               r: CDouble,
-                               g: CDouble,
-                               b: CDouble,
-                               a: CDouble): Unit = extern
-  def uiDrawText(c: Ptr[uiDrawContext],
-                 x: CDouble,
-                 y: CDouble,
-                 layout: Ptr[uiDrawTextLayout]): Unit = extern
   type uiModifiers = CUnsignedInt
 
   type uiAreaMouseEvent = CStruct9[
@@ -523,12 +589,13 @@ object ui {
   ]
 
   type uiFontButton = extern
-  def uiFontButtonFont(b: Ptr[uiFontButton]): Ptr[uiDrawTextFont] = extern
+  def uiFontButtonFont(b: Ptr[uiFontButton], desc: Ptr[uiFontDescriptor]): Unit = extern
   def uiFontButtonOnChanged(b: Ptr[uiFontButton],
                             f: CFunctionPtr2[Ptr[uiFontButton], Ptr[Byte], Unit],
                             data: Ptr[Byte]): Unit =
     extern
-  def uiNewFontButton(): Ptr[uiFontButton] = extern
+  def uiNewFontButton(): Ptr[uiFontButton]                    = extern
+  def uiFreeFontButtonFont(desc: Ptr[uiFontDescriptor]): Unit = extern
 
   type uiColorButton = extern
   def uiColorButtonColor(b: Ptr[uiColorButton],
@@ -710,33 +777,30 @@ object uiOps {
     def DashPhase_=(v: CDouble): Unit   = !ptr._7 = v
   }
 
-  implicit class uiDrawTextFontDescriptorOps(val ptr: Ptr[uiDrawTextFontDescriptor])
-      extends AnyVal {
-    def Family: CString            = !ptr._1
-    def Size: CDouble              = !ptr._2
-    def Weight: uiDrawTextWeight   = !ptr._3
-    def Italic: uiDrawTextItalic   = !ptr._4
-    def Stretch: uiDrawTextStretch = !ptr._5
+  implicit class uiFontDescriptorOps(val ptr: Ptr[uiFontDescriptor]) extends AnyVal {
+    def Family: CString        = !ptr._1
+    def Size: CDouble          = !ptr._2
+    def Weight: uiTextWeight   = !ptr._3
+    def Italic: uiTextItalic   = !ptr._4
+    def Stretch: uiTextStretch = !ptr._5
 
-    def Family_=(v: CString): Unit            = !ptr._1 = v
-    def Size_=(v: CDouble): Unit              = !ptr._2 = v
-    def Weight_=(v: uiDrawTextWeight): Unit   = !ptr._3 = v
-    def Italic_=(v: uiDrawTextItalic): Unit   = !ptr._4 = v
-    def Stretch_=(v: uiDrawTextStretch): Unit = !ptr._5 = v
+    def Family_=(v: CString): Unit        = !ptr._1 = v
+    def Size_=(v: CDouble): Unit          = !ptr._2 = v
+    def Weight_=(v: uiTextWeight): Unit   = !ptr._3 = v
+    def Italic_=(v: uiTextItalic): Unit   = !ptr._4 = v
+    def Stretch_=(v: uiTextStretch): Unit = !ptr._5 = v
   }
 
-  implicit class uiDrawTextFontMetricsOps(val ptr: Ptr[uiDrawTextFontMetrics]) extends AnyVal {
-    def Ascent: CDouble             = !ptr._1
-    def Descent: CDouble            = !ptr._2
-    def Leading: CDouble            = !ptr._3
-    def UnderlinePos: CDouble       = !ptr._4
-    def UnderlineThickness: CDouble = !ptr._5
+  implicit class uiDrawTextLayoutParamsOps(val ptr: Ptr[uiDrawTextLayoutParams]) extends AnyVal {
+    def String: Ptr[uiAttributedString]    = !ptr._1
+    def DefaultFont: Ptr[uiFontDescriptor] = !ptr._2
+    def Width: CDouble                     = !ptr._3
+    def Align: uiDrawTextAlign             = !ptr._4
 
-    def Ascent_=(v: CDouble): Unit             = !ptr._1 = v
-    def Descent_=(v: CDouble): Unit            = !ptr._2 = v
-    def Leading_=(v: CDouble): Unit            = !ptr._3 = v
-    def UnderlinePos_=(v: CDouble): Unit       = !ptr._4 = v
-    def UnderlineThickness_=(v: CDouble): Unit = !ptr._5 = v
+    def String_=(v: Ptr[uiAttributedString]): Unit    = !ptr._1 = v
+    def DefaultFont_=(v: Ptr[uiFontDescriptor]): Unit = !ptr._2 = v
+    def Width_=(v: CDouble): Unit                     = !ptr._3 = v
+    def Align_=(v: uiDrawTextAlign): Unit             = !ptr._4 = v
   }
 
   implicit class uiAreaMouseEventOps(val ptr: Ptr[uiAreaMouseEvent]) extends AnyVal {
@@ -773,6 +837,11 @@ object uiOps {
     def Modifier_=(v: uiModifiers): Unit  = !ptr._3 = v
     def Modifiers_=(v: uiModifiers): Unit = !ptr._4 = v
     def Up_=(v: CInt): Unit               = !ptr._5 = v
+  }
+
+  object uiForEach {
+    val uiForEachContinue: UInt = 0.toUInt
+    val uiForEachStop: UInt     = 1.toUInt
   }
 
   object uiWindowResizeEdge {
@@ -819,18 +888,33 @@ object uiOps {
     val uiDrawFillModeAlternate: UInt = 1.toUInt
   }
 
-  object uiDrawTextWeight {
-    val uiDrawTextWeightThin: UInt       = 0.toUInt
-    val uiDrawTextWeightUltraLight: UInt = 1.toUInt
-    val uiDrawTextWeightLight: UInt      = 2.toUInt
-    val uiDrawTextWeightBook: UInt       = 3.toUInt
-    val uiDrawTextWeightNormal: UInt     = 4.toUInt
-    val uiDrawTextWeightMedium: UInt     = 5.toUInt
-    val uiDrawTextWeightSemiBold: UInt   = 6.toUInt
-    val uiDrawTextWeightBold: UInt       = 7.toUInt
-    val uiDrawTextWeightUltraBold: UInt  = 8.toUInt
-    val uiDrawTextWeightHeavy: UInt      = 9.toUInt
-    val uiDrawTextWeightUltraHeavy: UInt = 10.toUInt
+  object uiAttributeTypeFamily {
+    val uiAttributeTypeFamily: UInt         = 0.toUInt
+    val uiAttributeTypeSize: UInt           = 1.toUInt
+    val uiAttributeTypeWeight: UInt         = 2.toUInt
+    val uiAttributeTypeItalic: UInt         = 3.toUInt
+    val uiAttributeTypeStretch: UInt        = 4.toUInt
+    val uiAttributeTypeColor: UInt          = 5.toUInt
+    val uiAttributeTypeBackground: UInt     = 6.toUInt
+    val uiAttributeTypeUnderline: UInt      = 7.toUInt
+    val uiAttributeTypeUnderlineColor: UInt = 8.toUInt
+    val uiAttributeTypeFeatures: UInt       = 9.toUInt
+  }
+
+  object uiTextWeight {
+    val uiTextWeightMinimum: UInt    = 0.toUInt
+    val uiTextWeightThin: UInt       = 100.toUInt
+    val uiTextWeightUltraLight: UInt = 200.toUInt
+    val uiTextWeightLight: UInt      = 300.toUInt
+    val uiTextWeightBook: UInt       = 350.toUInt
+    val uiTextWeightNormal: UInt     = 400.toUInt
+    val uiTextWeightMedium: UInt     = 500.toUInt
+    val uiTextWeightSemiBold: UInt   = 600.toUInt
+    val uiTextWeightBold: UInt       = 700.toUInt
+    val uiTextWeightUltraBold: UInt  = 800.toUInt
+    val uiTextWeightHeavy: UInt      = 900.toUInt
+    val uiTextWeightUltraHeavy: UInt = 950.toUInt
+    val uiTextWeightMaximum: UInt    = 1000.toUInt
   }
   object uiDrawTextItalic {
     val uiDrawTextItalicNormal: UInt  = 0.toUInt
@@ -848,6 +932,26 @@ object uiOps {
     val uiDrawTextStretchExpanded: UInt       = 6.toUInt
     val uiDrawTextStretchExtraExpanded: UInt  = 7.toUInt
     val uiDrawTextStretchUltraExpanded: UInt  = 8.toUInt
+  }
+
+  object uiUnderLine {
+    val uiUnderlineNone: UInt       = 0.toUInt
+    val uiUnderlineSingle: UInt     = 1.toUInt
+    val uiUnderlineDouble: UInt     = 2.toUInt
+    val uiUnderlineSuggestion: UInt = 3.toUInt
+  }
+
+  object uiUnderLineColor {
+    val uiUnderlineColorCustom: UInt    = 0.toUInt
+    val uiUnderlineColorSpelling: UInt  = 1.toUInt
+    val uiUnderlineColorGrammar: UInt   = 2.toUInt
+    val uiUnderlineColorAuxiliary: UInt = 3.toUInt
+  }
+
+  object uiDrawTextAlign {
+    val uiDrawTextAlignLeft: UInt   = 0.toUInt
+    val uiDrawTextAlignCenter: UInt = 1.toUInt
+    val uiDrawTextAlignRight: UInt  = 2.toUInt
   }
 
   object uiExtKey {

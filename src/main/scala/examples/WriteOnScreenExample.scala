@@ -15,7 +15,9 @@ object WriteOnScreenExample {
       val r = new Rectangle(Point(0, 0), p.areaWidth, p.areaHeight)
       p.fill(r, whiteBrush)
       for ((s, font, point) <- texts) {
-        p.drawText(s, point, font, p.areaWidth - point.x)
+        val str = new AttributedString(s)
+        p.drawText(str, point, font, p.areaWidth - point.x, Align.Fill)
+        str.free()
       }
     }
 
@@ -23,7 +25,7 @@ object WriteOnScreenExample {
       event.down match {
         case MouseButton.Left =>
           val f = fontButton.font
-          val y = event.y - f.ascent / 2
+          val y = event.y /*- f.ascent / 2*/
           texts = ("", f, Point(event.x, y)) :: texts
           typing = true
         case MouseButton.Right =>

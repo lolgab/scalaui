@@ -5,7 +5,9 @@ import scalaui._
 object FontExample {
   object callbacks extends AreaCallbacks {
     override def draw(ha: AreaHandler, area: Area, p: DrawParams): Unit = {
-      p.drawText("Hello from Lorenzo :-)", Point(100, 100), fontButton.font, 300)
+      val str = new AttributedString("Hello from Lorenzo :-)").withColor(Color(1,0,0,1), 11, 11 + "Lorenzo".length)
+      p.drawText(str, Point(100, 100), fontButton.font, 300, Align.Fill)
+      str.free()
     }
 
     override def onMouseEvent(ha: AreaHandler, area: Area, event: MouseEvent): Unit = {}

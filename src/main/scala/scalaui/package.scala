@@ -7,9 +7,7 @@ package object scalaui {
 
   private var windows = List[Window]()
 
-  private[scalaui] var fonts = List[Font]()
-
-  private var _initialized = false
+  private var _initialized                  = false
   private[scalaui] def initialized: Boolean = _initialized
 
   private def onShouldQuit(data: Ptr[Byte]): CInt = {
@@ -44,7 +42,6 @@ package object scalaui {
         uiInit(options)
         create()
         _initialized = true
-        for(f <- fonts) f.build()
         uiMain()
         uiUninit()
       case _ =>
@@ -87,6 +84,8 @@ package object scalaui {
   type DrawParams   = Ptr[uiAreaDrawParams]
   type DrawPath     = Ptr[uiDrawPath]
 
+  implicit def StringToAttributed(s: String): AttributedString = new AttributedString(s)
+
   implicit class DrawParamsOps(val p: DrawParams) extends AnyVal {
     private def context: DrawContext = p.Context
     def areaWidth: Double            = p.ClipWidth //TODO difference between Scrolling and NotScrolling
@@ -123,10 +122,14 @@ package object scalaui {
       uiDrawFreePath(path)
     }
 
-    def drawText(text: String, p: Point, font: Font, width: Double): Unit = {
-      val layout = new TextLayout(text, font, width)
+    def drawText(text: AttributedString,
+                 p: Point,
+                 font: Font,
+                 width: Double,
+                 align: Align.Value): Unit = {
+      val layout = new TextLayout(text, font, width, align)
       layout.build()
-      uiDrawText(this.p.Context, p.x, p.y, layout.control)
+      uiDrawText(this.p.Context, layout.control, p.x, p.y)
       uiDrawFreeTextLayout(layout.control)
     }
   }
@@ -292,6 +295,6 @@ package object scalaui {
           println("Should never happen! Maybe it is a bug!")
           Key.Coded(0)
         }
-      } else Key.Coded(gdk.GdkUtils.keyValue(e.Key.toChar, e.Modifiers))
+      } else Key.Coded(e.Key.toChar)
   }
 }

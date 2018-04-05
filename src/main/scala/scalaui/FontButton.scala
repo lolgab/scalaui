@@ -1,18 +1,19 @@
 package scalaui
 
-import scala.scalanative.native.{CFunctionPtr0, CFunctionPtr2, Ptr, sizeof, stdlib}
-import scalaui.collection._
-import scalaui.ui._
+import ui._
+
+import scala.scalanative.native.{CFunctionPtr0, CFunctionPtr2, Ptr, stdlib, sizeof}
 
 class FontButton private (changeFont: CFunctionPtr2[Ptr[uiFontButton], Ptr[Byte], Unit],
                           onFontChange: CFunctionPtr0[Unit])
     extends Component {
-  var createdFonts: Ptr[PointerList[uiDrawTextFont]] = null
+  var createdFonts = List[Font]()
 
   def font: Font = {
     val f = new Font()
-    f.control = uiFontButtonFont(control)
-    createdFonts = f.control :: createdFonts
+//    f.control =
+    uiFontButtonFont(control, f.control)
+    createdFonts = f :: createdFonts
     f
   }
 
@@ -25,12 +26,7 @@ class FontButton private (changeFont: CFunctionPtr2[Ptr[uiFontButton], Ptr[Byte]
   }
 
   private[scalaui] override def free(): Unit = {
-    var l = createdFonts
-    while (l != null) {
-      uiDrawFreeTextFont(l.head)
-      l = l.tail
-    }
-    createdFonts.free()
+    createdFonts.foreach(_.free())
   }
 }
 

@@ -8,6 +8,9 @@ class Window(_title: String,
              height: Int,
              content: Component,
              menus: Seq[Menu] = Seq(),
+             _borderLess: Boolean = false,
+             _fullScreen: Boolean = false,
+             _margined: Boolean = false,
              private[scalaui] val onClosing: CFunctionPtr0[Boolean] = doNothingThenClose _,
              onContentSizeChanged: CFunctionPtr0[Unit] = doNothing _)
     extends GraphicObject
@@ -19,6 +22,9 @@ class Window(_title: String,
     content.build()
     uiWindowSetChild(control, content.control)
     uiWindowOnContentSizeChanged(control, onContentSizeChanged, null)
+    borderLess_=(_borderLess)
+    fullScreen_=(_fullScreen)
+    margined_=(_margined)
   }
 
   def openFile(): String = {
@@ -42,8 +48,9 @@ class Window(_title: String,
   }
 
   def title: String = {
-    require(initialized)
-    fromCString(uiWindowTitle(control))
+    if (initialized)
+      fromCString(uiWindowTitle(control))
+    else _title
   }
 
   def title_=(v: String): Unit = Zone { implicit z =>
@@ -51,7 +58,7 @@ class Window(_title: String,
     uiWindowSetTitle(control, toCString(v))
   }
 
-  def contentSize: (Width, Height) = {
+  private def contentSize: (Int, Int) = {
     require(initialized)
     val width: Ptr[CInt]  = stackalloc[CInt]
     val height: Ptr[CInt] = stackalloc[CInt]
@@ -59,38 +66,54 @@ class Window(_title: String,
     (!width, !height)
   }
 
-  def contentSize_=(width: Width, height: Height): Unit = {
-    require(initialized)
-    uiWindowSetContentSize(control, width, height)
+  def contentWidth: Int = {
+    contentSize._1
   }
 
-  def isFullScreen: Boolean = {
+  def contentHeight: Int = {
+    contentSize._2
+  }
+
+  def contentWidth_=(width: Int): Unit = {
     require(initialized)
-    uiWindowFullscreen(control)
+    uiWindowSetContentSize(control, width, contentHeight)
+  }
+
+  def contentHeight_=(height: Int): Unit = {
+    require(initialized)
+    uiWindowSetContentSize(control, contentWidth, height)
+  }
+
+  def fullScreen: Boolean = {
+    if (initialized)
+      uiWindowFullscreen(control)
+    else
+      _fullScreen
   }
 
   def fullScreen_=(v: Boolean): Unit = {
-    require(initialized)
     uiWindowSetFullscreen(control, v)
   }
 
-  def isBorderLess: Boolean = {
-    require(initialized)
-    uiWindowBorderless(control)
+  def borderLess: Boolean = {
+    if (initialized)
+      uiWindowBorderless(control)
+    else
+      _borderLess
   }
 
   def borderLess_=(v: Boolean): Unit = {
-    require(initialized)
     uiWindowSetBorderless(control, v)
   }
 
-  def isMargined: Boolean = {
-    require(initialized)
-    uiWindowMargined(control)
+  def margined: Boolean = {
+    if (initialized)
+      uiWindowMargined(control)
+    else
+      _margined
   }
 
   def margined_=(v: Boolean): Unit = {
-    require(initialized)
     uiWindowSetMargined(control, v)
   }
 
