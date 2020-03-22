@@ -3,7 +3,6 @@ package scalaui
 import scala.scalanative.native._
 import ui._
 
-
 class Menu(name: String, items: AppendableToMenu*) extends GraphicObject {
   private[scalaui] def build(): Unit = Zone { implicit z =>
     control = uiNewMenu(toCString(name))

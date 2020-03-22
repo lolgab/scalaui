@@ -15,7 +15,7 @@ class Matrix private (private[scalaui] val m: Ptr[uiDrawMatrix]) {
     case (1, 1) => m.M22
     case (2, 0) => m.M31
     case (2, 1) => m.M32
-    case _ => throw new IndexOutOfBoundsException
+    case _      => throw new IndexOutOfBoundsException
   }
 
   def setToIdentity(): Unit = {
@@ -59,7 +59,10 @@ class Matrix private (private[scalaui] val m: Ptr[uiDrawMatrix]) {
     uiDrawMatrixInvert(m)
   }
 
-  private def createPoint(p: Point, f: (Ptr[CDouble], Ptr[CDouble]) => Unit): Point = {
+  private def createPoint(
+      p: Point,
+      f: (Ptr[CDouble], Ptr[CDouble]) => Unit
+  ): Point = {
     val x, y = stackalloc[CDouble]
     !x = p.x
     !y = p.y

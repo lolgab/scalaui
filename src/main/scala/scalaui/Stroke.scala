@@ -14,8 +14,9 @@ class Stroke(
     //NumDashes
     //DashPhase
 ) {
-  private[scalaui] val control: Ptr[uiDrawStrokeParams] = malloc(sizeof[uiDrawStrokeParams])
-    .cast[Ptr[uiDrawStrokeParams]]
+  private[scalaui] val control: Ptr[uiDrawStrokeParams] = malloc(
+    sizeof[uiDrawStrokeParams]
+  ).cast[Ptr[uiDrawStrokeParams]]
 
   control.Cap = cap.id.toUInt
   control.Join = join.id.toUInt

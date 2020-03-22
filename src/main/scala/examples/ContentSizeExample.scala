@@ -21,8 +21,16 @@ object ContentSizeExample {
   val button3 = new Button("- height", decreaseHeight _)
   val button4 = new Button("+ height", increaseHeight _)
   val panel =
-    new VerticalPanel(new HorizontalPanel(button1, button2), new HorizontalPanel(button3, button4))
-  val window = new Window("Hello World Example", width = 200, height = 200, content = panel)
+    new VerticalPanel(
+      new HorizontalPanel(button1, button2),
+      new HorizontalPanel(button3, button4)
+    )
+  val window = new Window(
+    "Hello World Example",
+    width = 200,
+    height = 200,
+    content = panel
+  )
 
   def main(args: Array[String]): Unit = {
     render(window)

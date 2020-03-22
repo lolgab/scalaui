@@ -29,7 +29,11 @@ object PaintExample {
       }
     }
 
-    override def onMouseEvent(ha: AreaHandler, area: Area, event: MouseEvent): Unit = {
+    override def onMouseEvent(
+        ha: AreaHandler,
+        area: Area,
+        event: MouseEvent
+    ): Unit = {
       var modified = false
       if (event held MouseButton.Left) {
         if (points.isEmpty || points.last.x != event.x || points.last.y != event.y) {
@@ -44,15 +48,22 @@ object PaintExample {
       if (modified) area.queueRedraw()
     }
 
-    override def onMouseCrossed(ha: AreaHandler, area: Area, left: Boolean): Unit = {}
+    override def onMouseCrossed(
+        ha: AreaHandler,
+        area: Area,
+        left: Boolean
+    ): Unit = {}
 
-    override def onKeyEvent(ha: AreaHandler, a: Area, e: KeyEvent): Boolean = false
+    override def onKeyEvent(ha: AreaHandler, a: Area, e: KeyEvent): Boolean =
+      false
   }
 
-  val area = new NonScrollingArea(callbacks.draw _,
-                                  callbacks.onMouseEvent _,
-                                  callbacks.onMouseCrossed _,
-                                  callbacks.onKeyEvent _)
+  val area = new NonScrollingArea(
+    callbacks.draw _,
+    callbacks.onMouseEvent _,
+    callbacks.onMouseCrossed _,
+    callbacks.onKeyEvent _
+  )
 
   val pane = new VerticalPanel(area)
 

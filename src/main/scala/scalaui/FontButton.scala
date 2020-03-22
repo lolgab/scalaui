@@ -2,11 +2,18 @@ package scalaui
 
 import ui._
 
-import scala.scalanative.native.{CFunctionPtr0, CFunctionPtr2, Ptr, stdlib, sizeof}
+import scala.scalanative.native.{
+  CFunctionPtr0,
+  CFunctionPtr2,
+  Ptr,
+  stdlib,
+  sizeof
+}
 
-class FontButton private (changeFont: CFunctionPtr2[Ptr[uiFontButton], Ptr[Byte], Unit],
-                          onFontChange: CFunctionPtr0[Unit])
-    extends Component {
+class FontButton private (
+    changeFont: CFunctionPtr2[Ptr[uiFontButton], Ptr[Byte], Unit],
+    onFontChange: CFunctionPtr0[Unit]
+) extends Component {
   var createdFonts = List[Font]()
 
   def font: Font = {

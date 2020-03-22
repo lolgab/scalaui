@@ -4,7 +4,12 @@ import ui._
 import uiOps._
 import scalanative.native._
 
-private[scalaui] class TextLayout(text: AttributedString, defaultFont: Font, width: Double, align: Align.Value) {
+private[scalaui] class TextLayout(
+    text: AttributedString,
+    defaultFont: Font,
+    width: Double,
+    align: Align.Value
+) {
   //TODO waiting for issue (returning Ptr from Zone) being solved
   private[scalaui] var control: Ptr[uiDrawTextLayout] = null
   def build(): Unit = Zone { implicit z =>
@@ -17,5 +22,3 @@ private[scalaui] class TextLayout(text: AttributedString, defaultFont: Font, wid
     control = uiDrawNewTextLayout(params)
   }
 }
-
-

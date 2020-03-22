@@ -3,7 +3,8 @@ package scalaui
 import scala.scalanative.native.CFunctionPtr0
 import ui._
 
-class SpinBox(min: Int, max: Int, onChange: CFunctionPtr0[Unit] = doNothing _) extends Component {
+class SpinBox(min: Int, max: Int, onChange: CFunctionPtr0[Unit] = doNothing _)
+    extends Component {
   def value: Int = {
     require(initialized)
     uiSpinboxValue(control)
@@ -14,7 +15,7 @@ class SpinBox(min: Int, max: Int, onChange: CFunctionPtr0[Unit] = doNothing _) e
   }
 
   private[scalaui] override def build(): Unit = {
-    control = uiNewSpinbox(min,max)
+    control = uiNewSpinbox(min, max)
     uiSpinboxOnChanged(control, onChange, null)
   }
 }
