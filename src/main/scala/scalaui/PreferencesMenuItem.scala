@@ -1,11 +1,9 @@
 package scalaui
 
-import scala.scalanative.native.CFunctionPtr0
 import ui._
 
-class PreferencesMenuItem(onClick: CFunctionPtr0[Unit])
-    extends AbstractMenuItem {
+class PreferencesMenuItem(onClick: () => Unit) extends AbstractMenuItem {
   private[scalaui] def build(): Unit = {
-    uiMenuItemOnClicked(control, onClick, null)
+    uiMenuItemOnClicked(control, cCallback3, PtrConverter.toPtr(onClick))
   }
 }

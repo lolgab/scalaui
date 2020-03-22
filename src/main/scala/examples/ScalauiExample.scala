@@ -3,12 +3,11 @@ package examples
 import scalaui._
 
 object ScalauiExample {
-  def buttonOnClick(): Unit = println("Hi from scalaui!")
-  def msgBox(): Unit =
-    w.messageBox("Important", "remember to say thanks to Lorenzo :-)")
-  def error(): Unit = w.errorBox("Error", "A nightmare happened :-O")
   lazy val label = new Label("My label :-)")
-  lazy val button = new Button("Do something on the terminal", buttonOnClick _)
+  lazy val button = new Button(
+    "Do something on the terminal",
+    () => println("Hi from scalaui!")
+  )
   lazy val checkbox = new Checkbox("my checkbox")
   lazy val textField = new TextField("initial Text")
   lazy val textArea = new NonWrappingTextArea()
@@ -26,20 +25,26 @@ object ScalauiExample {
     textField,
     tabs,
     new EditableComboBox(Seq("aaa", "bbb", "ccc")),
-    new Slider(0, 100, doNothing _),
-    new SpinBox(0, 100, doNothing _),
-    new Group("Ciao", new Button("Ciao", doNothing _)),
+    new Slider(0, 100, () => ()),
+    new SpinBox(0, 100, () => ()),
+    new Group("Ciao", new Button("Ciao", () => ())),
     progressBar
   )
   lazy val fileMenu = new Menu(
     "File",
-    new MenuItem("Message box", msgBox _),
+    new MenuItem(
+      "Message box",
+      () => w.messageBox("Important", "remember to say thanks to Lorenzo :-)")
+    ),
     SeparatorMenuItem,
-    new MenuItem("Error box", error _)
+    new MenuItem(
+      "Error box",
+      () => w.errorBox("Error", "A nightmare happened :-O")
+    )
   )
   lazy val editMenu = new Menu("Edit")
   lazy val menus = Seq(fileMenu, editMenu)
-  lazy val w = new Window(
+  lazy val w: Window = new Window(
     "My window",
     width = 200,
     height = 400,

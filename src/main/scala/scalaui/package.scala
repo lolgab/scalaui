@@ -1,5 +1,6 @@
-import scala.scalanative.native.stdlib.malloc
-import scala.scalanative.native.{CFunctionPtr0, CInt, Ptr, sizeof, _}
+import scala.scalanative.libc.stdlib.malloc
+import scala.scalanative.unsafe.{CFuncPtr0, CInt, Ptr, sizeof, _}
+import scala.scalanative.unsigned._
 
 package object scalaui {
   import ui._
@@ -10,20 +11,41 @@ package object scalaui {
   private var _initialized = false
   private[scalaui] def initialized: Boolean = _initialized
 
-  private def onShouldQuit(data: Ptr[Byte]): CInt = {
-    uiControlDestroy(data.cast[Ptr[uiWindow]])
-    1
+  private val onShouldQuit = new CFuncPtr1[Ptr[Byte], CInt] {
+    def apply(data: Ptr[Byte]): CInt = {
+      uiControlDestroy(data.asInstanceOf[Ptr[uiWindow]])
+      1
+    }
   }
 
-  private def onClosing(w: Ptr[uiWindow], data: Ptr[Byte]): CInt = {
-    if (data.cast[CFunctionPtr0[Boolean]].apply()) {
-      for (window <- windows; if window.control == w) {
-        windows = windows.filter(_ != window)
-        window.free()
+  private[scalaui] val cCallback2 =
+    new CFuncPtr2[Ptr[uiButton], Ptr[Byte], Unit] {
+      def apply(component: Ptr[uiButton], ptr: Ptr[Byte]): Unit = {
+        PtrConverter.fromPtr[() => Unit](ptr)()
       }
-      if (windows == Nil) uiQuit()
-      1
-    } else 0
+    }
+  private[scalaui] val cCallback3 =
+    new CFuncPtr3[Ptr[uiMenuItem], Ptr[uiWindow], Ptr[Byte], Unit] {
+      def apply(
+          component: Ptr[uiMenuItem],
+          window: Ptr[uiWindow],
+          ptr: Ptr[Byte]
+      ): Unit = {
+        PtrConverter.fromPtr[() => Unit](ptr)()
+      }
+    }
+
+  private val onClosing = new CFuncPtr2[Ptr[uiWindow], Ptr[Byte], CInt] {
+    def apply(w: Ptr[uiWindow], data: Ptr[Byte]): CInt = {
+      if (PtrConverter.fromPtr[() => Boolean](data)()) {
+        for (window <- windows; if window.control == w) {
+          windows = windows.filter(_ != window)
+          window.free()
+        }
+        if (windows == Nil) uiQuit()
+        1
+      } else 0
+    }
   }
 
   def render(window: Window): Unit = {
@@ -31,10 +53,10 @@ package object scalaui {
       window.build()
       uiWindowOnClosing(
         window.control,
-        onClosing _,
-        window.onClosing.cast[Ptr[Byte]]
+        onClosing,
+        PtrConverter.toPtr(window.onClosing)
       )
-      uiOnShouldQuit(onShouldQuit _, window.control.cast[Ptr[Byte]])
+      uiOnShouldQuit(onShouldQuit, window.control.asInstanceOf[Ptr[Byte]])
       uiControlShow(window.control)
     }
 
@@ -42,7 +64,7 @@ package object scalaui {
       case Nil =>
         windows = window :: windows
         val options: Ptr[uiInitOptions] = malloc(sizeof[uiInitOptions])
-          .cast[Ptr[uiInitOptions]]
+          .asInstanceOf[Ptr[uiInitOptions]]
         uiInit(options)
         create()
         _initialized = true
@@ -64,15 +86,16 @@ package object scalaui {
 
   implicit def toCInt(b: Boolean): CInt = if (b) 1 else 0
 
-  implicit def areaToStratchable(c: AbstractArea): StretchableComponent =
-    Stretchy(c)
+  // implicit def areaToStratchable(c: AbstractArea): StretchableComponent = Stretchy(c)
 
   implicit def componentToStratchable(c: Component): StretchableComponent =
     NonStretchy(c)
 
   implicit def toSeq(c: StretchableComponent) = Seq(c)
 
-  def doNothing(): Unit = ()
+  val doNothing = new CFuncPtr0[Unit] {
+    def apply(): Unit = ()
+  }
 
   def doNothingThenClose(): Boolean = true
 
@@ -87,7 +110,7 @@ package object scalaui {
   }
 
   type DrawContext = Ptr[uiDrawContext]
-  type DrawCallback = CFunctionPtr3[AreaHandler, Area, DrawParams, Unit]
+  type DrawCallback = CFuncPtr3[AreaHandler, Area, DrawParams, Unit]
   type DrawParams = Ptr[uiAreaDrawParams]
   type DrawPath = Ptr[uiDrawPath]
 
@@ -131,25 +154,23 @@ package object scalaui {
       uiDrawFreePath(path)
     }
 
-    def drawText(
-        text: AttributedString,
-        p: Point,
-        font: Font,
-        width: Double,
-        align: Align.Value
-    ): Unit = {
-      val layout = new TextLayout(text, font, width, align)
-      layout.build()
-      uiDrawText(this.p.Context, layout.control, p.x, p.y)
-      uiDrawFreeTextLayout(layout.control)
-    }
+    // def drawText(text: AttributedString,
+    //              p: Point,
+    //              font: Font,
+    //              width: Double,
+    //              align: Align.Value): Unit = {
+    //   val layout = new TextLayout(text, font, width, align)
+    //   layout.build()
+    //   uiDrawText(this.p.Context, layout.control, p.x, p.y)
+    //   uiDrawFreeTextLayout(layout.control)
+    // }
   }
 
   object MouseButton extends Enumeration {
     val NoButton, Left, Center, Right = Value
   }
 
-  type MouseEventCallback = CFunctionPtr3[AreaHandler, Area, MouseEvent, Unit]
+  type MouseEventCallback = CFuncPtr3[AreaHandler, Area, MouseEvent, Unit]
   type MouseEvent = Ptr[uiAreaMouseEvent]
   implicit class MouseEventOps(val e: MouseEvent) extends AnyVal {
     def x: Double = e.X
@@ -187,9 +208,9 @@ package object scalaui {
   }
 
   //TODO ugly boolean Int unsafe conversion!
-  type MouseCrossedCallback = CFunctionPtr3[AreaHandler, Area, Boolean, Unit]
+  type MouseCrossedCallback = CFuncPtr3[AreaHandler, Area, Boolean, Unit]
 
-  type DragBrokenCallback = CFunctionPtr2[AreaHandler, Area, Unit]
+  type DragBrokenCallback = CFuncPtr2[AreaHandler, Area, Unit]
 
   private[scalaui] def doNothingOnDragBroken(
       ah: Ptr[uiAreaHandler],
@@ -197,7 +218,7 @@ package object scalaui {
   ): Unit = ()
 
   type KeyEvent = Ptr[uiAreaKeyEvent]
-  type KeyEventCallback = CFunctionPtr3[AreaHandler, Area, KeyEvent, Boolean]
+  type KeyEventCallback = CFuncPtr3[AreaHandler, Area, KeyEvent, Boolean]
 
   //TODO find better names!
   object Key {

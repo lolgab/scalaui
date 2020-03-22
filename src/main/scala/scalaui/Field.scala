@@ -1,6 +1,6 @@
 package scalaui
 
-import scala.scalanative.native.fromCString
+import scala.scalanative.unsafe.fromCString
 import ui._
 
 abstract class Field extends Component {

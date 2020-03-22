@@ -1,14 +1,3 @@
-.ensime
-.ensime_cache
-.gitignore
-.idea/
-project/target
-src/main/scala-2.11
-src/main/java
-src/test/scala-2.11
-src/test/java
 target
-ensime-langeserver.log
-pc.stdout.log
-*.class
-*.log
+/project/metals.sbt
+/lowered.hnir

@@ -1,7 +1,7 @@
 package scalaui
 
-import scala.scalanative.native.{
-  CFunctionPtr0,
+import scala.scalanative.unsafe.{
+  CFuncPtr0,
   CInt,
   Ptr,
   Zone,
@@ -20,9 +20,8 @@ class Window(
     _borderLess: Boolean = false,
     _fullScreen: Boolean = false,
     _margined: Boolean = false,
-    private[scalaui] val onClosing: CFunctionPtr0[Boolean] =
-      doNothingThenClose _,
-    onContentSizeChanged: CFunctionPtr0[Unit] = doNothing _
+    private[scalaui] val onClosing: () => Boolean = () => true,
+    onContentSizeChanged: () => Unit = () => Unit
 ) extends GraphicObject
     with Freeable {
 
@@ -31,7 +30,11 @@ class Window(
     control = uiNewWindow(toCString(_title), width, height, menus.nonEmpty)
     content.build()
     uiWindowSetChild(control, content.control)
-    uiWindowOnContentSizeChanged(control, onContentSizeChanged, null)
+    uiWindowOnContentSizeChanged(
+      control,
+      cCallback2,
+      PtrConverter.toPtr(onContentSizeChanged)
+    )
     borderLess_=(_borderLess)
     fullScreen_=(_fullScreen)
     margined_=(_margined)

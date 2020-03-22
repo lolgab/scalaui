@@ -1,19 +1,19 @@
 package scalaui
 
-import scala.scalanative.native.{CFunctionPtr0, Zone, toCString}
+import scala.scalanative.unsafe.{CFuncPtr0, Zone, toCString}
 import ui._
 
 class RadioButtons(
     names: Seq[String],
     initialSelected: Int = 0,
-    onSelected: CFunctionPtr0[Unit] = doNothing _
+    onSelected: () => Unit = () => ()
 ) extends Component {
   def selected: Int = {
-    require(initialized)
+    // require(initialized)
     uiRadioButtonsSelected(control)
   }
   def selected_=(v: Int): Unit = {
-    require(initialized)
+    // require(initialized)
     uiRadioButtonsSetSelected(control, v)
   }
   def selectedName: String = {
@@ -27,5 +27,10 @@ class RadioButtons(
       uiRadioButtonsAppend(control, toCString(name))
     }
     selected = initialSelected
+    uiRadioButtonsOnSelected(
+      control,
+      cCallback2,
+      PtrConverter.toPtr(onSelected)
+    )
   }
 }

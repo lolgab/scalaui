@@ -1,6 +1,6 @@
 package scalaui
 
-import scala.scalanative.native.Ptr
+import scala.scalanative.unsafe.Ptr
 import ui._
 
 trait GraphicObject {

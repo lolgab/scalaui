@@ -1,12 +1,10 @@
 package scalaui
 
-import scala.scalanative.native.{CFunctionPtr0, Zone, fromCString, toCString}
+import scala.scalanative.unsafe.{CFuncPtr0, Zone, fromCString, toCString}
 import ui._
 
-class EditableComboBox(
-    names: Seq[String],
-    onSelected: CFunctionPtr0[Unit] = doNothing _
-) extends Component {
+class EditableComboBox(names: Seq[String], onSelected: () => Unit = () => ())
+    extends Component {
   def currentText: String = {
     require(initialized)
     fromCString(uiEditableComboboxText(control))
@@ -21,5 +19,6 @@ class EditableComboBox(
     for (name <- names) {
       uiEditableComboboxAppend(control, toCString(name))
     }
+  // TODO set onSelected callback
   }
 }

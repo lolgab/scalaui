@@ -1,6 +1,7 @@
 package scalaui
 
-import scala.scalanative.native._
+import scala.scalanative.unsafe._
+import scala.scalanative.unsigned._
 import ui._
 
 class AttributedString private () extends Freeable {

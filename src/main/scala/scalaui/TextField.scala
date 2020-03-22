@@ -1,6 +1,6 @@
 package scalaui
 
-import scala.scalanative.native.{Zone, toCString}
+import scala.scalanative.unsafe.{Zone, toCString}
 import ui._
 
 class TextField(initialText: String) extends Field {

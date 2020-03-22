@@ -1,12 +1,11 @@
 package scalaui
 
-import scala.scalanative.native.CFunctionPtr0
+import scala.scalanative.unsafe.CFuncPtr0
 import ui._
 
-class TextArea(val onChange: CFunctionPtr0[Unit] = doNothing _)
-    extends AbstractTextArea {
+class TextArea(val onChange: () => Unit = () => ()) extends AbstractTextArea {
   private[scalaui] override def build(): Unit = {
     control = uiNewMultilineEntry()
-    uiMultilineEntryOnChanged(control, onChange, null)
+    uiMultilineEntryOnChanged(control, cCallback2, PtrConverter.toPtr(onChange))
   }
 }

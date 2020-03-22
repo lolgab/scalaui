@@ -1,6 +1,6 @@
 package scalaui
 
-import scala.scalanative.native._
+import scala.scalanative.unsafe._
 import ui._
 
 class Menu(name: String, items: AppendableToMenu*) extends GraphicObject {

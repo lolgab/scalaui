@@ -3,11 +3,11 @@ package examples
 import scalaui._
 
 object BorderPanelExample {
-  val north = new Button("North", doNothing _)
-  val south = new Button("South", doNothing _)
-  val west = new Button("West", doNothing _)
-  val east = new Button("East", doNothing _)
-  val center = new Button("Center", doNothing _)
+  val north = new Button("North", () => ())
+  val south = new Button("South", () => ())
+  val west = new Button("West", () => ())
+  val east = new Button("East", () => ())
+  val center = new Button("Center", () => ())
 
   val borderPanel = new BorderPanel(north, west, center, east, south)
 
