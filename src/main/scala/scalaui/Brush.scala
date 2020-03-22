@@ -19,7 +19,12 @@ class SolidBrush(color: Color) extends Brush {
   control.A = color.alpha
 }
 
-class GradientBrush(colors: Seq[Color], start: Point, end: Point, transitionFunction: Double => Double = identity) extends Brush {
+class GradientBrush(
+    colors: Seq[Color],
+    start: Point,
+    end: Point,
+    transitionFunction: Double => Double = identity
+) extends Brush {
   control.Type = uiDrawBrushType.uiDrawBrushTypeLinearGradient
 
   control.X0 = start.x
@@ -37,14 +42,19 @@ class GradientBrush(colors: Seq[Color], start: Point, end: Point, transitionFunc
     s.G = colors(i).green
     s.B = colors(i).blue
     s.A = colors(i).alpha
-    s.Pos = transitionFunction((colors.length - 1 - i).toDouble) / (colors.length - 1)
+    s.Pos =
+      transitionFunction((colors.length - 1 - i).toDouble) / (colors.length - 1)
   }
 
   control.NumStops = colors.length
   control.Stops = stopsArray
 }
 
-class RadialGradientBrush(colors: Seq[Color], start: Point, end: Point, outerRadious: Double)
-    extends GradientBrush(colors, start, end) {
+class RadialGradientBrush(
+    colors: Seq[Color],
+    start: Point,
+    end: Point,
+    outerRadious: Double
+) extends GradientBrush(colors, start, end) {
   control.OuterRadius = outerRadious
 }

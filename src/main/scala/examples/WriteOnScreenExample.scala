@@ -3,13 +3,13 @@ package examples
 import scalaui._
 
 object WriteOnScreenExample {
-  var typing  = false
+  var typing = false
   var texts = List[(String, Font, Point)]()
 
   object callbacks extends AreaCallbacks {
     val whiteBrush = new SolidBrush(Color.White)
     val blackBrush = new SolidBrush(Color.Black)
-    val stroke     = new Stroke(Cap.Flat, Join.Bevel, 3)
+    val stroke = new Stroke(Cap.Flat, Join.Bevel, 3)
 
     override def draw(ha: AreaHandler, area: Area, p: DrawParams): Unit = {
       val r = new Rectangle(Point(0, 0), p.areaWidth, p.areaHeight)
@@ -21,7 +21,11 @@ object WriteOnScreenExample {
       }
     }
 
-    override def onMouseEvent(ha: AreaHandler, area: Area, event: MouseEvent): Unit = {
+    override def onMouseEvent(
+        ha: AreaHandler,
+        area: Area,
+        event: MouseEvent
+    ): Unit = {
       event.down match {
         case MouseButton.Left =>
           val f = fontButton.font
@@ -36,16 +40,20 @@ object WriteOnScreenExample {
       }
     }
 
-    override def onMouseCrossed(ha: AreaHandler, area: Area, left: Boolean): Unit = {}
+    override def onMouseCrossed(
+        ha: AreaHandler,
+        area: Area,
+        left: Boolean
+    ): Unit = {}
 
     override def onKeyEvent(ha: AreaHandler, a: Area, e: KeyEvent): Boolean = {
       if (typing) e.key match {
         case Key.Down(Key.Coded(8)) => {
           val s = texts.head._1
-          if(s != "") texts = texts.head.copy(_1 = s.init) :: texts.tail
+          if (s != "") texts = texts.head.copy(_1 = s.init) :: texts.tail
         }
         case Key.Down(Key.Coded(key)) =>
-          val k = if(key >= 'a' && key <= 'z' && e.shiftDown) key - 32 else key
+          val k = if (key >= 'a' && key <= 'z' && e.shiftDown) key - 32 else key
           texts = texts.head.copy(_1 = texts.head._1 + k.toChar) :: texts.tail
         case _ =>
       }
@@ -54,10 +62,12 @@ object WriteOnScreenExample {
     }
   }
 
-  val area = new NonScrollingArea(callbacks.draw _,
-                                  callbacks.onMouseEvent _,
-                                  callbacks.onMouseCrossed _,
-                                  callbacks.onKeyEvent _)
+  val area = new NonScrollingArea(
+    callbacks.draw _,
+    callbacks.onMouseEvent _,
+    callbacks.onMouseCrossed _,
+    callbacks.onKeyEvent _
+  )
 
   def onFontChange(): Unit = {
     val h = texts.head

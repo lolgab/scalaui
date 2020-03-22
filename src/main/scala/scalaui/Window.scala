@@ -1,19 +1,29 @@
 package scalaui
 
-import scala.scalanative.native.{CFunctionPtr0, CInt, Ptr, Zone, fromCString, stackalloc, toCString}
+import scala.scalanative.native.{
+  CFunctionPtr0,
+  CInt,
+  Ptr,
+  Zone,
+  fromCString,
+  stackalloc,
+  toCString
+}
 import ui._
 
-class Window(_title: String,
-             width: Int,
-             height: Int,
-             content: Component,
-             menus: Seq[Menu] = Seq(),
-             _borderLess: Boolean = false,
-             _fullScreen: Boolean = false,
-             _margined: Boolean = false,
-             private[scalaui] val onClosing: CFunctionPtr0[Boolean] = doNothingThenClose _,
-             onContentSizeChanged: CFunctionPtr0[Unit] = doNothing _)
-    extends GraphicObject
+class Window(
+    _title: String,
+    width: Int,
+    height: Int,
+    content: Component,
+    menus: Seq[Menu] = Seq(),
+    _borderLess: Boolean = false,
+    _fullScreen: Boolean = false,
+    _margined: Boolean = false,
+    private[scalaui] val onClosing: CFunctionPtr0[Boolean] =
+      doNothingThenClose _,
+    onContentSizeChanged: CFunctionPtr0[Unit] = doNothing _
+) extends GraphicObject
     with Freeable {
 
   private[scalaui] def build(): Unit = Zone { implicit z =>
@@ -37,9 +47,10 @@ class Window(_title: String,
     fromCString(uiSaveFile(control))
   }
 
-  def messageBox(title: String, description: String): Unit = Zone { implicit z =>
-    require(initialized)
-    uiMsgBox(control, toCString(title), toCString(description))
+  def messageBox(title: String, description: String): Unit = Zone {
+    implicit z =>
+      require(initialized)
+      uiMsgBox(control, toCString(title), toCString(description))
   }
 
   def errorBox(title: String, description: String): Unit = Zone { implicit z =>
@@ -60,7 +71,7 @@ class Window(_title: String,
 
   private def contentSize: (Int, Int) = {
     require(initialized)
-    val width: Ptr[CInt]  = stackalloc[CInt]
+    val width: Ptr[CInt] = stackalloc[CInt]
     val height: Ptr[CInt] = stackalloc[CInt]
     uiWindowContentSize(control, width, height)
     (!width, !height)

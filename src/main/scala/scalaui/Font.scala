@@ -7,14 +7,18 @@ import scalaui.uiOps._
 // TODO Generalize control for font, fontfamily etc.
 class Font private[scalaui] () extends Freeable {
   //TODO waiting for https://github.com/scala-native/scala-native/issues/367
-  private[scalaui] var control: Ptr[uiFontDescriptor] = stdlib.malloc(sizeof[uiFontDescriptor]).cast[Ptr[uiFontDescriptor]]//TODO Stop leaking memory
+  private[scalaui] var control: Ptr[uiFontDescriptor] = stdlib
+    .malloc(sizeof[uiFontDescriptor])
+    .cast[Ptr[uiFontDescriptor]] //TODO Stop leaking memory
   control = stdlib.malloc(sizeof[uiFontDescriptor]).cast[Ptr[uiFontDescriptor]]
 
-  def this(family: String,
-           size: Double,
-           weight: Int = Weight.Normal,
-           italic: Italic.Value = Italic.Normal,
-           stretch: Stretch.Value = Stretch.Normal) = {
+  def this(
+      family: String,
+      size: Double,
+      weight: Int = Weight.Normal,
+      italic: Italic.Value = Italic.Normal,
+      stretch: Stretch.Value = Stretch.Normal
+  ) = {
     this()
     val z = new Zone {
       override def alloc(size: CSize): Ptr[Byte] = stdlib.malloc(size)

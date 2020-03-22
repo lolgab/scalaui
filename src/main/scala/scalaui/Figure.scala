@@ -24,12 +24,26 @@ class Figure(start: Point, lines: Seq[Line]) extends Drawable {
 sealed trait Line extends Drawable
 
 class StraitLine(to: Point) extends Line {
-  private[scalaui] override def addTo(path: DrawPath): Unit = uiDrawPathLineTo(path, to.x, to.y)
-}
-class ArcLine(center: Point, radius: Double, startAngle: Double, sweep: Double, negative: Boolean)
-    extends Line {
   private[scalaui] override def addTo(path: DrawPath): Unit =
-    uiDrawPathArcTo(path, center.x, center.y, radius, startAngle, sweep, negative)
+    uiDrawPathLineTo(path, to.x, to.y)
+}
+class ArcLine(
+    center: Point,
+    radius: Double,
+    startAngle: Double,
+    sweep: Double,
+    negative: Boolean
+) extends Line {
+  private[scalaui] override def addTo(path: DrawPath): Unit =
+    uiDrawPathArcTo(
+      path,
+      center.x,
+      center.y,
+      radius,
+      startAngle,
+      sweep,
+      negative
+    )
 }
 class BezierLine(to: Point, c1: Point, c2: Point) extends Line {
   private[scalaui] override def addTo(path: DrawPath): Unit =

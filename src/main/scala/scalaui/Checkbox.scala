@@ -3,7 +3,8 @@ package scalaui
 import scala.scalanative.native.{CFunctionPtr0, Zone, toCString}
 import ui._
 
-class Checkbox(text: String, onToggled: CFunctionPtr0[Unit] = doNothing _) extends Component {
+class Checkbox(text: String, onToggled: CFunctionPtr0[Unit] = doNothing _)
+    extends Component {
   def checked: Boolean = {
     require(initialized)
     uiCheckboxChecked(control)
@@ -14,8 +15,6 @@ class Checkbox(text: String, onToggled: CFunctionPtr0[Unit] = doNothing _) exten
   }
 
   private[scalaui] override def build(): Unit = {
-    Zone { implicit z =>
-      control = uiNewCheckbox(toCString(text))
-    }
+    Zone { implicit z => control = uiNewCheckbox(toCString(text)) }
   }
 }

@@ -7,7 +7,7 @@ package object scalaui {
 
   private var windows = List[Window]()
 
-  private var _initialized                  = false
+  private var _initialized = false
   private[scalaui] def initialized: Boolean = _initialized
 
   private def onShouldQuit(data: Ptr[Byte]): CInt = {
@@ -29,7 +29,11 @@ package object scalaui {
   def render(window: Window): Unit = {
     def create(): Unit = {
       window.build()
-      uiWindowOnClosing(window.control, onClosing _, window.onClosing.cast[Ptr[Byte]])
+      uiWindowOnClosing(
+        window.control,
+        onClosing _,
+        window.onClosing.cast[Ptr[Byte]]
+      )
       uiOnShouldQuit(onShouldQuit _, window.control.cast[Ptr[Byte]])
       uiControlShow(window.control)
     }
@@ -50,7 +54,7 @@ package object scalaui {
     }
   }
 
-  type Width  = Int
+  type Width = Int
   type Height = Int
 
   implicit def toBoolean(i: CInt): Boolean = i match {
@@ -60,9 +64,11 @@ package object scalaui {
 
   implicit def toCInt(b: Boolean): CInt = if (b) 1 else 0
 
-  implicit def areaToStratchable(c: AbstractArea): StretchableComponent = Stretchy(c)
+  implicit def areaToStratchable(c: AbstractArea): StretchableComponent =
+    Stretchy(c)
 
-  implicit def componentToStratchable(c: Component): StretchableComponent = NonStretchy(c)
+  implicit def componentToStratchable(c: Component): StretchableComponent =
+    NonStretchy(c)
 
   implicit def toSeq(c: StretchableComponent) = Seq(c)
 
@@ -71,27 +77,30 @@ package object scalaui {
   def doNothingThenClose(): Boolean = true
 
   type AreaHandler = Ptr[uiAreaHandler]
-  type Area        = Ptr[uiArea]
+  type Area = Ptr[uiArea]
 
   implicit class AreaOps(val area: Area) extends AnyVal {
-    def setSize(width: Int, height: Int): Unit = uiAreaSetSize(area, width, height)
+    def setSize(width: Int, height: Int): Unit =
+      uiAreaSetSize(area, width, height)
 
     def queueRedraw(): Unit = uiAreaQueueRedrawAll(area)
   }
 
-  type DrawContext  = Ptr[uiDrawContext]
+  type DrawContext = Ptr[uiDrawContext]
   type DrawCallback = CFunctionPtr3[AreaHandler, Area, DrawParams, Unit]
-  type DrawParams   = Ptr[uiAreaDrawParams]
-  type DrawPath     = Ptr[uiDrawPath]
+  type DrawParams = Ptr[uiAreaDrawParams]
+  type DrawPath = Ptr[uiDrawPath]
 
-  implicit def StringToAttributed(s: String): AttributedString = new AttributedString(s)
+  implicit def StringToAttributed(s: String): AttributedString =
+    new AttributedString(s)
 
   implicit class DrawParamsOps(val p: DrawParams) extends AnyVal {
     private def context: DrawContext = p.Context
-    def areaWidth: Double            = p.ClipWidth //TODO difference between Scrolling and NotScrolling
-    def areaHeight: Double           = p.ClipHeight
-    def areaStartX: Double           = p.ClipX
-    def areaStartY: Double           = p.ClipY
+    def areaWidth: Double =
+      p.ClipWidth //TODO difference between Scrolling and NotScrolling
+    def areaHeight: Double = p.ClipHeight
+    def areaStartX: Double = p.ClipX
+    def areaStartY: Double = p.ClipY
 
 //    //TODO Can't DRY because of Scala Native bug
 //    private def createPath(drawable: Drawable, draw: DrawPath => Unit): Unit = {
@@ -122,11 +131,13 @@ package object scalaui {
       uiDrawFreePath(path)
     }
 
-    def drawText(text: AttributedString,
-                 p: Point,
-                 font: Font,
-                 width: Double,
-                 align: Align.Value): Unit = {
+    def drawText(
+        text: AttributedString,
+        p: Point,
+        font: Font,
+        width: Double,
+        align: Align.Value
+    ): Unit = {
       val layout = new TextLayout(text, font, width, align)
       layout.build()
       uiDrawText(this.p.Context, layout.control, p.x, p.y)
@@ -139,29 +150,33 @@ package object scalaui {
   }
 
   type MouseEventCallback = CFunctionPtr3[AreaHandler, Area, MouseEvent, Unit]
-  type MouseEvent         = Ptr[uiAreaMouseEvent]
+  type MouseEvent = Ptr[uiAreaMouseEvent]
   implicit class MouseEventOps(val e: MouseEvent) extends AnyVal {
-    def x: Double               = e.X
-    def y: Double               = e.Y
+    def x: Double = e.X
+    def y: Double = e.Y
     def down: MouseButton.Value = MouseButton(e.Down) //  buttonMatch(e.Down)
-    def up: MouseButton.Value   = MouseButton(e.Up)
-    def clicks: Int             = e.Count
-    def ctrlDown: Boolean       = e.Modifiers == uiModifiers.uiModifierCtrl
-    def altDown: Boolean        = e.Modifiers == uiModifiers.uiModifierAlt
-    def shiftDown: Boolean      = e.Modifiers == uiModifiers.uiModifierShift
-    def superDown: Boolean      = e.Modifiers == uiModifiers.uiModifierSuper
-    def areaWidth: Double       = e.AreaWidth
-    def areaHeight: Double      = e.AreaHeight
+    def up: MouseButton.Value = MouseButton(e.Up)
+    def clicks: Int = e.Count
+    def ctrlDown: Boolean = e.Modifiers == uiModifiers.uiModifierCtrl
+    def altDown: Boolean = e.Modifiers == uiModifiers.uiModifierAlt
+    def shiftDown: Boolean = e.Modifiers == uiModifiers.uiModifierShift
+    def superDown: Boolean = e.Modifiers == uiModifiers.uiModifierSuper
+    def areaWidth: Double = e.AreaWidth
+    def areaHeight: Double = e.AreaHeight
 
     def startMovingWindow(area: Area): Unit = {
-      require(down != MouseButton.NoButton,
-              s"WARNING: You can't call startMovingWindow if down == ${MouseButton.NoButton}")
+      require(
+        down != MouseButton.NoButton,
+        s"WARNING: You can't call startMovingWindow if down == ${MouseButton.NoButton}"
+      )
       uiAreaBeginUserWindowMove(area)
     }
 
     def startResizingWindow(area: Area, edge: ResizeEdge.Value): Unit = {
-      require(down == MouseButton.NoButton,
-              s"WARNING: You can't call startResizingWindow if down == ${MouseButton.NoButton}")
+      require(
+        down == MouseButton.NoButton,
+        s"WARNING: You can't call startResizingWindow if down == ${MouseButton.NoButton}"
+      )
       uiAreaBeginUserWindowResize(area, edge.id.toUInt)
     }
 
@@ -176,71 +191,77 @@ package object scalaui {
 
   type DragBrokenCallback = CFunctionPtr2[AreaHandler, Area, Unit]
 
-  private[scalaui] def doNothingOnDragBroken(ah: Ptr[uiAreaHandler], a: Ptr[uiArea]): Unit = ()
+  private[scalaui] def doNothingOnDragBroken(
+      ah: Ptr[uiAreaHandler],
+      a: Ptr[uiArea]
+  ): Unit = ()
 
-  type KeyEvent         = Ptr[uiAreaKeyEvent]
+  type KeyEvent = Ptr[uiAreaKeyEvent]
   type KeyEventCallback = CFunctionPtr3[AreaHandler, Area, KeyEvent, Boolean]
 
   //TODO find better names!
   object Key {
     sealed trait Value
     case class Down(key: KeyValue) extends Value
-    case class Up(key: KeyValue)   extends Value
+    case class Up(key: KeyValue) extends Value
 
     sealed trait KeyValue
-    case object Ctrl            extends KeyValue
-    case object Alt             extends KeyValue
-    case object Shift           extends KeyValue
-    case object Super           extends KeyValue
+    case object Ctrl extends KeyValue
+    case object Alt extends KeyValue
+    case object Shift extends KeyValue
+    case object Super extends KeyValue
     case class Coded(key: Char) extends KeyValue
-    case object Escape          extends KeyValue
-    case object Insert          extends KeyValue
-    case object Delete          extends KeyValue
-    case object Home            extends KeyValue
-    case object End             extends KeyValue
-    case object PageUp          extends KeyValue
-    case object PageDown        extends KeyValue
-    case object Up              extends KeyValue
-    case object Down            extends KeyValue
-    case object Left            extends KeyValue
-    case object Right           extends KeyValue
-    case object Findex          extends KeyValue
-    case object F2              extends KeyValue
-    case object F3              extends KeyValue
-    case object F4              extends KeyValue
-    case object F5              extends KeyValue
-    case object F6              extends KeyValue
-    case object F7              extends KeyValue
-    case object F8              extends KeyValue
-    case object F9              extends KeyValue
-    case object F10             extends KeyValue
-    case object F11             extends KeyValue
-    case object F12             extends KeyValue
-    case object N0              extends KeyValue
-    case object N1              extends KeyValue
-    case object N2              extends KeyValue
-    case object N3              extends KeyValue
-    case object N4              extends KeyValue
-    case object N5              extends KeyValue
-    case object N6              extends KeyValue
-    case object N7              extends KeyValue
-    case object N8              extends KeyValue
-    case object N9              extends KeyValue
-    case object NDot            extends KeyValue
-    case object NEnter          extends KeyValue
-    case object NAdd            extends KeyValue
-    case object NSubtract       extends KeyValue
-    case object NMultiply       extends KeyValue
-    case object NDivide         extends KeyValue
+    case object Escape extends KeyValue
+    case object Insert extends KeyValue
+    case object Delete extends KeyValue
+    case object Home extends KeyValue
+    case object End extends KeyValue
+    case object PageUp extends KeyValue
+    case object PageDown extends KeyValue
+    case object Up extends KeyValue
+    case object Down extends KeyValue
+    case object Left extends KeyValue
+    case object Right extends KeyValue
+    case object Findex extends KeyValue
+    case object F2 extends KeyValue
+    case object F3 extends KeyValue
+    case object F4 extends KeyValue
+    case object F5 extends KeyValue
+    case object F6 extends KeyValue
+    case object F7 extends KeyValue
+    case object F8 extends KeyValue
+    case object F9 extends KeyValue
+    case object F10 extends KeyValue
+    case object F11 extends KeyValue
+    case object F12 extends KeyValue
+    case object N0 extends KeyValue
+    case object N1 extends KeyValue
+    case object N2 extends KeyValue
+    case object N3 extends KeyValue
+    case object N4 extends KeyValue
+    case object N5 extends KeyValue
+    case object N6 extends KeyValue
+    case object N7 extends KeyValue
+    case object N8 extends KeyValue
+    case object N9 extends KeyValue
+    case object NDot extends KeyValue
+    case object NEnter extends KeyValue
+    case object NAdd extends KeyValue
+    case object NSubtract extends KeyValue
+    case object NMultiply extends KeyValue
+    case object NDivide extends KeyValue
   }
   implicit class KeyEventOps(val e: KeyEvent) extends AnyVal {
 
     def key = if (e.Up == 1) Key.Up(_key) else Key.Down(_key)
 
-    def ctrlDown: Boolean  = (e.Modifiers & uiModifiers.uiModifierCtrl) != 0.toUInt
-    def altDown: Boolean   = (e.Modifiers & uiModifiers.uiModifierAlt) != 0.toUInt
-    def shiftDown: Boolean = (e.Modifiers & uiModifiers.uiModifierShift) != 0.toUInt
-    def superDown: Boolean = (e.Modifiers & uiModifiers.uiModifierSuper) != 0.toUInt
+    def ctrlDown: Boolean =
+      (e.Modifiers & uiModifiers.uiModifierCtrl) != 0.toUInt
+    def altDown: Boolean = (e.Modifiers & uiModifiers.uiModifierAlt) != 0.toUInt
+    def shiftDown: Boolean =
+      (e.Modifiers & uiModifiers.uiModifierShift) != 0.toUInt
+    def superDown: Boolean =
+      (e.Modifiers & uiModifiers.uiModifierSuper) != 0.toUInt
 
     private def _key =
       if (e.Key == 0) {
@@ -250,7 +271,8 @@ package object scalaui {
             case uiModifiers.uiModifierAlt   => Key.Alt
             case uiModifiers.uiModifierShift => Key.Shift
             case uiModifiers.uiModifierSuper => Key.Super
-          } else if (e.ExtKey != 0.toUInt)
+          }
+        else if (e.ExtKey != 0.toUInt)
           e.ExtKey match {
             case uiExtKey.uiExtKeyEscape    => Key.Escape
             case uiExtKey.uiExtKeyInsert    => Key.Insert
@@ -291,7 +313,8 @@ package object scalaui {
             case uiExtKey.uiExtKeyNSubtract => Key.NSubtract
             case uiExtKey.uiExtKeyNMultiply => Key.NMultiply
             case uiExtKey.uiExtKeyNDivide   => Key.NDivide
-          } else {
+          }
+        else {
           println("Should never happen! Maybe it is a bug!")
           Key.Coded(0)
         }
