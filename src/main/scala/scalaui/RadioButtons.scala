@@ -26,6 +26,7 @@ class RadioButtons(
     for (name <- names) {
       uiRadioButtonsAppend(control, toCString(name))
     }
-    selected = initialSelected
+    //selected = initialSelected  // this caused a "requirement failed" exception
+    uiRadioButtonsSetSelected(control, initialSelected)
   }
 }
