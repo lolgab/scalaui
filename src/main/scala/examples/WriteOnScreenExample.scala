@@ -4,7 +4,7 @@ import scalaui._
 
 object WriteOnScreenExample {
   var typing = false
-  var texts = List[(String, Font, Point)]()
+  var texts: List[(String, Font, Point)] = List[(String, Font, Point)]()
 
   object callbacks extends AreaCallbacks {
     val whiteBrush = new SolidBrush(Color.White)
@@ -48,10 +48,9 @@ object WriteOnScreenExample {
 
     override def onKeyEvent(ha: AreaHandler, a: Area, e: KeyEvent): Boolean = {
       if (typing) e.key match {
-        case Key.Down(Key.Coded(8)) => {
+        case Key.Down(Key.Coded(8)) =>
           val s = texts.head._1
           if (s != "") texts = texts.head.copy(_1 = s.init) :: texts.tail
-        }
         case Key.Down(Key.Coded(key)) =>
           val k = if (key >= 'a' && key <= 'z' && e.shiftDown) key - 32 else key
           texts = texts.head.copy(_1 = texts.head._1 + k.toChar) :: texts.tail

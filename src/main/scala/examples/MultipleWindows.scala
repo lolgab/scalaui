@@ -4,7 +4,7 @@ import scalaui._
 
 object MultipleWindows {
   var i = 0
-  def newW = {
+  def newW: Window = {
     def onClosing(): Boolean = { println("closing window"); true }
     val w = new Window(
       s"Window n° $i",

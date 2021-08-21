@@ -1,3 +1,4 @@
+import scala.language.implicitConversions
 import scala.scalanative.libc.stdlib.malloc
 import scala.scalanative.unsafe._
 import scala.scalanative.unsigned._
@@ -74,7 +75,8 @@ package object scalaui {
   implicit def componentToStratchable(c: Component): StretchableComponent =
     NonStretchy(c)
 
-  implicit def toSeq(c: StretchableComponent) = Seq(c)
+  implicit def toSeq(c: StretchableComponent): Seq[StretchableComponent] =
+    Seq(c)
 
   def doNothing(): Unit = ()
 
@@ -99,7 +101,6 @@ package object scalaui {
     new AttributedString(s)
 
   implicit class DrawParamsOps(val p: DrawParams) extends AnyVal {
-    private def context: DrawContext = p.Context
     def areaWidth: Double =
       p.ClipWidth //TODO difference between Scrolling and NotScrolling
     def areaHeight: Double = p.ClipHeight
@@ -257,7 +258,7 @@ package object scalaui {
   }
   implicit class KeyEventOps(val e: KeyEvent) extends AnyVal {
 
-    def key = if (e.Up == 1) Key.Up(_key) else Key.Down(_key)
+    def key: Key.Value = if (e.Up == 1) Key.Up(_key) else Key.Down(_key)
 
     def ctrlDown: Boolean =
       (e.Modifiers & uiModifiers.uiModifierCtrl) != 0.toUInt

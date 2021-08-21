@@ -3,8 +3,10 @@ package examples
 import scala.collection.mutable
 import scalaui._
 
+import scala.collection.mutable.ListBuffer
+
 object PaintExample {
-  val points = mutable.ListBuffer[Point]()
+  val points: ListBuffer[Point] = mutable.ListBuffer[Point]()
 
   val width, height = 500
 
