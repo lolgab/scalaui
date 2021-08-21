@@ -17,7 +17,7 @@ package object scalaui {
   }
 
   private def onClosing(w: Ptr[uiWindow], data: Ptr[Byte]): CInt = {
-    if (data.asInstanceOf[CFuncPtr0[Boolean]].apply()) {
+    if (CFuncPtr.fromPtr[CFuncPtr0[Boolean]](data).apply()) {
       for (window <- windows; if window.control == w) {
         windows = windows.filter(_ != window)
         window.free()
@@ -33,7 +33,7 @@ package object scalaui {
       uiWindowOnClosing(
         window.control,
         onClosing _,
-        window.onClosing.asInstanceOf[Ptr[Byte]]
+        CFuncPtr.toPtr(window.onClosing)
       )
       uiOnShouldQuit(
         onShouldQuit _,
