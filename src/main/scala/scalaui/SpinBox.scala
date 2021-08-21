@@ -1,9 +1,9 @@
 package scalaui
 
-import scala.scalanative.native.CFunctionPtr0
+import scala.scalanative.unsafe.CFuncPtr0
 import ui._
 
-class SpinBox(min: Int, max: Int, onChange: CFunctionPtr0[Unit] = doNothing _)
+class SpinBox(min: Int, max: Int, onChange: CFuncPtr0[Unit] = doNothing _)
     extends Component {
   def value: Int = {
     require(initialized)

@@ -1,12 +1,13 @@
 package scalaui
 
-import scala.scalanative.native.{CFunctionPtr0, Zone, toCString}
 import ui._
+
+import scala.scalanative.unsafe._
 
 class ComboBox(
     names: Seq[String],
     initialSelected: Int = 0,
-    onSelected: CFunctionPtr0[Unit] = doNothing _
+    onSelected: CFuncPtr0[Unit] = doNothing _
 ) extends Component {
   def selected: Int = {
     require(initialized)

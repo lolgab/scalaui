@@ -1,6 +1,6 @@
 package scalaui
 
-import scala.scalanative.native.{Zone, toCString}
+import scala.scalanative.unsafe._
 import ui._
 
 class Label(text: String) extends Component {

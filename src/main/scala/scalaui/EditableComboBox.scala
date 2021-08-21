@@ -1,11 +1,11 @@
 package scalaui
 
-import scala.scalanative.native.{CFunctionPtr0, Zone, fromCString, toCString}
+import scala.scalanative.unsafe._
 import ui._
 
 class EditableComboBox(
     names: Seq[String],
-    onSelected: CFunctionPtr0[Unit] = doNothing _
+    onSelected: CFuncPtr0[Unit] = doNothing _
 ) extends Component {
   def currentText: String = {
     require(initialized)

@@ -1,13 +1,15 @@
 package scalaui
 
-import scala.scalanative.native.{Ptr, sizeof}
-import scala.scalanative.native.stdlib.malloc
+import scala.scalanative.unsafe._
+import scala.scalanative.libc.stdlib.malloc
 import ui.{uiDrawBrush, uiDrawBrushGradientStop}
 import uiOps._
 
+import scala.scalanative.unsigned._
+
 abstract class Brush {
   private[scalaui] val control: Ptr[uiDrawBrush] = malloc(sizeof[uiDrawBrush])
-    .cast[Ptr[uiDrawBrush]]
+    .asInstanceOf[Ptr[uiDrawBrush]]
 }
 
 class SolidBrush(color: Color) extends Brush {
@@ -33,11 +35,11 @@ class GradientBrush(
   control.Y1 = end.y
 
   private[scalaui] val stopsArray: Ptr[uiDrawBrushGradientStop] =
-    malloc(colors.length * sizeof[uiDrawBrushGradientStop])
-      .cast[Ptr[uiDrawBrushGradientStop]]
+    malloc(colors.length.toULong * sizeof[uiDrawBrushGradientStop])
+      .asInstanceOf[Ptr[uiDrawBrushGradientStop]]
 
   for (i <- colors.indices) {
-    val s = stopsArray + i * sizeof[uiDrawBrushGradientStop]
+    val s = stopsArray + i
     s.R = colors(i).red
     s.G = colors(i).green
     s.B = colors(i).blue
@@ -46,7 +48,7 @@ class GradientBrush(
       transitionFunction((colors.length - 1 - i).toDouble) / (colors.length - 1)
   }
 
-  control.NumStops = colors.length
+  control.NumStops = colors.length.toUInt
   control.Stops = stopsArray
 }
 

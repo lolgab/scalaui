@@ -2,7 +2,8 @@ package scalaui
 
 import ui._
 import uiOps._
-import scalanative.native._
+import scalanative.unsafe._
+import scalanative.unsigned._
 
 private[scalaui] class TextLayout(
     text: AttributedString,

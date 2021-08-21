@@ -1,7 +1,8 @@
 package scalaui
 
-import scala.scalanative.native.{Ptr, sizeof, _}
-import scala.scalanative.native.stdlib.malloc
+import scala.scalanative.unsafe._
+import scala.scalanative.unsigned._
+import scala.scalanative.libc.stdlib.malloc
 import ui._
 import uiOps._
 
@@ -16,7 +17,7 @@ class Stroke(
 ) {
   private[scalaui] val control: Ptr[uiDrawStrokeParams] = malloc(
     sizeof[uiDrawStrokeParams]
-  ).cast[Ptr[uiDrawStrokeParams]]
+  ).asInstanceOf[Ptr[uiDrawStrokeParams]]
 
   control.Cap = cap.id.toUInt
   control.Join = join.id.toUInt

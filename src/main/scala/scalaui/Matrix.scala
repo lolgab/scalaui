@@ -1,12 +1,13 @@
 package scalaui
 
-import scala.scalanative.native._
-import scala.scalanative.native.stdlib.malloc
+import scala.scalanative.unsafe._
+import scala.scalanative.libc.stdlib.malloc
 import ui._
 import uiOps._
 
 class Matrix private (private[scalaui] val m: Ptr[uiDrawMatrix]) {
-  def this() = this(malloc(sizeof[uiDrawMatrix]).cast[Ptr[uiDrawMatrix]])
+  def this() =
+    this(malloc(sizeof[uiDrawMatrix]).asInstanceOf[Ptr[uiDrawMatrix]])
 
   def apply(x: Int, y: Int): Double = (x, y) match {
     case (0, 0) => m.M11

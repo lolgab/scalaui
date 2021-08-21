@@ -1,5 +1,6 @@
-import scala.scalanative.native.stdlib.malloc
-import scala.scalanative.native.{CFunctionPtr0, CInt, Ptr, sizeof, _}
+import scala.scalanative.libc.stdlib.malloc
+import scala.scalanative.unsafe._
+import scala.scalanative.unsigned._
 
 package object scalaui {
   import ui._
@@ -11,12 +12,12 @@ package object scalaui {
   private[scalaui] def initialized: Boolean = _initialized
 
   private def onShouldQuit(data: Ptr[Byte]): CInt = {
-    uiControlDestroy(data.cast[Ptr[uiWindow]])
+    uiControlDestroy(data.asInstanceOf[Ptr[uiWindow]])
     1
   }
 
   private def onClosing(w: Ptr[uiWindow], data: Ptr[Byte]): CInt = {
-    if (data.cast[CFunctionPtr0[Boolean]].apply()) {
+    if (data.asInstanceOf[CFuncPtr0[Boolean]].apply()) {
       for (window <- windows; if window.control == w) {
         windows = windows.filter(_ != window)
         window.free()
@@ -32,9 +33,12 @@ package object scalaui {
       uiWindowOnClosing(
         window.control,
         onClosing _,
-        window.onClosing.cast[Ptr[Byte]]
+        window.onClosing.asInstanceOf[Ptr[Byte]]
       )
-      uiOnShouldQuit(onShouldQuit _, window.control.cast[Ptr[Byte]])
+      uiOnShouldQuit(
+        onShouldQuit _,
+        window.control.asInstanceOf[Ptr[Byte]]
+      )
       uiControlShow(window.control)
     }
 
@@ -42,7 +46,7 @@ package object scalaui {
       case Nil =>
         windows = window :: windows
         val options: Ptr[uiInitOptions] = malloc(sizeof[uiInitOptions])
-          .cast[Ptr[uiInitOptions]]
+          .asInstanceOf[Ptr[uiInitOptions]]
         uiInit(options)
         create()
         _initialized = true
@@ -87,7 +91,7 @@ package object scalaui {
   }
 
   type DrawContext = Ptr[uiDrawContext]
-  type DrawCallback = CFunctionPtr3[AreaHandler, Area, DrawParams, Unit]
+  type DrawCallback = CFuncPtr3[AreaHandler, Area, DrawParams, Unit]
   type DrawParams = Ptr[uiAreaDrawParams]
   type DrawPath = Ptr[uiDrawPath]
 
@@ -149,7 +153,7 @@ package object scalaui {
     val NoButton, Left, Center, Right = Value
   }
 
-  type MouseEventCallback = CFunctionPtr3[AreaHandler, Area, MouseEvent, Unit]
+  type MouseEventCallback = CFuncPtr3[AreaHandler, Area, MouseEvent, Unit]
   type MouseEvent = Ptr[uiAreaMouseEvent]
   implicit class MouseEventOps(val e: MouseEvent) extends AnyVal {
     def x: Double = e.X
@@ -187,9 +191,9 @@ package object scalaui {
   }
 
   //TODO ugly boolean Int unsafe conversion!
-  type MouseCrossedCallback = CFunctionPtr3[AreaHandler, Area, Boolean, Unit]
+  type MouseCrossedCallback = CFuncPtr3[AreaHandler, Area, Boolean, Unit]
 
-  type DragBrokenCallback = CFunctionPtr2[AreaHandler, Area, Unit]
+  type DragBrokenCallback = CFuncPtr2[AreaHandler, Area, Unit]
 
   private[scalaui] def doNothingOnDragBroken(
       ah: Ptr[uiAreaHandler],
@@ -197,7 +201,7 @@ package object scalaui {
   ): Unit = ()
 
   type KeyEvent = Ptr[uiAreaKeyEvent]
-  type KeyEventCallback = CFunctionPtr3[AreaHandler, Area, KeyEvent, Boolean]
+  type KeyEventCallback = CFuncPtr3[AreaHandler, Area, KeyEvent, Boolean]
 
   //TODO find better names!
   object Key {

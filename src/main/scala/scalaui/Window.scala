@@ -1,14 +1,6 @@
 package scalaui
 
-import scala.scalanative.native.{
-  CFunctionPtr0,
-  CInt,
-  Ptr,
-  Zone,
-  fromCString,
-  stackalloc,
-  toCString
-}
+import scala.scalanative.unsafe._
 import ui._
 
 class Window(
@@ -20,9 +12,8 @@ class Window(
     _borderLess: Boolean = false,
     _fullScreen: Boolean = false,
     _margined: Boolean = false,
-    private[scalaui] val onClosing: CFunctionPtr0[Boolean] =
-      doNothingThenClose _,
-    onContentSizeChanged: CFunctionPtr0[Unit] = doNothing _
+    private[scalaui] val onClosing: CFuncPtr0[Boolean] = doNothingThenClose _,
+    onContentSizeChanged: CFuncPtr0[Unit] = doNothing _
 ) extends GraphicObject
     with Freeable {
 

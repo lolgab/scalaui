@@ -1,9 +1,9 @@
 package scalaui
 
-import scala.scalanative.native.{CFunctionPtr0, Zone, toCString}
+import scala.scalanative.unsafe._
 import ui._
 
-class Checkbox(text: String, onToggled: CFunctionPtr0[Unit] = doNothing _)
+class Checkbox(text: String, onToggled: CFuncPtr0[Unit] = doNothing _)
     extends Component {
   def checked: Boolean = {
     require(initialized)

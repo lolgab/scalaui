@@ -1,32 +1,11 @@
 package scalaui
 
-import scala.scalanative.native
-import scala.scalanative.native.{
-  CChar,
-  CDouble,
-  CFunctionPtr0,
-  CFunctionPtr1,
-  CFunctionPtr2,
-  CFunctionPtr3,
-  CInt,
-  CSize,
-  CString,
-  CStruct1,
-  CStruct12,
-  CStruct5,
-  CStruct6,
-  CStruct7,
-  CStruct9,
-  CUnsignedInt,
-  Ptr,
-  UInt,
-  ULong,
-  extern,
-  _
-}
+import scala.scalanative.unsigned._
 
-@native.link("ui")
-@native.extern
+import scala.scalanative.unsafe._
+
+@link("ui")
+@extern
 object ui {
   type uiForEach = CUnsignedInt
   type uiInitOptions = CStruct1[CSize]
@@ -40,10 +19,10 @@ object ui {
   def uiMainStep(wait: CInt): CInt = extern
   def uiQuit(): Unit = extern
 
-  def uiQueueMain(f: CFunctionPtr1[Ptr[Byte], Unit], data: Ptr[Byte]): Unit =
+  def uiQueueMain(f: CFuncPtr1[Ptr[Byte], Unit], data: Ptr[Byte]): Unit =
     extern
 
-  def uiOnShouldQuit(f: CFunctionPtr1[Ptr[Byte], CInt], data: Ptr[Byte]): Unit =
+  def uiOnShouldQuit(f: CFuncPtr1[Ptr[Byte], CInt], data: Ptr[Byte]): Unit =
     extern
 
   def uiFreeText(text: CString): Unit = extern
@@ -54,17 +33,17 @@ object ui {
     UInt,
     UInt,
     UInt,
-    CFunctionPtr1[Ptr[uiControl], Unit],
-    CFunctionPtr1[Ptr[uiControl], ULong],
-    CFunctionPtr1[Ptr[uiControl], Ptr[uiControl]],
-    CFunctionPtr2[Ptr[uiControl], Ptr[uiControl], Unit],
-    CFunctionPtr1[Ptr[uiControl], CInt],
-    CFunctionPtr1[Ptr[uiControl], CInt],
-    CFunctionPtr1[Ptr[uiControl], Unit],
-    CFunctionPtr1[Ptr[uiControl], Unit],
-    CFunctionPtr1[Ptr[uiControl], CInt],
-    CFunctionPtr1[Ptr[uiControl], Unit],
-    CFunctionPtr1[Ptr[uiControl], Unit]
+    CFuncPtr1[Ptr[uiControl], Unit],
+    CFuncPtr1[Ptr[uiControl], ULong],
+    CFuncPtr1[Ptr[uiControl], Ptr[uiControl]],
+    CFuncPtr2[Ptr[uiControl], Ptr[uiControl], Unit],
+    CFuncPtr1[Ptr[uiControl], CInt],
+    CFuncPtr1[Ptr[uiControl], CInt],
+    CFuncPtr1[Ptr[uiControl], Unit],
+    CFuncPtr1[Ptr[uiControl], Unit],
+    CFuncPtr1[Ptr[uiControl], CInt],
+    CFuncPtr1[Ptr[uiControl], Unit],
+    CFuncPtr1[Ptr[uiControl], Unit]
   ]
    */
   def uiControlDestroy(uc: Ptr[uiControl]): Unit = extern
@@ -114,13 +93,13 @@ object ui {
   def uiWindowSetFullscreen(w: Ptr[uiWindow], fullscreen: CInt): Unit = extern
   def uiWindowOnContentSizeChanged(
       w: Ptr[uiWindow],
-      f: CFunctionPtr0[Unit],
-//      f: CFunctionPtr2[Ptr[uiWindow], Ptr[Byte], Unit],
+      f: CFuncPtr0[Unit],
+//      f: CFuncPtr2[Ptr[uiWindow], Ptr[Byte], Unit],
       data: Ptr[Byte]
   ): Unit = extern
   def uiWindowOnClosing(
       w: Ptr[uiWindow],
-      f: CFunctionPtr2[Ptr[uiWindow], Ptr[Byte], CInt],
+      f: CFuncPtr2[Ptr[uiWindow], Ptr[Byte], CInt],
       data: Ptr[Byte]
   ): Unit =
     extern
@@ -142,10 +121,10 @@ object ui {
   def uiButtonSetText(b: Ptr[uiButton], text: CString): Unit = extern
   def uiButtonOnClicked(
       b: Ptr[uiButton],
-      f: CFunctionPtr0[Unit],
+      f: CFuncPtr0[Unit],
       data: Ptr[Byte]
   ): Unit = extern
-//def uiButtonOnClicked(b: Ptr[uiButton], f: CFunctionPtr2[Ptr[uiButton], Ptr[Byte], Unit], data: Ptr[Byte]): Unit = extern
+//def uiButtonOnClicked(b: Ptr[uiButton], f: CFuncPtr2[Ptr[uiButton], Ptr[Byte], Unit], data: Ptr[Byte]): Unit = extern
 
   def uiNewButton(text: CString): Ptr[uiButton] = extern
 
@@ -163,11 +142,11 @@ object ui {
   def uiCheckboxSetText(c: Ptr[uiCheckbox], text: CString): Unit = extern
   def uiCheckboxOnToggled(
       c: Ptr[uiCheckbox],
-      f: CFunctionPtr2[uiCheckbox, Ptr[Byte], Unit],
+      f: CFuncPtr2[uiCheckbox, Ptr[Byte], Unit],
       data: Ptr[Byte]
   ): Unit =
     extern
-//def uiCheckboxOnToggled(c: Ptr[uiCheckbox], f: CFunctionPtr2[uiCheckbox,Ptr[Byte], Unit], data: Ptr[Byte]): Unit = extern
+//def uiCheckboxOnToggled(c: Ptr[uiCheckbox], f: CFuncPtr2[uiCheckbox,Ptr[Byte], Unit], data: Ptr[Byte]): Unit = extern
 
   def uiCheckboxChecked(c: Ptr[uiCheckbox]): CInt = extern
   def uiCheckboxSetChecked(c: Ptr[uiCheckbox], checked: CInt): Unit = extern
@@ -178,7 +157,7 @@ object ui {
   def uiEntrySetText(e: Ptr[uiEntry], text: CString): Unit = extern
   def uiEntryOnChanged(
       e: Ptr[uiEntry],
-      f: CFunctionPtr2[Ptr[uiEntry], Ptr[Byte], Unit],
+      f: CFuncPtr2[Ptr[uiEntry], Ptr[Byte], Unit],
       data: Ptr[Byte]
   ): Unit = extern
   def uiEntryReadOnly(e: Ptr[uiEntry]): CInt = extern
@@ -220,8 +199,8 @@ object ui {
   def uiSpinboxSetValue(s: Ptr[uiSpinbox], value: CInt): Unit = extern
   def uiSpinboxOnChanged(
       s: Ptr[uiSpinbox],
-//  f: CFunctionPtr2[Ptr[uiSpinbox], Ptr[Byte], Unit],
-      f: CFunctionPtr0[Unit],
+//  f: CFuncPtr2[Ptr[uiSpinbox], Ptr[Byte], Unit],
+      f: CFuncPtr0[Unit],
       data: Ptr[Byte]
   ): Unit = extern
   def uiNewSpinbox(min: CInt, max: CInt): Ptr[uiSpinbox] = extern
@@ -231,8 +210,8 @@ object ui {
   def uiSliderSetValue(s: Ptr[uiSlider], value: CInt): Unit = extern
   def uiSliderOnChanged(
       s: Ptr[uiSlider],
-      //f: CFunctionPtr2[Ptr[uiSlider], Ptr[Byte], Unit],
-      f: CFunctionPtr0[Unit],
+      //f: CFuncPtr2[Ptr[uiSlider], Ptr[Byte], Unit],
+      f: CFuncPtr0[Unit],
       data: Ptr[Byte]
   ): Unit = extern
   def uiNewSlider(min: CInt, max: CInt): Ptr[uiSlider] = extern
@@ -252,7 +231,7 @@ object ui {
   def uiComboboxSetSelected(c: Ptr[uiCombobox], n: CInt): Unit = extern
   def uiComboboxOnSelected(
       c: Ptr[uiCombobox],
-      f: CFunctionPtr2[Ptr[uiCombobox], Ptr[Byte], Unit],
+      f: CFuncPtr2[Ptr[uiCombobox], Ptr[Byte], Unit],
       data: Ptr[Byte]
   ): Unit = extern
   def uiNewCombobox(): Ptr[uiCombobox] = extern
@@ -269,7 +248,7 @@ object ui {
   ): Unit = extern
   def uiEditableComboboxOnChanged(
       c: Ptr[uiEditableCombobox],
-      f: CFunctionPtr2[Ptr[uiEditableCombobox], Ptr[Byte], Unit],
+      f: CFuncPtr2[Ptr[uiEditableCombobox], Ptr[Byte], Unit],
       data: Ptr[Byte]
   ): Unit = extern
   def uiNewEditableCombobox(): Ptr[uiEditableCombobox] = extern
@@ -280,8 +259,8 @@ object ui {
   def uiRadioButtonsSetSelected(r: Ptr[uiRadioButtons], n: CInt): Unit = extern
   def uiRadioButtonsOnSelected(
       r: Ptr[uiRadioButtons],
-      f: CFunctionPtr0[Unit],
-      //f: CFunctionPtr2[Ptr[uiRadioButtons], Ptr[Byte], Unit],
+      f: CFuncPtr0[Unit],
+      //f: CFuncPtr2[Ptr[uiRadioButtons], Ptr[Byte], Unit],
       data: Ptr[Byte]
   ): Unit = extern
   def uiNewRadioButtons(): Ptr[uiRadioButtons] = extern
@@ -299,8 +278,8 @@ object ui {
     extern
   def uiMultilineEntryOnChanged(
       e: Ptr[uiMultilineEntry],
-      f: CFunctionPtr0[Unit],
-      //f: CFunctionPtr2[Ptr[uiMultilineEntry], Ptr[Byte], Unit],
+      f: CFuncPtr0[Unit],
+      //f: CFuncPtr2[Ptr[uiMultilineEntry], Ptr[Byte], Unit],
       data: Ptr[Byte]
   ): Unit = extern
   def uiMultilineEntryReadOnly(e: Ptr[uiMultilineEntry]): CInt = extern
@@ -316,8 +295,8 @@ object ui {
   def uiMenuItemDisable(m: Ptr[uiMenuItem]): Unit = extern
   def uiMenuItemOnClicked(
       m: Ptr[uiMenuItem],
-//      f: CFunctionPtr3[Ptr[uiMenuItem], Ptr[uiWindow], Ptr[Byte], Unit],
-      f: CFunctionPtr0[Unit],
+//      f: CFuncPtr3[Ptr[uiMenuItem], Ptr[uiWindow], Ptr[Byte], Unit],
+      f: CFuncPtr0[Unit],
       data: Ptr[Byte]
   ): Unit = extern
   def uiMenuItemChecked(m: Ptr[uiMenuItem]): CInt = extern
@@ -351,17 +330,17 @@ object ui {
   type uiArea = extern
 
   type _uiDrawCallback =
-    CFunctionPtr3[Ptr[Byte], Ptr[uiArea], Ptr[uiAreaDrawParams], Unit]
+    CFuncPtr3[Ptr[Byte], Ptr[uiArea], Ptr[uiAreaDrawParams], Unit]
   type _uiMouseEventCallback =
-    CFunctionPtr3[Ptr[Byte], Ptr[uiArea], Ptr[uiAreaMouseEvent], Unit]
+    CFuncPtr3[Ptr[Byte], Ptr[uiArea], Ptr[uiAreaMouseEvent], Unit]
   type _uiMouseCrossedCallback =
-    CFunctionPtr3[Ptr[Byte], Ptr[uiArea], CInt, Unit] //unsafe Int boolean conversion
-  type _uiDragBrokenCallback = CFunctionPtr2[Ptr[Byte], Ptr[uiArea], Unit]
+    CFuncPtr3[Ptr[Byte], Ptr[uiArea], CInt, Unit] //unsafe Int boolean conversion
+  type _uiDragBrokenCallback = CFuncPtr2[Ptr[Byte], Ptr[uiArea], Unit]
   type _uiKeyEventCallback =
-    CFunctionPtr3[Ptr[Byte], Ptr[uiArea], Ptr[uiAreaKeyEvent], CInt]
+    CFuncPtr3[Ptr[Byte], Ptr[uiArea], Ptr[uiAreaKeyEvent], CInt]
 
   type uiAreaHandler =
-    CStruct5[ //Ptr[Byte] need cast[Ptr[uiAreaHandler]]
+    CStruct5[ //Ptr[Byte] need isInstanceOf[Ptr[uiAreaHandler]]
       _uiDrawCallback,
       _uiMouseEventCallback,
       _uiMouseCrossedCallback,
@@ -624,7 +603,7 @@ object ui {
 
   type uiOpenTypeFeatures = extern
   type uiOpenTypeFeaturesForEachFunc =
-    CFunctionPtr7[Ptr[uiOpenTypeFeatures], CChar, CChar, CChar, CChar, UInt, Ptr[
+    CFuncPtr7[Ptr[uiOpenTypeFeatures], CChar, CChar, CChar, CChar, UInt, Ptr[
       Byte
     ], uiForEach]
   def uiNewOpenTypeFeatures: Ptr[uiOpenTypeFeatures] = extern
@@ -665,7 +644,7 @@ object ui {
   def uiAttributeFeatures(a: Ptr[uiAttribute]): Ptr[uiOpenTypeFeatures] = extern
   type uiAttributedString = extern
   type uiAttributedStringForEachAttributeFunc =
-    CFunctionPtr5[Ptr[uiAttributedString], Ptr[uiAttribute], CSize, CSize, Ptr[
+    CFuncPtr5[Ptr[uiAttributedString], Ptr[uiAttribute], CSize, CSize, Ptr[
       Byte
     ], uiForEach]
   def uiNewAttributedString(initialString: CString): Ptr[uiAttributedString] =
@@ -773,7 +752,7 @@ object ui {
   ): Unit = extern
   def uiFontButtonOnChanged(
       b: Ptr[uiFontButton],
-      f: CFunctionPtr2[Ptr[uiFontButton], Ptr[Byte], Unit],
+      f: CFuncPtr2[Ptr[uiFontButton], Ptr[Byte], Unit],
       data: Ptr[Byte]
   ): Unit =
     extern
@@ -797,7 +776,7 @@ object ui {
   ): Unit = extern
   def uiColorButtonOnChanged(
       b: Ptr[uiColorButton],
-      f: CFunctionPtr1[Ptr[uiColorButton], Unit],
+      f: CFuncPtr1[Ptr[uiColorButton], Unit],
       data: Ptr[Byte]
   ): Unit =
     extern
@@ -854,198 +833,201 @@ object uiOps {
   import ui._
 
   type uiDrawCallback =
-    CFunctionPtr3[Ptr[uiAreaHandler], Ptr[uiArea], Ptr[uiAreaDrawParams], Unit]
+    CFuncPtr3[Ptr[uiAreaHandler], Ptr[uiArea], Ptr[uiAreaDrawParams], Unit]
   type uiMouseEventCallback =
-    CFunctionPtr3[Ptr[uiAreaHandler], Ptr[uiArea], Ptr[uiAreaMouseEvent], Unit]
+    CFuncPtr3[Ptr[uiAreaHandler], Ptr[uiArea], Ptr[uiAreaMouseEvent], Unit]
   type uiMouseCrossedCallback =
-    CFunctionPtr3[Ptr[uiAreaHandler], Ptr[uiArea], CInt, Unit]
+    CFuncPtr3[Ptr[uiAreaHandler], Ptr[uiArea], CInt, Unit]
   type uiDragBrokenCallback =
-    CFunctionPtr2[Ptr[uiAreaHandler], Ptr[uiArea], Unit]
+    CFuncPtr2[Ptr[uiAreaHandler], Ptr[uiArea], Unit]
   type uiKeyEventCallback =
-    CFunctionPtr3[Ptr[uiAreaHandler], Ptr[uiArea], Ptr[uiAreaKeyEvent], CInt]
+    CFuncPtr3[Ptr[uiAreaHandler], Ptr[uiArea], Ptr[uiAreaKeyEvent], CInt]
 
   implicit class uiAreaHandlerOps(val ptr: Ptr[uiAreaHandler]) extends AnyVal {
-    def Draw: uiDrawCallback = (!ptr._1).cast[uiDrawCallback]
-    def MouseEvent: uiMouseEventCallback = (!ptr._2).cast[uiMouseEventCallback]
+    def Draw: uiDrawCallback = (ptr._1).asInstanceOf[uiDrawCallback]
+    def MouseEvent: uiMouseEventCallback =
+      (ptr._2).asInstanceOf[uiMouseEventCallback]
     def MouseCrossed: uiMouseCrossedCallback =
-      (!ptr._3).cast[uiMouseCrossedCallback]
-    def DragBroken: uiDragBrokenCallback = (!ptr._4).cast[uiDragBrokenCallback]
-    def KeyEvent: uiKeyEventCallback = (!ptr._5).cast[uiKeyEventCallback]
+      (ptr._3).asInstanceOf[uiMouseCrossedCallback]
+    def DragBroken: uiDragBrokenCallback =
+      (ptr._4).asInstanceOf[uiDragBrokenCallback]
+    def KeyEvent: uiKeyEventCallback = (ptr._5).asInstanceOf[uiKeyEventCallback]
 
-    def Draw_=(v: uiDrawCallback): Unit = !ptr._1 = v.cast[_uiDrawCallback]
+    def Draw_=(v: uiDrawCallback): Unit =
+      ptr._1 = v.asInstanceOf[_uiDrawCallback]
     def MouseEvent_=(v: uiMouseEventCallback): Unit =
-      !ptr._2 = v.cast[_uiMouseEventCallback]
+      ptr._2 = v.asInstanceOf[_uiMouseEventCallback]
     def MouseCrossed_=(v: uiMouseCrossedCallback): Unit =
-      !ptr._3 = v.cast[_uiMouseCrossedCallback]
+      ptr._3 = v.asInstanceOf[_uiMouseCrossedCallback]
     def DragBroken_=(v: uiDragBrokenCallback): Unit =
-      !ptr._4 = v.cast[_uiDragBrokenCallback]
+      ptr._4 = v.asInstanceOf[_uiDragBrokenCallback]
     def KeyEvent_=(v: uiKeyEventCallback): Unit =
-      !ptr._5 = v.cast[_uiKeyEventCallback]
+      ptr._5 = v.asInstanceOf[_uiKeyEventCallback]
   }
 
   implicit class uiAreaDrawParamsOps(val ptr: Ptr[uiAreaDrawParams])
       extends AnyVal {
-    def Context: Ptr[uiDrawContext] = !ptr._1
-    def AreaWidth: CDouble = !ptr._2
-    def AreaHeight: CDouble = !ptr._3
-    def ClipX: CDouble = !ptr._4
-    def ClipY: CDouble = !ptr._5
-    def ClipWidth: CDouble = !ptr._6
-    def ClipHeight: CDouble = !ptr._7
+    def Context: Ptr[uiDrawContext] = ptr._1
+    def AreaWidth: CDouble = ptr._2
+    def AreaHeight: CDouble = ptr._3
+    def ClipX: CDouble = ptr._4
+    def ClipY: CDouble = ptr._5
+    def ClipWidth: CDouble = ptr._6
+    def ClipHeight: CDouble = ptr._7
 
-    def Context_=(v: Ptr[uiDrawContext]): Unit = !ptr._1 = v
-    def AreaWidth_=(v: CDouble): Unit = !ptr._2 = v
-    def AreaHeight_=(v: CDouble): Unit = !ptr._3 = v
-    def ClipX_=(v: CDouble): Unit = !ptr._4 = v
-    def ClipY_=(v: CDouble): Unit = !ptr._5 = v
-    def ClipWidth_=(v: CDouble): Unit = !ptr._6 = v
-    def ClipHeight_=(v: CDouble): Unit = !ptr._7 = v
+    def Context_=(v: Ptr[uiDrawContext]): Unit = ptr._1 = v
+    def AreaWidth_=(v: CDouble): Unit = ptr._2 = v
+    def AreaHeight_=(v: CDouble): Unit = ptr._3 = v
+    def ClipX_=(v: CDouble): Unit = ptr._4 = v
+    def ClipY_=(v: CDouble): Unit = ptr._5 = v
+    def ClipWidth_=(v: CDouble): Unit = ptr._6 = v
+    def ClipHeight_=(v: CDouble): Unit = ptr._7 = v
   }
 
   implicit class uiDrawMatrixOps(val ptr: Ptr[uiDrawMatrix]) extends AnyVal {
-    def M11: CDouble = !ptr._1
-    def M12: CDouble = !ptr._2
-    def M21: CDouble = !ptr._3
-    def M22: CDouble = !ptr._4
-    def M31: CDouble = !ptr._5
-    def M32: CDouble = !ptr._6
+    def M11: CDouble = ptr._1
+    def M12: CDouble = ptr._2
+    def M21: CDouble = ptr._3
+    def M22: CDouble = ptr._4
+    def M31: CDouble = ptr._5
+    def M32: CDouble = ptr._6
 
-    def M11_=(v: CDouble): Unit = !ptr._1 = v
-    def M12_=(v: CDouble): Unit = !ptr._2 = v
-    def M21_=(v: CDouble): Unit = !ptr._3 = v
-    def M22_=(v: CDouble): Unit = !ptr._4 = v
-    def M31_=(v: CDouble): Unit = !ptr._5 = v
-    def M32_=(v: CDouble): Unit = !ptr._6 = v
+    def M11_=(v: CDouble): Unit = ptr._1 = v
+    def M12_=(v: CDouble): Unit = ptr._2 = v
+    def M21_=(v: CDouble): Unit = ptr._3 = v
+    def M22_=(v: CDouble): Unit = ptr._4 = v
+    def M31_=(v: CDouble): Unit = ptr._5 = v
+    def M32_=(v: CDouble): Unit = ptr._6 = v
   }
 
   implicit class uiDrawBrushOps(val ptr: Ptr[uiDrawBrush]) extends AnyVal {
-    def Type: uiDrawBrushType = !ptr._1
-    def R: CDouble = !ptr._2
-    def G: CDouble = !ptr._3
-    def B: CDouble = !ptr._4
-    def A: CDouble = !ptr._5
+    def Type: uiDrawBrushType = ptr._1
+    def R: CDouble = ptr._2
+    def G: CDouble = ptr._3
+    def B: CDouble = ptr._4
+    def A: CDouble = ptr._5
 
-    def X0: CDouble = !ptr._6
-    def Y0: CDouble = !ptr._7
-    def X1: CDouble = !ptr._8
-    def Y1: CDouble = !ptr._9
-    def OuterRadius: CDouble = !ptr._10
-    def Stops: Ptr[uiDrawBrushGradientStop] = !ptr._11
-    def NumStops: CSize = !ptr._12
+    def X0: CDouble = ptr._6
+    def Y0: CDouble = ptr._7
+    def X1: CDouble = ptr._8
+    def Y1: CDouble = ptr._9
+    def OuterRadius: CDouble = ptr._10
+    def Stops: Ptr[uiDrawBrushGradientStop] = ptr._11
+    def NumStops: CSize = ptr._12
 
-    def Type_=(v: uiDrawBrushType): Unit = !ptr._1 = v
-    def R_=(v: CDouble): Unit = !ptr._2 = v
-    def G_=(v: CDouble): Unit = !ptr._3 = v
-    def B_=(v: CDouble): Unit = !ptr._4 = v
-    def A_=(v: CDouble): Unit = !ptr._5 = v
-    def X0_=(v: CDouble): Unit = !ptr._6 = v
-    def Y0_=(v: CDouble): Unit = !ptr._7 = v
-    def X1_=(v: CDouble): Unit = !ptr._8 = v
-    def Y1_=(v: CDouble): Unit = !ptr._9 = v
-    def OuterRadius_=(v: CDouble): Unit = !ptr._10 = v
-    def Stops_=(v: Ptr[uiDrawBrushGradientStop]): Unit = !ptr._11 = v
-    def NumStops_=(v: CSize): Unit = !ptr._12 = v
+    def Type_=(v: uiDrawBrushType): Unit = ptr._1 = v
+    def R_=(v: CDouble): Unit = ptr._2 = v
+    def G_=(v: CDouble): Unit = ptr._3 = v
+    def B_=(v: CDouble): Unit = ptr._4 = v
+    def A_=(v: CDouble): Unit = ptr._5 = v
+    def X0_=(v: CDouble): Unit = ptr._6 = v
+    def Y0_=(v: CDouble): Unit = ptr._7 = v
+    def X1_=(v: CDouble): Unit = ptr._8 = v
+    def Y1_=(v: CDouble): Unit = ptr._9 = v
+    def OuterRadius_=(v: CDouble): Unit = ptr._10 = v
+    def Stops_=(v: Ptr[uiDrawBrushGradientStop]): Unit = ptr._11 = v
+    def NumStops_=(v: CSize): Unit = ptr._12 = v
   }
 
   implicit class uiDrawBrushGradientStopOps(
       val ptr: Ptr[uiDrawBrushGradientStop]
   ) extends AnyVal {
-    def Pos: CDouble = !ptr._1
-    def R: CDouble = !ptr._2
-    def G: CDouble = !ptr._3
-    def B: CDouble = !ptr._4
-    def A: CDouble = !ptr._5
+    def Pos: CDouble = ptr._1
+    def R: CDouble = ptr._2
+    def G: CDouble = ptr._3
+    def B: CDouble = ptr._4
+    def A: CDouble = ptr._5
 
-    def Pos_=(v: CDouble): Unit = !ptr._1 = v
-    def R_=(v: CDouble): Unit = !ptr._2 = v
-    def G_=(v: CDouble): Unit = !ptr._3 = v
-    def B_=(v: CDouble): Unit = !ptr._4 = v
-    def A_=(v: CDouble): Unit = !ptr._5 = v
+    def Pos_=(v: CDouble): Unit = ptr._1 = v
+    def R_=(v: CDouble): Unit = ptr._2 = v
+    def G_=(v: CDouble): Unit = ptr._3 = v
+    def B_=(v: CDouble): Unit = ptr._4 = v
+    def A_=(v: CDouble): Unit = ptr._5 = v
   }
 
   implicit class uiDrawStrokeParamsOps(val ptr: Ptr[uiDrawStrokeParams])
       extends AnyVal {
-    def Cap: uiDrawLineCap = !ptr._1
-    def Join: uiDrawLineJoin = !ptr._2
-    def Thickness: CDouble = !ptr._3
-    def MiterLimit: CDouble = !ptr._4
-    def Dashes: Ptr[CDouble] = !ptr._5
-    def NumDashes: CSize = !ptr._6
-    def DashPhase: CDouble = !ptr._7
+    def Cap: uiDrawLineCap = ptr._1
+    def Join: uiDrawLineJoin = ptr._2
+    def Thickness: CDouble = ptr._3
+    def MiterLimit: CDouble = ptr._4
+    def Dashes: Ptr[CDouble] = ptr._5
+    def NumDashes: CSize = ptr._6
+    def DashPhase: CDouble = ptr._7
 
-    def Cap_=(v: uiDrawLineCap): Unit = !ptr._1 = v
-    def Join_=(v: uiDrawLineJoin): Unit = !ptr._2 = v
-    def Thickness_=(v: CDouble): Unit = !ptr._3 = v
-    def MiterLimit_=(v: CDouble): Unit = !ptr._4 = v
-    def Dashes_=(v: Ptr[CDouble]): Unit = !ptr._5 = v
-    def NumDashes_=(v: CSize): Unit = !ptr._6 = v
-    def DashPhase_=(v: CDouble): Unit = !ptr._7 = v
+    def Cap_=(v: uiDrawLineCap): Unit = ptr._1 = v
+    def Join_=(v: uiDrawLineJoin): Unit = ptr._2 = v
+    def Thickness_=(v: CDouble): Unit = ptr._3 = v
+    def MiterLimit_=(v: CDouble): Unit = ptr._4 = v
+    def Dashes_=(v: Ptr[CDouble]): Unit = ptr._5 = v
+    def NumDashes_=(v: CSize): Unit = ptr._6 = v
+    def DashPhase_=(v: CDouble): Unit = ptr._7 = v
   }
 
   implicit class uiFontDescriptorOps(val ptr: Ptr[uiFontDescriptor])
       extends AnyVal {
-    def Family: CString = !ptr._1
-    def Size: CDouble = !ptr._2
-    def Weight: uiTextWeight = !ptr._3
-    def Italic: uiTextItalic = !ptr._4
-    def Stretch: uiTextStretch = !ptr._5
+    def Family: CString = ptr._1
+    def Size: CDouble = ptr._2
+    def Weight: uiTextWeight = ptr._3
+    def Italic: uiTextItalic = ptr._4
+    def Stretch: uiTextStretch = ptr._5
 
-    def Family_=(v: CString): Unit = !ptr._1 = v
-    def Size_=(v: CDouble): Unit = !ptr._2 = v
-    def Weight_=(v: uiTextWeight): Unit = !ptr._3 = v
-    def Italic_=(v: uiTextItalic): Unit = !ptr._4 = v
-    def Stretch_=(v: uiTextStretch): Unit = !ptr._5 = v
+    def Family_=(v: CString): Unit = ptr._1 = v
+    def Size_=(v: CDouble): Unit = ptr._2 = v
+    def Weight_=(v: uiTextWeight): Unit = ptr._3 = v
+    def Italic_=(v: uiTextItalic): Unit = ptr._4 = v
+    def Stretch_=(v: uiTextStretch): Unit = ptr._5 = v
   }
 
   implicit class uiDrawTextLayoutParamsOps(val ptr: Ptr[uiDrawTextLayoutParams])
       extends AnyVal {
-    def String: Ptr[uiAttributedString] = !ptr._1
-    def DefaultFont: Ptr[uiFontDescriptor] = !ptr._2
-    def Width: CDouble = !ptr._3
-    def Align: uiDrawTextAlign = !ptr._4
+    def String: Ptr[uiAttributedString] = ptr._1
+    def DefaultFont: Ptr[uiFontDescriptor] = ptr._2
+    def Width: CDouble = ptr._3
+    def Align: uiDrawTextAlign = ptr._4
 
-    def String_=(v: Ptr[uiAttributedString]): Unit = !ptr._1 = v
-    def DefaultFont_=(v: Ptr[uiFontDescriptor]): Unit = !ptr._2 = v
-    def Width_=(v: CDouble): Unit = !ptr._3 = v
-    def Align_=(v: uiDrawTextAlign): Unit = !ptr._4 = v
+    def String_=(v: Ptr[uiAttributedString]): Unit = ptr._1 = v
+    def DefaultFont_=(v: Ptr[uiFontDescriptor]): Unit = ptr._2 = v
+    def Width_=(v: CDouble): Unit = ptr._3 = v
+    def Align_=(v: uiDrawTextAlign): Unit = ptr._4 = v
   }
 
   implicit class uiAreaMouseEventOps(val ptr: Ptr[uiAreaMouseEvent])
       extends AnyVal {
-    def X: CDouble = !ptr._1
-    def Y: CDouble = !ptr._2
-    def AreaWidth: CDouble = !ptr._3
-    def AreaHeight: CDouble = !ptr._4
-    def Down: CInt = !ptr._5
-    def Up: CInt = !ptr._6
-    def Count: CInt = !ptr._7
-    def Modifiers: uiModifiers = !ptr._8
-    def Held1To64: ULong = !ptr._9
+    def X: CDouble = ptr._1
+    def Y: CDouble = ptr._2
+    def AreaWidth: CDouble = ptr._3
+    def AreaHeight: CDouble = ptr._4
+    def Down: CInt = ptr._5
+    def Up: CInt = ptr._6
+    def Count: CInt = ptr._7
+    def Modifiers: uiModifiers = ptr._8
+    def Held1To64: ULong = ptr._9
 
-    def X_=(v: CDouble): Unit = !ptr._1 = v
-    def Y_=(v: CDouble): Unit = !ptr._2 = v
-    def AreaWidth_=(v: CDouble): Unit = !ptr._3 = v
-    def AreaHeight_=(v: CDouble): Unit = !ptr._4 = v
-    def Down_=(v: CInt): Unit = !ptr._5 = v
-    def Up_=(v: CInt): Unit = !ptr._6 = v
-    def Count_=(v: CInt): Unit = !ptr._7 = v
-    def Modifiers_=(v: uiModifiers): Unit = !ptr._8 = v
-    def Held1To64_=(v: ULong): Unit = !ptr._9 = v
+    def X_=(v: CDouble): Unit = ptr._1 = v
+    def Y_=(v: CDouble): Unit = ptr._2 = v
+    def AreaWidth_=(v: CDouble): Unit = ptr._3 = v
+    def AreaHeight_=(v: CDouble): Unit = ptr._4 = v
+    def Down_=(v: CInt): Unit = ptr._5 = v
+    def Up_=(v: CInt): Unit = ptr._6 = v
+    def Count_=(v: CInt): Unit = ptr._7 = v
+    def Modifiers_=(v: uiModifiers): Unit = ptr._8 = v
+    def Held1To64_=(v: ULong): Unit = ptr._9 = v
   }
 
   implicit class uiAreaKeyEventOps(val ptr: Ptr[uiAreaKeyEvent])
       extends AnyVal {
-    def Key: CChar = !ptr._1
-    def ExtKey: uiExtKey = !ptr._2
-    def Modifier: uiModifiers = !ptr._3
-    def Modifiers: uiModifiers = !ptr._4
-    def Up: CInt = !ptr._5
+    def Key: CChar = ptr._1
+    def ExtKey: uiExtKey = ptr._2
+    def Modifier: uiModifiers = ptr._3
+    def Modifiers: uiModifiers = ptr._4
+    def Up: CInt = ptr._5
 
-    def Key_=(v: CChar): Unit = !ptr._1 = v
-    def ExtKey_=(v: uiExtKey): Unit = !ptr._2 = v
-    def Modifier_=(v: uiModifiers): Unit = !ptr._3 = v
-    def Modifiers_=(v: uiModifiers): Unit = !ptr._4 = v
-    def Up_=(v: CInt): Unit = !ptr._5 = v
+    def Key_=(v: CChar): Unit = ptr._1 = v
+    def ExtKey_=(v: uiExtKey): Unit = ptr._2 = v
+    def Modifier_=(v: uiModifiers): Unit = ptr._3 = v
+    def Modifiers_=(v: uiModifiers): Unit = ptr._4 = v
+    def Up_=(v: CInt): Unit = ptr._5 = v
   }
 
   object uiForEach {

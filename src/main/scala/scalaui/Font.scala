@@ -1,6 +1,8 @@
 package scalaui
 
-import scala.scalanative.native._
+import scala.scalanative.unsafe._
+import scala.scalanative.unsigned._
+import scala.scalanative.libc.stdlib
 import scalaui.ui._
 import scalaui.uiOps._
 
@@ -9,8 +11,9 @@ class Font private[scalaui] () extends Freeable {
   //TODO waiting for https://github.com/scala-native/scala-native/issues/367
   private[scalaui] var control: Ptr[uiFontDescriptor] = stdlib
     .malloc(sizeof[uiFontDescriptor])
-    .cast[Ptr[uiFontDescriptor]] //TODO Stop leaking memory
-  control = stdlib.malloc(sizeof[uiFontDescriptor]).cast[Ptr[uiFontDescriptor]]
+    .asInstanceOf[Ptr[uiFontDescriptor]] //TODO Stop leaking memory
+  control =
+    stdlib.malloc(sizeof[uiFontDescriptor]).asInstanceOf[Ptr[uiFontDescriptor]]
 
   def this(
       family: String,
@@ -21,7 +24,18 @@ class Font private[scalaui] () extends Freeable {
   ) = {
     this()
     val z = new Zone {
-      override def alloc(size: CSize): Ptr[Byte] = stdlib.malloc(size)
+      var ptr: Ptr[Byte] = _
+      override def alloc(size: CSize): Ptr[Byte] = {
+        ptr = stdlib.malloc(size)
+        ptr
+      }
+
+      def close(): Unit = {
+        stdlib.free(ptr)
+        ptr = null
+      }
+
+      def isClosed: CBool = ptr == null
     }
     control.Family = toCString(family)(z)
     control.Size = size
@@ -31,7 +45,7 @@ class Font private[scalaui] () extends Freeable {
   }
 
   override def free(): Unit = {
-    stdlib.free(control.Family.cast[Ptr[Byte]])
-    stdlib.free(control.cast[Ptr[Byte]])
+    stdlib.free(control.Family.asInstanceOf[Ptr[Byte]])
+    stdlib.free(control.asInstanceOf[Ptr[Byte]])
   }
 }
