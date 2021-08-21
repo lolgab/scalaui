@@ -2,6 +2,7 @@
 .ensime_cache
 .gitignore
 .idea/
+.bsp/
 project/target
 src/main/scala-2.11
 src/main/java
