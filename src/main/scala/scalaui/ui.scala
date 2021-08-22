@@ -1,8 +1,7 @@
 package scalaui
 
-import scala.scalanative.unsigned._
-
 import scala.scalanative.unsafe._
+import scala.scalanative.unsigned.{UInt, UnsignedRichInt}
 
 @link("ui")
 @extern
@@ -34,7 +33,7 @@ object ui {
     UInt,
     UInt,
     CFuncPtr1[Ptr[uiControl], Unit],
-    CFuncPtr1[Ptr[uiControl], ULong],
+    CFuncPtr1[Ptr[uiControl], CUnsignedLong],
     CFuncPtr1[Ptr[uiControl], Ptr[uiControl]],
     CFuncPtr2[Ptr[uiControl], Ptr[uiControl], Unit],
     CFuncPtr1[Ptr[uiControl], CInt],
@@ -47,7 +46,7 @@ object ui {
   ]
    */
   def uiControlDestroy(uc: Ptr[uiControl]): Unit = extern
-  def uiControlHandle(uc: Ptr[uiControl]): ULong = extern
+  def uiControlHandle(uc: Ptr[uiControl]): CUnsignedLong = extern
   def uiControlParent(uc: Ptr[uiControl]): Ptr[uiControl] = extern
   def uiControlSetParent(uc: Ptr[uiControl], parent: Ptr[uiControl]): Unit =
     extern
@@ -61,8 +60,8 @@ object ui {
 
   def uiAllocControl(
       n: CSize,
-      OSsig: UInt,
-      typesig: UInt,
+      OSsig: CUnsignedInt,
+      typesig: CUnsignedInt,
       typenamestr: CString
   ): Ptr[uiControl] =
     extern
@@ -603,7 +602,7 @@ object ui {
 
   type uiOpenTypeFeatures = extern
   type uiOpenTypeFeaturesForEachFunc =
-    CFuncPtr7[Ptr[uiOpenTypeFeatures], CChar, CChar, CChar, CChar, UInt, Ptr[
+    CFuncPtr7[Ptr[uiOpenTypeFeatures], CChar, CChar, CChar, CChar, CUnsignedInt, Ptr[
       Byte
     ], uiForEach]
   def uiNewOpenTypeFeatures: Ptr[uiOpenTypeFeatures] = extern
@@ -617,7 +616,7 @@ object ui {
       b: CChar,
       c: CChar,
       d: CChar,
-      value: UInt
+      value: CUnsignedInt
   ): Unit = extern
   def uiOpenTypeFeaturesRemove(
       otf: Ptr[uiOpenTypeFeatures],
@@ -632,7 +631,7 @@ object ui {
       b: CChar,
       c: CChar,
       d: CChar,
-      value: Ptr[UInt]
+      value: Ptr[CUnsignedInt]
   ): CInt = extern
   def uiOpenTypeFeaturesForEach(
       otf: Ptr[uiOpenTypeFeatures],
@@ -732,7 +731,7 @@ object ui {
     CInt,
     CInt,
     uiModifiers,
-    ULong
+    CUnsignedLong
   ]
 
   type uiExtKey = CUnsignedInt
@@ -1002,7 +1001,7 @@ object uiOps {
     def Up: CInt = ptr._6
     def Count: CInt = ptr._7
     def Modifiers: uiModifiers = ptr._8
-    def Held1To64: ULong = ptr._9
+    def Held1To64: CUnsignedLong = ptr._9
 
     def X_=(v: CDouble): Unit = ptr._1 = v
     def Y_=(v: CDouble): Unit = ptr._2 = v
@@ -1012,7 +1011,7 @@ object uiOps {
     def Up_=(v: CInt): Unit = ptr._6 = v
     def Count_=(v: CInt): Unit = ptr._7 = v
     def Modifiers_=(v: uiModifiers): Unit = ptr._8 = v
-    def Held1To64_=(v: ULong): Unit = ptr._9 = v
+    def Held1To64_=(v: CUnsignedLong): Unit = ptr._9 = v
   }
 
   implicit class uiAreaKeyEventOps(val ptr: Ptr[uiAreaKeyEvent])
