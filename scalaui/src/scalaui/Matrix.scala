@@ -64,7 +64,7 @@ class Matrix private (private[scalaui] val m: Ptr[uiDrawMatrix]) {
       p: Point,
       f: (Ptr[CDouble], Ptr[CDouble]) => Unit
   ): Point = {
-    val x, y = stackalloc[CDouble]
+    val x, y = stackalloc[CDouble]()
     !x = p.x
     !y = p.y
     f(x, y)

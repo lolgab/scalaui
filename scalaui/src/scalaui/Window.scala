@@ -62,8 +62,8 @@ class Window(
 
   private def contentSize: (Int, Int) = {
     require(initialized)
-    val width: Ptr[CInt] = stackalloc[CInt]
-    val height: Ptr[CInt] = stackalloc[CInt]
+    val width: Ptr[CInt] = stackalloc[CInt]()
+    val height: Ptr[CInt] = stackalloc[CInt]()
     uiWindowContentSize(control, width, height)
     (!width, !height)
   }
