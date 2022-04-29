@@ -1,6 +1,7 @@
 package scalaui
 
 import scala.scalanative.unsafe._
+import scala.scalanative.runtime._
 import scala.scalanative.libc.stdlib.malloc
 import ui._
 import uiOps._
@@ -12,8 +13,9 @@ abstract class AbstractArea(
     onKeyEvent: KeyEventCallback,
     onDragBroken: DragBrokenCallback = doNothingOnDragBroken _
 ) extends Component {
-  val handler: Ptr[uiAreaHandler] = malloc(sizeof[uiAreaHandler])
-    .asInstanceOf[Ptr[uiAreaHandler]]
+  private val handlerArray = ByteArray.alloc(sizeof[uiAreaHandler].toInt)
+  val handler: Ptr[uiAreaHandler] =
+    handlerArray.at(0).asInstanceOf[Ptr[uiAreaHandler]]
   handler.Draw = draw
   handler.MouseEvent = onMouseEvent
   handler.MouseCrossed = onMouseCrossed.asInstanceOf[uiMouseCrossedCallback]

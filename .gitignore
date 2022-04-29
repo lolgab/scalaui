@@ -1,15 +1,2 @@
-.ensime
-.ensime_cache
-.gitignore
-.idea/
-.bsp/
-project/target
-src/main/scala-2.11
-src/main/java
-src/test/scala-2.11
-src/test/java
-target
-ensime-langeserver.log
-pc.stdout.log
-*.class
-*.log
+/out
+/.bsp

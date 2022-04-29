@@ -1,5 +1,6 @@
 package scalaui
 
+import scala.scalanative.runtime._
 import scala.scalanative.unsafe._
 import scala.scalanative.unsigned._
 import scala.scalanative.libc.stdlib
@@ -8,12 +9,10 @@ import scalaui.uiOps._
 
 // TODO Generalize control for font, fontfamily etc.
 class Font private[scalaui] () extends Freeable {
-  //TODO waiting for https://github.com/scala-native/scala-native/issues/367
-  private[scalaui] var control: Ptr[uiFontDescriptor] = stdlib
-    .malloc(sizeof[uiFontDescriptor])
+  private val controlArray = ByteArray.alloc(sizeof[uiFontDescriptor].toInt)
+  private[scalaui] val control: Ptr[uiFontDescriptor] = controlArray
+    .at(0)
     .asInstanceOf[Ptr[uiFontDescriptor]] //TODO Stop leaking memory
-  control =
-    stdlib.malloc(sizeof[uiFontDescriptor]).asInstanceOf[Ptr[uiFontDescriptor]]
 
   def this(
       family: String,

@@ -1,5 +1,6 @@
 package scalaui
 
+import scala.scalanative.runtime._
 import scala.scalanative.unsafe._
 import scala.scalanative.libc.stdlib.malloc
 import ui.{uiDrawBrush, uiDrawBrushGradientStop}
@@ -8,8 +9,9 @@ import uiOps._
 import scala.scalanative.unsigned._
 
 abstract class Brush {
-  private[scalaui] val control: Ptr[uiDrawBrush] = malloc(sizeof[uiDrawBrush])
-    .asInstanceOf[Ptr[uiDrawBrush]]
+  private val controlArray = ByteArray.alloc(sizeof[uiDrawBrush].toInt)
+  private[scalaui] val control: Ptr[uiDrawBrush] =
+    controlArray.at(0).asInstanceOf[Ptr[uiDrawBrush]]
 }
 
 class SolidBrush(color: Color) extends Brush {
@@ -34,9 +36,11 @@ class GradientBrush(
   control.X1 = end.x
   control.Y1 = end.y
 
+  private val stopsArrayArray = ByteArray.alloc(
+    (colors.length.toULong * sizeof[uiDrawBrushGradientStop]).toInt
+  )
   private[scalaui] val stopsArray: Ptr[uiDrawBrushGradientStop] =
-    malloc(colors.length.toULong * sizeof[uiDrawBrushGradientStop])
-      .asInstanceOf[Ptr[uiDrawBrushGradientStop]]
+    stopsArrayArray.at(0).asInstanceOf[Ptr[uiDrawBrushGradientStop]]
 
   for (i <- colors.indices) {
     val s = stopsArray + i

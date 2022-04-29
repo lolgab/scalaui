@@ -14,7 +14,7 @@ private[scalaui] class TextLayout(
   //TODO waiting for issue (returning Ptr from Zone) being solved
   private[scalaui] var control: Ptr[uiDrawTextLayout] = null
   def build(): Unit = Zone { implicit z =>
-    val params = alloc[uiDrawTextLayoutParams]
+    val params = alloc[uiDrawTextLayoutParams]()
     params.String = text.control
     params.DefaultFont = defaultFont.control
     params.Width = width
