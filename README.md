@@ -12,7 +12,7 @@ Once you have setup your Scala Native project and enviroment, you have to compil
 Then you have to add the following to your build.sbt:
 
  ```scala
-libraryDependencies += "it.lolgab" %%% "scalaui" % "0.0.1"
+libraryDependencies += "com.github.lolgab" %%% "scalaui" % "0.0.1"
  ```
 (there is no release yet, you have to publishLocal the library to let it work!)
 
