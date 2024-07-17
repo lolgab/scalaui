@@ -50,7 +50,7 @@ jobs:
   publish-sonatype:
     if: github.repository == 'lolgab/scalaui' && contains(github.ref, 'refs/tags/')
     needs: build
-    runs-on: ubuntu-18.04
+    runs-on: ubuntu-20.04
     env:
       SONATYPE_PGP_PRIVATE_KEY: ${{ secrets.SONATYPE_PGP_PRIVATE_KEY }}
       SONATYPE_PGP_PRIVATE_KEY_PASSWORD: ${{ secrets.SONATYPE_PGP_PRIVATE_KEY_PASSWORD }}
