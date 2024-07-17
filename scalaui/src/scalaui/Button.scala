@@ -7,7 +7,7 @@ import ui._
 class Button(text: String, onClick: CFuncPtr0[Unit]) extends Component {
   //private val cCallback = CFuncPtr.fromFunction0(onClick)
 
-  private[scalaui] def build(): Unit = Zone { implicit z =>
+  private[scalaui] def build(): Unit = Zone {
     control = uiNewButton(toCString(text))
     uiButtonOnClicked(control, onClick, null)
   }

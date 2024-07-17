@@ -11,12 +11,12 @@ class EditableComboBox(
     require(initialized)
     fromCString(uiEditableComboboxText(control))
   }
-  def currentText_=(v: String): Unit = Zone { implicit z =>
+  def currentText_=(v: String): Unit = Zone {
     require(initialized)
     uiEditableComboboxSetText(control, toCString(v))
   }
 
-  private[scalaui] override def build(): Unit = Zone { implicit z =>
+  private[scalaui] override def build(): Unit = Zone {
     control = uiNewEditableCombobox()
     for (name <- names) {
       uiEditableComboboxAppend(control, toCString(name))

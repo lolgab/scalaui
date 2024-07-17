@@ -36,7 +36,7 @@ class FontButton private (
 }
 
 object FontButton {
-  private def changeFont(b: Ptr[uiFontButton], data: Ptr[Byte]): Unit = {
+  private def changeFont(b: Ptr[uiFontButton], data: CVoidPtr): Unit = {
     val onChange = CFuncPtr.fromPtr[CFuncPtr0[Unit]](data)
     onChange()
   }

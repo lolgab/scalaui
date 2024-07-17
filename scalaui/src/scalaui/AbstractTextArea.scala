@@ -9,7 +9,7 @@ trait AbstractTextArea extends Component {
     fromCString(uiMultilineEntryText(control))
   }
 
-  def text_=(s: String): Unit = Zone { implicit z =>
+  def text_=(s: String): Unit = Zone {
     require(initialized)
     uiMultilineEntrySetText(control, toCString(s))
   }

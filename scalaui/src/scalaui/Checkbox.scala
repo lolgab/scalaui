@@ -15,6 +15,6 @@ class Checkbox(text: String, onToggled: CFuncPtr0[Unit] = doNothing _)
   }
 
   private[scalaui] override def build(): Unit = {
-    Zone { implicit z => control = uiNewCheckbox(toCString(text)) }
+    Zone { control = uiNewCheckbox(toCString(text)) }
   }
 }

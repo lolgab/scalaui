@@ -17,7 +17,7 @@ class Window(
 ) extends GraphicObject
     with Freeable {
 
-  private[scalaui] def build(): Unit = Zone { implicit z =>
+  private[scalaui] def build(): Unit = Zone {
     for (menu <- menus) menu.build()
     control = uiNewWindow(toCString(_title), width, height, menus.nonEmpty)
     content.build()
@@ -39,12 +39,12 @@ class Window(
   }
 
   def messageBox(title: String, description: String): Unit = Zone {
-    implicit z =>
+    implicit z: Zone =>
       require(initialized)
       uiMsgBox(control, toCString(title), toCString(description))
   }
 
-  def errorBox(title: String, description: String): Unit = Zone { implicit z =>
+  def errorBox(title: String, description: String): Unit = Zone {
     require(initialized)
     uiMsgBoxError(control, toCString(title), toCString(description))
   }
@@ -55,7 +55,7 @@ class Window(
     else _title
   }
 
-  def title_=(v: String): Unit = Zone { implicit z =>
+  def title_=(v: String): Unit = Zone {
     require(initialized)
     uiWindowSetTitle(control, toCString(v))
   }

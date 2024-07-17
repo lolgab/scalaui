@@ -4,7 +4,7 @@ import scala.scalanative.unsafe._
 import ui._
 
 class Menu(name: String, items: AppendableToMenu*) extends GraphicObject {
-  private[scalaui] def build(): Unit = Zone { implicit z =>
+  private[scalaui] def build(): Unit = Zone {
     control = uiNewMenu(toCString(name))
     for (item <- items) {
       item match {

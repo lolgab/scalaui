@@ -21,7 +21,7 @@ class RadioButtons(
     names(selected)
   }
 
-  private[scalaui] override def build(): Unit = Zone { implicit z =>
+  private[scalaui] override def build(): Unit = Zone {
     control = uiNewRadioButtons()
     for (name <- names) {
       uiRadioButtonsAppend(control, toCString(name))

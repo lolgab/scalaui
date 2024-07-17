@@ -2,14 +2,14 @@ import mill._
 import mill.scalalib._
 import mill.scalanativelib._
 import mill.scalalib.publish._
-import $ivy.`com.goyeau::mill-scalafix::0.2.8`
+import $ivy.`com.goyeau::mill-scalafix::0.4.0`
 import com.goyeau.mill.scalafix.ScalafixModule
-import $ivy.`de.tototec::de.tobiasroeser.mill.vcs.version::0.1.4`
+import $ivy.`de.tototec::de.tobiasroeser.mill.vcs.version::0.4.0`
 import de.tobiasroeser.mill.vcs.version.VcsVersion
 
 trait Common extends ScalaNativeModule {
-  def scalaVersion = "2.13.8"
-  def scalaNativeVersion = "0.4.4"
+  def scalaVersion = "3.3.3"
+  def scalaNativeVersion = "0.5.4"
 }
 
 trait Publish extends PublishModule {
@@ -19,7 +19,8 @@ trait Publish extends PublishModule {
       organization = "com.github.lolgab",
       url = "https://github.com/lolgab/scalaui",
       licenses = Seq(License.MIT),
-      versionControl = VersionControl.github(owner = "lolgab", repo = "scalaui"),
+      versionControl =
+        VersionControl.github(owner = "lolgab", repo = "scalaui"),
       developers = Seq(
         Developer("lolgab", "Lorenzo Gabriele", "https://github.com/lolgab")
       )

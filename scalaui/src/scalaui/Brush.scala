@@ -37,7 +37,7 @@ class GradientBrush(
   control.Y1 = end.y
 
   private val stopsArrayArray = ByteArray.alloc(
-    (colors.length.toULong * sizeof[uiDrawBrushGradientStop]).toInt
+    (colors.length.toCSize * sizeof[uiDrawBrushGradientStop]).toInt
   )
   private[scalaui] val stopsArray: Ptr[uiDrawBrushGradientStop] =
     stopsArrayArray.at(0).asInstanceOf[Ptr[uiDrawBrushGradientStop]]

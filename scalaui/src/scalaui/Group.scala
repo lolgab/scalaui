@@ -4,7 +4,7 @@ import scala.scalanative.unsafe._
 import ui._
 
 class Group(t: String, content: Component, margin: Int = 0) extends Component {
-  private[scalaui] override def build(): Unit = Zone { implicit z =>
+  private[scalaui] override def build(): Unit = Zone {
     control = uiNewGroup(toCString(t))
     content.build()
     uiGroupSetChild(control, content.control)
@@ -16,7 +16,7 @@ class Group(t: String, content: Component, margin: Int = 0) extends Component {
     fromCString(uiGroupTitle(control))
   }
 
-  def title_=(title: String): Unit = Zone { implicit z =>
+  def title_=(title: String): Unit = Zone {
     require(initialized)
     uiGroupSetTitle(control, toCString(title))
   }

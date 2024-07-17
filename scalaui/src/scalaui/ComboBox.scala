@@ -19,7 +19,7 @@ class ComboBox(
   }
   def selectedName: String = names(selected)
 
-  private[scalaui] override def build(): Unit = Zone { implicit z =>
+  private[scalaui] override def build(): Unit = Zone {
     control = uiNewCombobox()
     for (name <- names) {
       uiComboboxAppend(control, toCString(name))
