@@ -16,7 +16,7 @@ trait Publish extends PublishModule {
   def pomSettings =
     PomSettings(
       description = "Scala Native GUI library based on libui",
-      organization = "com.github.lolgab",
+      organization = "it.lolgab",
       url = "https://github.com/lolgab/scalaui",
       licenses = Seq(License.MIT),
       versionControl =
