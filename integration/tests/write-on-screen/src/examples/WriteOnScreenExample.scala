@@ -52,8 +52,10 @@ object WriteOnScreenExample {
           val s = texts.head._1
           if (s != "") texts = texts.head.copy(_1 = s.init) :: texts.tail
         case Key.Down(Key.Coded(key)) =>
-          val k = if (key >= 'a' && key <= 'z' && e.shiftDown) key - 32 else key
-          texts = texts.head.copy(_1 = texts.head._1 + k.toChar) :: texts.tail
+          val k: Char =
+            if (key >= 'a' && key <= 'z' && e.shiftDown) (key - 32).toChar
+            else key
+          texts = texts.head.copy(_1 = texts.head._1 + k) :: texts.tail
         case _ =>
       }
       a.queueRedraw()

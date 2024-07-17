@@ -10,7 +10,7 @@ class AttributedString private () extends Freeable {
 
   def this(s: String) = {
     this()
-    Zone { implicit z => control = uiNewAttributedString(toCString(s)) }
+    Zone { control = uiNewAttributedString(toCString(s)) }
   }
 
   def text: String = fromCString(uiAttributedStringString(control))
@@ -21,9 +21,9 @@ class AttributedString private () extends Freeable {
       family: String,
       start: Int = 0,
       end: Int = length
-  ): AttributedString = Zone { implicit z =>
+  ): AttributedString = Zone {
     val attr = uiNewFamilyAttribute(toCString(family))
-    uiAttributedStringSetAttribute(control, attr, start.toULong, end.toULong)
+    uiAttributedStringSetAttribute(control, attr, start.toCSize, `end`.toCSize)
     this
   }
   def withSize(
@@ -32,7 +32,7 @@ class AttributedString private () extends Freeable {
       end: Int = length
   ): AttributedString = {
     val attr = uiNewSizeAttribute(size)
-    uiAttributedStringSetAttribute(control, attr, start.toULong, end.toULong)
+    uiAttributedStringSetAttribute(control, attr, start.toCSize, end.toCSize)
     this
   }
   def withBackground(
@@ -42,7 +42,7 @@ class AttributedString private () extends Freeable {
   ): AttributedString = {
     val attr =
       uiNewBackgroundAttribute(color.red, color.green, color.blue, color.alpha)
-    uiAttributedStringSetAttribute(control, attr, start.toULong, end.toULong)
+    uiAttributedStringSetAttribute(control, attr, start.toCSize, end.toCSize)
     this
   }
   def withColor(
@@ -52,7 +52,7 @@ class AttributedString private () extends Freeable {
   ): AttributedString = {
     val attr =
       uiNewColorAttribute(color.red, color.green, color.blue, color.alpha)
-    uiAttributedStringSetAttribute(control, attr, start.toULong, end.toULong)
+    uiAttributedStringSetAttribute(control, attr, start.toCSize, end.toCSize)
     this
   }
   def withWeight(
@@ -61,7 +61,7 @@ class AttributedString private () extends Freeable {
       end: Int = length
   ): AttributedString = {
     val attr = uiNewWeightAttribute(weight.toUInt)
-    uiAttributedStringSetAttribute(control, attr, start.toULong, end.toULong)
+    uiAttributedStringSetAttribute(control, attr, start.toCSize, end.toCSize)
     this
   }
   def withItalic(
@@ -70,7 +70,7 @@ class AttributedString private () extends Freeable {
       end: Int = length
   ): AttributedString = {
     val attr = uiNewItalicAttribute(italic.id.toUInt)
-    uiAttributedStringSetAttribute(control, attr, start.toULong, end.toULong)
+    uiAttributedStringSetAttribute(control, attr, start.toCSize, end.toCSize)
     this
   }
 

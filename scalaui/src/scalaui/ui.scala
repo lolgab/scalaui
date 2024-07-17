@@ -18,10 +18,10 @@ object ui {
   def uiMainStep(wait: CInt): CInt = extern
   def uiQuit(): Unit = extern
 
-  def uiQueueMain(f: CFuncPtr1[Ptr[Byte], Unit], data: Ptr[Byte]): Unit =
+  def uiQueueMain(f: CFuncPtr1[Ptr[Byte], Unit], data: CVoidPtr): Unit =
     extern
 
-  def uiOnShouldQuit(f: CFuncPtr1[Ptr[Byte], CInt], data: Ptr[Byte]): Unit =
+  def uiOnShouldQuit(f: CFuncPtr1[Ptr[Byte], CInt], data: CVoidPtr): Unit =
     extern
 
   def uiFreeText(text: CString): Unit = extern
@@ -94,12 +94,12 @@ object ui {
       w: Ptr[uiWindow],
       f: CFuncPtr0[Unit],
 //      f: CFuncPtr2[Ptr[uiWindow], Ptr[Byte], Unit],
-      data: Ptr[Byte]
+      data: CVoidPtr
   ): Unit = extern
   def uiWindowOnClosing(
       w: Ptr[uiWindow],
       f: CFuncPtr2[Ptr[uiWindow], Ptr[Byte], CInt],
-      data: Ptr[Byte]
+      data: CVoidPtr
   ): Unit =
     extern
   def uiWindowBorderless(w: Ptr[uiWindow]): CInt = extern
@@ -121,9 +121,9 @@ object ui {
   def uiButtonOnClicked(
       b: Ptr[uiButton],
       f: CFuncPtr0[Unit],
-      data: Ptr[Byte]
+      data: CVoidPtr
   ): Unit = extern
-//def uiButtonOnClicked(b: Ptr[uiButton], f: CFuncPtr2[Ptr[uiButton], Ptr[Byte], Unit], data: Ptr[Byte]): Unit = extern
+//def uiButtonOnClicked(b: Ptr[uiButton], f: CFuncPtr2[Ptr[uiButton], Ptr[Byte], Unit], data: CVoidPtr): Unit = extern
 
   def uiNewButton(text: CString): Ptr[uiButton] = extern
 
@@ -142,10 +142,10 @@ object ui {
   def uiCheckboxOnToggled(
       c: Ptr[uiCheckbox],
       f: CFuncPtr2[uiCheckbox, Ptr[Byte], Unit],
-      data: Ptr[Byte]
+      data: CVoidPtr
   ): Unit =
     extern
-//def uiCheckboxOnToggled(c: Ptr[uiCheckbox], f: CFuncPtr2[uiCheckbox,Ptr[Byte], Unit], data: Ptr[Byte]): Unit = extern
+//def uiCheckboxOnToggled(c: Ptr[uiCheckbox], f: CFuncPtr2[uiCheckbox,Ptr[Byte], Unit], data: CVoidPtr): Unit = extern
 
   def uiCheckboxChecked(c: Ptr[uiCheckbox]): CInt = extern
   def uiCheckboxSetChecked(c: Ptr[uiCheckbox], checked: CInt): Unit = extern
@@ -157,7 +157,7 @@ object ui {
   def uiEntryOnChanged(
       e: Ptr[uiEntry],
       f: CFuncPtr2[Ptr[uiEntry], Ptr[Byte], Unit],
-      data: Ptr[Byte]
+      data: CVoidPtr
   ): Unit = extern
   def uiEntryReadOnly(e: Ptr[uiEntry]): CInt = extern
   def uiEntrySetReadOnly(e: Ptr[uiEntry], readonly: CInt): Unit = extern
@@ -200,7 +200,7 @@ object ui {
       s: Ptr[uiSpinbox],
 //  f: CFuncPtr2[Ptr[uiSpinbox], Ptr[Byte], Unit],
       f: CFuncPtr0[Unit],
-      data: Ptr[Byte]
+      data: CVoidPtr
   ): Unit = extern
   def uiNewSpinbox(min: CInt, max: CInt): Ptr[uiSpinbox] = extern
 
@@ -211,7 +211,7 @@ object ui {
       s: Ptr[uiSlider],
       //f: CFuncPtr2[Ptr[uiSlider], Ptr[Byte], Unit],
       f: CFuncPtr0[Unit],
-      data: Ptr[Byte]
+      data: CVoidPtr
   ): Unit = extern
   def uiNewSlider(min: CInt, max: CInt): Ptr[uiSlider] = extern
 
@@ -231,7 +231,7 @@ object ui {
   def uiComboboxOnSelected(
       c: Ptr[uiCombobox],
       f: CFuncPtr2[Ptr[uiCombobox], Ptr[Byte], Unit],
-      data: Ptr[Byte]
+      data: CVoidPtr
   ): Unit = extern
   def uiNewCombobox(): Ptr[uiCombobox] = extern
 
@@ -248,7 +248,7 @@ object ui {
   def uiEditableComboboxOnChanged(
       c: Ptr[uiEditableCombobox],
       f: CFuncPtr2[Ptr[uiEditableCombobox], Ptr[Byte], Unit],
-      data: Ptr[Byte]
+      data: CVoidPtr
   ): Unit = extern
   def uiNewEditableCombobox(): Ptr[uiEditableCombobox] = extern
 
@@ -260,7 +260,7 @@ object ui {
       r: Ptr[uiRadioButtons],
       f: CFuncPtr0[Unit],
       //f: CFuncPtr2[Ptr[uiRadioButtons], Ptr[Byte], Unit],
-      data: Ptr[Byte]
+      data: CVoidPtr
   ): Unit = extern
   def uiNewRadioButtons(): Ptr[uiRadioButtons] = extern
 
@@ -279,7 +279,7 @@ object ui {
       e: Ptr[uiMultilineEntry],
       f: CFuncPtr0[Unit],
       //f: CFuncPtr2[Ptr[uiMultilineEntry], Ptr[Byte], Unit],
-      data: Ptr[Byte]
+      data: CVoidPtr
   ): Unit = extern
   def uiMultilineEntryReadOnly(e: Ptr[uiMultilineEntry]): CInt = extern
   def uiMultilineEntrySetReadOnly(
@@ -296,7 +296,7 @@ object ui {
       m: Ptr[uiMenuItem],
 //      f: CFuncPtr3[Ptr[uiMenuItem], Ptr[uiWindow], Ptr[Byte], Unit],
       f: CFuncPtr0[Unit],
-      data: Ptr[Byte]
+      data: CVoidPtr
   ): Unit = extern
   def uiMenuItemChecked(m: Ptr[uiMenuItem]): CInt = extern
   def uiMenuItemSetChecked(m: Ptr[uiMenuItem], checked: CInt): Unit = extern
@@ -636,7 +636,7 @@ object ui {
   def uiOpenTypeFeaturesForEach(
       otf: Ptr[uiOpenTypeFeatures],
       f: uiOpenTypeFeaturesForEachFunc,
-      data: Ptr[Byte]
+      data: CVoidPtr
   ): Unit = extern
   def uiNewFeaturesAttribute(otf: Ptr[uiOpenTypeFeatures]): Ptr[uiAttribute] =
     extern
@@ -674,7 +674,7 @@ object ui {
   def uiAttributedStringForEachAttribute(
       s: Ptr[uiAttributedString],
       f: uiAttributedStringForEachAttributeFunc,
-      data: Ptr[Byte]
+      data: CVoidPtr
   ): Unit = extern
   def uiAttributedStringNumGraphemes(s: Ptr[uiAttributedString]): CSize = extern
   def uiAttributedStringByteIndexToGrapheme(
@@ -752,7 +752,7 @@ object ui {
   def uiFontButtonOnChanged(
       b: Ptr[uiFontButton],
       f: CFuncPtr2[Ptr[uiFontButton], Ptr[Byte], Unit],
-      data: Ptr[Byte]
+      data: CVoidPtr
   ): Unit =
     extern
   def uiNewFontButton(): Ptr[uiFontButton] = extern
@@ -776,7 +776,7 @@ object ui {
   def uiColorButtonOnChanged(
       b: Ptr[uiColorButton],
       f: CFuncPtr1[Ptr[uiColorButton], Unit],
-      data: Ptr[Byte]
+      data: CVoidPtr
   ): Unit =
     extern
   def uiNewColorButton(): Ptr[uiColorButton] = extern

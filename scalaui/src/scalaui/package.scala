@@ -12,12 +12,12 @@ package object scalaui {
   private var _initialized = false
   private[scalaui] def initialized: Boolean = _initialized
 
-  private def onShouldQuit(data: Ptr[Byte]): CInt = {
+  private def onShouldQuit(data: CVoidPtr): CInt = {
     uiControlDestroy(data.asInstanceOf[Ptr[uiWindow]])
     1
   }
 
-  private def onClosing(w: Ptr[uiWindow], data: Ptr[Byte]): CInt = {
+  private def onClosing(w: Ptr[uiWindow], data: CVoidPtr): CInt = {
     if (CFuncPtr.fromPtr[CFuncPtr0[Boolean]](data).apply()) {
       for (window <- windows; if window.control == w) {
         windows = windows.filter(_ != window)
@@ -186,8 +186,8 @@ package object scalaui {
     }
 
     def held(b: MouseButton.Value): Boolean = {
-      if (b == MouseButton.NoButton) e.Held1To64 == 0.toULong
-      else (e.Held1To64 & (1.toULong << b.id - 1)) == 1.toULong
+      if (b == MouseButton.NoButton) e.Held1To64 == 0.toCSize
+      else (e.Held1To64 & (1.toCSize << b.id - 1)) == 1.toCSize
     }
   }
 
