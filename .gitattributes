@@ -1,0 +1,2 @@
+# Test fixtures are byte-exact; stop autocrlf from rewriting them on Windows checkouts.
+modules/*/src/test/resources/** -text

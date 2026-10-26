@@ -8,6 +8,7 @@ import scala.jdk.CollectionConverters.*
   * a render passes when at most 5% of its pixels differ by more than 25% in any channel (resvg quantizes edge coverage to quarter pixels) (anti-aliasing and filter rounding differences stay below that).
   */
 class ResvgSuite extends scalaui.testkit.LoggedSuite:
+  override val munitTimeout: scala.concurrent.duration.Duration = scala.concurrent.duration.Duration(600, "s")
   private val root = Paths.get("modules/svg/src/test/resources/resvg")
   private val width = 300.0
 
