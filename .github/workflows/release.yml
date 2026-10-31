@@ -2,10 +2,10 @@
 # Trigger: push a tag like v0.1.0 (the version is derived from the tag by sbt-dynver via sbt-ci-release).
 #
 # Required repository secrets (Settings > Secrets and variables > Actions):
-#   PGP_SECRET          base64 of the armored private key:  gpg --armor --export-secret-keys <KEYID> | base64 | pbcopy
-#   PGP_PASSPHRASE      passphrase of that key
-#   SONATYPE_USERNAME   Sonatype Central user token name   (central.sonatype.com > Account > Generate User Token)
-#   SONATYPE_PASSWORD   Sonatype Central user token password
+#   SONATYPE_PGP_PRIVATE_KEY            base64 of the armored private key:  gpg --armor --export-secret-keys <KEYID> | base64 | pbcopy
+#   SONATYPE_PGP_PRIVATE_KEY_PASSWORD   passphrase of that key
+#   SONATYPE_USER                       Sonatype Central user token name   (central.sonatype.com > Account > Generate User Token)
+#   SONATYPE_PASSWORD                   Sonatype Central user token password (the old OSSRH password no longer works)
 # The public key must be uploaded to a keyserver (keyserver.ubuntu.com) and the namespace com.github.lolgab verified in Central.
 name: Release
 on:
@@ -29,9 +29,9 @@ jobs:
         run: sudo apt-get update && sudo apt-get install -y --no-install-recommends clang libstdc++-14-dev libunwind-dev
       - name: Publish
         env:
-          PGP_PASSPHRASE: ${{ secrets.PGP_PASSPHRASE }}
-          PGP_SECRET: ${{ secrets.PGP_SECRET }}
-          SONATYPE_USERNAME: ${{ secrets.SONATYPE_USERNAME }}
+          PGP_PASSPHRASE: ${{ secrets.SONATYPE_PGP_PRIVATE_KEY_PASSWORD }}
+          PGP_SECRET: ${{ secrets.SONATYPE_PGP_PRIVATE_KEY }}
+          SONATYPE_USERNAME: ${{ secrets.SONATYPE_USER }}
           SONATYPE_PASSWORD: ${{ secrets.SONATYPE_PASSWORD }}
         run: sbt --server -J-Xmx6g ci-release
 
