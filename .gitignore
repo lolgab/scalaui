@@ -9,3 +9,5 @@ target/
 
 # generated docs site
 site/_site/
+__pycache__/
+*.pyc
