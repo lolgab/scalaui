@@ -1,0 +1,79 @@
+# Publishes every module to Sonatype Central and attaches example binaries to the GitHub release.
+# Trigger: push a tag like v0.1.0 (the version is derived from the tag by sbt-dynver via sbt-ci-release).
+#
+# Required repository secrets (Settings > Secrets and variables > Actions):
+#   PGP_SECRET          base64 of the armored private key:  gpg --armor --export-secret-keys <KEYID> | base64 | pbcopy
+#   PGP_PASSPHRASE      passphrase of that key
+#   SONATYPE_USERNAME   Sonatype Central user token name   (central.sonatype.com > Account > Generate User Token)
+#   SONATYPE_PASSWORD   Sonatype Central user token password
+# The public key must be uploaded to a keyserver (keyserver.ubuntu.com) and the namespace com.github.lolgab verified in Central.
+name: Release
+on:
+  push:
+    tags: ["v*"]
+permissions:
+  contents: write
+env:
+  SBT_OPTS: -Xmx6g -Xss4m
+
+jobs:
+  publish:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+        with: { fetch-depth: 0 }   # dynver needs the tags
+      - uses: actions/setup-java@v4
+        with: { distribution: temurin, java-version: 21 }
+      - uses: sbt/setup-sbt@v1
+      - name: System packages
+        run: sudo apt-get update && sudo apt-get install -y --no-install-recommends clang libstdc++-14-dev libunwind-dev
+      - name: Publish
+        env:
+          PGP_PASSPHRASE: ${{ secrets.PGP_PASSPHRASE }}
+          PGP_SECRET: ${{ secrets.PGP_SECRET }}
+          SONATYPE_USERNAME: ${{ secrets.SONATYPE_USERNAME }}
+          SONATYPE_PASSWORD: ${{ secrets.SONATYPE_PASSWORD }}
+        run: sbt --server -J-Xmx6g ci-release
+
+  binaries:
+    name: binaries (${{ matrix.os }})
+    needs: publish
+    runs-on: ${{ matrix.os }}
+    strategy:
+      fail-fast: false
+      matrix:
+        os: [macos-latest, ubuntu-latest, ubuntu-24.04-arm, windows-latest]
+    defaults:
+      run:
+        shell: bash
+    steps:
+      - uses: actions/checkout@v4
+        with: { fetch-depth: 0 }
+      - uses: actions/setup-java@v4
+        with: { distribution: temurin, java-version: 21 }
+      - uses: sbt/setup-sbt@v1
+      - name: System packages (Linux)
+        if: runner.os == 'Linux'
+        run: sudo apt-get update && sudo apt-get install -y --no-install-recommends clang libstdc++-14-dev libunwind-dev
+      - name: LLVM (Windows)
+        if: runner.os == 'Windows'
+        shell: pwsh
+        run: |
+          if (-not (Get-Command clang -ErrorAction SilentlyContinue)) { choco install llvm -y --no-progress }
+          "C:\Program Files\LLVM\bin" | Out-File -FilePath $env:GITHUB_PATH -Append
+      - name: Link examples (release)
+        env:
+          SCALAUI_RELEASE: "1"
+        run: sbt --server -J-Xmx6g examples/nativeLink
+      - name: Collect binary
+        run: |
+          mkdir dist
+          d=target/out/native0.5/scala-3.9.0/scalaui-examples
+          os="${{ runner.os }}-${{ runner.arch }}"
+          if [ -f "$d/scalaui-examples.exe" ]; then cp "$d/scalaui-examples.exe" "dist/scalaui-examples-$os.exe"
+          else cp "$d/scalaui-examples" "dist/scalaui-examples-$os"; fi
+      - name: Attach to GitHub release
+        uses: softprops/action-gh-release@v2
+        with:
+          files: dist/*
+          generate_release_notes: true

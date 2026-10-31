@@ -1,0 +1,148 @@
+name: CI
+on:
+  push:
+    branches: [master]
+  pull_request:
+  workflow_dispatch:
+concurrency:
+  group: ci-${{ github.ref }}
+  cancel-in-progress: true
+permissions:
+  contents: read
+
+env:
+  SBT_OPTS: -Xmx6g -Xss4m
+
+jobs:
+  test:
+    name: test (${{ matrix.os }})
+    runs-on: ${{ matrix.os }}
+    timeout-minutes: 120
+    strategy:
+      fail-fast: false
+      matrix:
+        os: [macos-latest, ubuntu-latest, ubuntu-24.04-arm, windows-latest]
+    defaults:
+      run:
+        shell: bash
+    steps:
+      - uses: actions/checkout@v4
+
+      - uses: actions/setup-java@v4
+        with: { distribution: temurin, java-version: 21 }
+      - uses: sbt/setup-sbt@v1
+
+      - name: Cache sbt and coursier
+        uses: actions/cache@v4
+        with:
+          path: |
+            ~/.sbt
+            ~/.ivy2/cache
+            ~/.cache/coursier
+            ~/.cache/sbt
+            ~/Library/Caches/Coursier
+            ~/Library/Caches/sbt
+            ~/AppData/Local/Coursier/Cache
+            ~/AppData/Local/sbt
+          key: sbt-${{ runner.os }}-${{ runner.arch }}-${{ hashFiles('build.sbt', 'project/*.sbt', 'project/build.properties') }}
+          restore-keys: sbt-${{ runner.os }}-${{ runner.arch }}-
+
+      - name: System packages (Linux)
+        if: runner.os == 'Linux'
+        run: |
+          sudo apt-get update
+          # clang: Scala Native; xvfb + python3-xlib: X11 tests; lavapipe: software Vulkan for VulkanSuite;
+          # dbus + at-spi2-core: AT-SPI accessibility tests; xclip: clipboard checks
+          sudo apt-get install -y --no-install-recommends clang libstdc++-14-dev libunwind-dev \
+            xvfb x11-utils xclip python3-xlib python3-gi gir1.2-atspi-2.0 \
+            mesa-vulkan-drivers libvulkan1 vulkan-tools \
+            dbus dbus-x11 at-spi2-core libatspi2.0-0 \
+            fonts-dejavu-core
+
+      - name: LLVM (Windows)
+        if: runner.os == 'Windows'
+        shell: pwsh
+        run: |
+          # Scala Native needs clang/clang++ on PATH (the runner image normally ships LLVM)
+          if (-not (Get-Command clang -ErrorAction SilentlyContinue)) { choco install llvm -y --no-progress }
+          "C:\Program Files\LLVM\bin" | Out-File -FilePath $env:GITHUB_PATH -Append
+          clang --version
+
+      - name: Toolchain versions
+        run: |
+          java -version
+          clang --version
+          sbt --version || true
+
+      # Tests run one module per sbt invocation (see tools/ci-test.sh), `testOnly *` so cached results never hide a run.
+      - name: Test (macOS)
+        if: runner.os == 'macOS'
+        run: tools/ci-test.sh
+
+      - name: Test (Linux, headless X11 + AT-SPI + lavapipe)
+        if: runner.os == 'Linux'
+        env:
+          SCALAUI_X11_TESTS: "1"
+          SCALAUI_REQUIRE_VULKAN: "1"   # lavapipe must work; fail loudly instead of skipping
+        run: |
+          xvfb-run -a -s "-screen 0 1280x1024x24" \
+            dbus-run-session -- bash -c '
+              /usr/libexec/at-spi-bus-launcher --launch-immediately >/dev/null 2>&1 &
+              sleep 2
+              tools/ci-test.sh'
+
+      # Windows runs the full window (Win32), Vulkan/D3D11/D3D12 and UIA tests on a real desktop session. The runner has
+      # no GPU, so D3D12 goes through WARP. These code paths have never run on real Windows before this job.
+      - name: Test (Windows)
+        if: runner.os == 'Windows'
+        env:
+          SCALAUI_REQUIRE_D3D12: "1"
+        run: tools/ci-test.sh
+
+      - name: Print test failure log
+        if: failure()
+        run: cat target/test-failures.log || echo "no target/test-failures.log"
+
+      - name: Upload test logs
+        if: failure()
+        uses: actions/upload-artifact@v4
+        with:
+          name: test-logs-${{ matrix.os }}
+          path: |
+            target/test-failures.log
+            **/target/**/test-reports/*.xml
+          if-no-files-found: ignore
+
+      # Release-mode binaries (the CPU renderer is ~10x slower in debug builds)
+      - name: Link examples (release)
+        if: always() && !cancelled()
+        env:
+          SCALAUI_RELEASE: "1"
+        run: sbt --server -J-Xmx6g examples/nativeLink
+
+      - name: Collect binaries
+        run: |
+          mkdir dist
+          d=target/out/native0.5/scala-3.9.0/scalaui-examples
+          os="${{ runner.os }}-${{ runner.arch }}"
+          if [ -f "$d/scalaui-examples.exe" ]; then cp "$d/scalaui-examples.exe" "dist/scalaui-examples-$os.exe"
+          else cp "$d/scalaui-examples" "dist/scalaui-examples-$os"; fi
+          ls -l dist
+
+      - uses: actions/upload-artifact@v4
+        with:
+          name: scalaui-examples-${{ matrix.os }}
+          path: dist/*
+          if-no-files-found: error
+
+  site:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-python@v5
+        with: { python-version: "3.12" }
+      - run: python3 site/build.py
+      - uses: actions/upload-artifact@v4
+        with:
+          name: site
+          path: site/_site

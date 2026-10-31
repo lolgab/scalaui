@@ -1,2 +1,11 @@
-/out
-/.bsp
+target/
+.bsp/
+.metals/
+.vscode/
+*.class
+.DS_Store
+*.semanticdb
+*.whl
+
+# generated docs site
+site/_site/
