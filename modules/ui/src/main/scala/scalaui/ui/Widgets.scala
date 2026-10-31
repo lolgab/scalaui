@@ -305,7 +305,6 @@ extension (ui: Ui)
 
   // --- small controls ---
 
-  /** An on/off switch with a label. */
   def toggleSwitch(value: Var[Boolean], label: String = ""): Response =
     val id = ui.nextId()
     val l = ui.ctx.layout(label, ui.style.fontSize)

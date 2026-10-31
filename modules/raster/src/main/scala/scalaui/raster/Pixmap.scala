@@ -99,7 +99,6 @@ final class Pixmap(val width: Int, val height: Int):
               d(i + 2) = col(2) * c + d(i + 2) * k; d(i + 3) = sa + d(i + 3) * k
             x += 1; i += 4
 
-/** Paint sources. */
 trait Paint:
   def colorAt(x: Double, y: Double): PremulColor
   /** Allocation-free variant used by the rasterizer: writes premultiplied r, g, b, a to `out(0..3)`. */

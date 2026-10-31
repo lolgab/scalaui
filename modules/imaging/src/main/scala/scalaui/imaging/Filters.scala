@@ -164,7 +164,6 @@ object Filters:
   /** `factor` 0 = gray, 1 = unchanged, >1 more vivid. */
   def saturation(pm: Pixmap, factor: Float): Unit = mapRgb(pm) { (r, g, b) =>
     val l = 0.2126f * r + 0.7152f * g + 0.0722f * b; (l + (r - l) * factor, l + (g - l) * factor, l + (b - l) * factor) }
-  /** Rotates hue by `degrees`. */
   def hueRotate(pm: Pixmap, degrees: Float): Unit = mapRgb(pm) { (r, g, b) =>
     val (h, s, v) = Color.toHsv(Color(r, g, b)); val c = Color.fromHsv(h + degrees, s, v); (c.r, c.g, c.b) }
   /** Levels: maps `[black, white]` to `[0, 1]` with midtone `gamma`. */

@@ -25,7 +25,6 @@ private[font] object Woff2:
     def u16(): Int = (u8() << 8) | u8()
     def i16(): Int = (u16() << 16) >> 16
     def u32(): Int = (u16() << 16) | u16()
-    /** UIntBase128 */
     def base128(): Int =
       var acc = 0L; var i = 0
       while i < 5 do

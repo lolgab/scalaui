@@ -12,7 +12,6 @@ final case class PdfDestination(page: Int, y: Double = 0.0)
 /** A bookmark (outline entry); `open` shows its children expanded in the viewer. */
 final case class Bookmark(title: String, dest: PdfDestination, children: Seq[Bookmark] = Nil, open: Boolean = false)
 
-/** Page label numbering styles. */
 enum PageLabelStyle(val code: String):
   case Decimal extends PageLabelStyle("D")
   case UpperRoman extends PageLabelStyle("R")

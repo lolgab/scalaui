@@ -7,11 +7,9 @@ import scalaui.geom.Vec2
 enum Weight:
   case Regular, Medium, SemiBold
 
-/** Kind of a [[Context.toast]]. */
 enum ToastKind:
   case Info, Success, Warning, Error
 
-/** Look of a [[Ui.button]]. */
 enum ButtonKind:
   case Default, Primary, Subtle, Danger
 

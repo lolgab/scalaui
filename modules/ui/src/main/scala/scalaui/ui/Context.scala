@@ -100,7 +100,6 @@ final class Context(val backend: GpuBackend):
   var tabConsumed = false
   /** Adds `id` to this frame's Tab order. */
   def registerFocus(id: Long): Unit = focusOrder += id
-  /** True if `id` has keyboard focus. */
   def hasFocus(id: Long): Boolean = focusId == id
   /** Moves keyboard focus to `id`. */
   def requestFocus(id: Long): Unit = { focusId = id; focusClaimed = true; requestRepaint() }

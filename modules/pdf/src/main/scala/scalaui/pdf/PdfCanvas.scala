@@ -238,7 +238,6 @@ class PdfCanvas private[pdf] (private[pdf] val doc: PdfDocument, val width: Doub
   def measure(text: String, font: PdfFont, size: Double): Double = font.shaper.shape(text, size).map(_.xAdvance).sum
 
   // ------------------------------------------------------------------ images
-  /** Draws an image scaled into `dst`. */
   def drawImage(img: PdfImage, dst: Rect): Unit = drawImage(img, dst, interpolate = true)
   def drawImage(img: PdfImage, dst: Rect, interpolate: Boolean): Unit =
     val res = xobjects.getOrElseUpdate(img.id, "Im" + (xobjects.size + 1))
