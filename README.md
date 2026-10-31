@@ -33,7 +33,7 @@ The goal is to build apps like [PhotoCraft](https://github.com/storytold/photocr
 | egui / eframe                                 | `ui`        | immediate-mode widgets (text and code editor with undo, line numbers and scrolling, virtual list, table, tree, plot, splitters, context menus, date picker, search combo, reorder list, Tab focus traversal and shortcuts, drag-and-drop, panels, animation, shadows, disabled state), `App` runner, snapshot test harness |
 
 Existing libraries are used instead of reimplementing: scala-xml (parse with `ConstructingParser`; the SAX loader does not
-link on Native), jsoniter-scala (json), `java.util.zip` (zip containers, see `docx`).
+link on Native), jsoniter-scala (json).
 
 ## Build and test
 

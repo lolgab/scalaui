@@ -77,6 +77,11 @@ lazy val gpu = module("gpu").dependsOn(geom, color, raster, shader, window, code
 lazy val window = module("window").dependsOn(geom)
   // the Linux window tests start threads (compiled on every OS), so this one test binary stays multithreaded
   .settings(Test / nativeConfig ~= (_.withMultithreading(true)))
+  // the Wayland suites call the Linux-only protocol code directly, which does not link against the Windows libc
+  .settings(Test / unmanagedSources / excludeFilter := {
+    val windows = sys.props.getOrElse("os.name", "").toLowerCase.contains("windows") || sys.env.contains("SCALAUI_WIN_CROSS")
+    if windows then HiddenFileFilter || "Wayland*Suite.scala" else HiddenFileFilter
+  })
 
 lazy val examples = (project in file("examples"))
   .enablePlugins(ScalaNativePlugin)

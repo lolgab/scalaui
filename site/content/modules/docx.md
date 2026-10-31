@@ -28,7 +28,7 @@ object Package:
 ## Notes
 
 - XML is parsed with scala-xml's pure-Scala `ConstructingParser`. The default SAX loader (`XML.load`) does not link on Scala Native. External entities are refused: the module ships a stub `java.net.URL` whose `openStream` throws.
-- This is the one module that uses `java.util.zip` (zip containers); it is therefore not part of the zlib-free cross-compile set.
+- Zip containers are read and written by `Package` itself on top of [deflate](deflate.md): methods stored and deflate, UTF-8 names, CRC-32 checked on read, no Zip64, no encryption. No zlib is linked.
 
 ## Example
 

@@ -63,6 +63,6 @@ The diagram below is generated from `build.sbt` when the site is built, so it al
 ## Design rules
 
 - **No third-party C libraries.** The only C in the repository is a pair of shims that use system headers only: `scalaui_objc.c` (Scala Native cannot pass structs by value to Objective-C) and `scalaui_uia.c` (UI Automation calls providers from RPC threads the Scala runtime does not know). System frameworks are `dlopen`ed, so no `-framework` flags are needed.
-- **No `java.util.zip` in the toolkit modules.** On Scala Native it needs zlib and breaks cross-compiles with a sysroot; use `scalaui.deflate.Zlib`. (`docx` is the exception: it uses the zip streams for containers.)
+- **No `java.util.zip` anywhere.** On Scala Native it needs zlib and breaks cross-compiles with a sysroot; use `scalaui.deflate.Zlib`.
 - **Reuse existing Scala libraries** for XML (`scala-xml`) and JSON (`jsoniter-scala`) rather than reimplementing them.
 - **Verify against oracles.** Shaping is checked against about 2200 `hb-shape` cases, codecs against ImageMagick, libwebp and libjpeg fixtures, Unicode algorithms against the official conformance files, and the Vulkan backend against the CPU renderer.

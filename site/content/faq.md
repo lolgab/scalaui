@@ -50,7 +50,7 @@ Bundled fonts are classpath resources. Set `withEmbedResources(true)` in `native
 
 ## Does `java.util.zip` work?
 
-On Scala Native it is implemented with zlib, which breaks sysroot cross-compiles. The toolkit never uses it, except in `docx` for zip containers. Use `scalaui.deflate.Zlib` in your own code if you cross-compile.
+On Scala Native it is implemented with zlib, which breaks sysroot cross-compiles. The toolkit never uses it (`docx` reads and writes zip containers itself). Use `scalaui.deflate.Zlib` in your own code if you cross-compile.
 
 ## How do I report a bug?
 
