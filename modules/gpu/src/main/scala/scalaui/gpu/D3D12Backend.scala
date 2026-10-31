@@ -227,11 +227,11 @@ final class D3D12Backend private (window: Window) extends GpuBackend:
       }
     // resolve the multisampled target into the back buffer (RT -> RESOLVE_SOURCE, PRESENT -> RESOLVE_DEST, and back)
     val to1 = z(64)
-    string.memcpy(to1, barrier(msaa, 0x4, 0x40), 32.toCSize); string.memcpy(to1 + 32, barrier(bb, 0, 0x10), 32.toCSize)
+    string.memcpy(to1, barrier(msaa, 0x4, 0x2000), 32.toCSize); string.memcpy(to1 + 32, barrier(bb, 0, 0x1000), 32.toCSize)
     resourceBarrier(to1, 2)
     CFuncPtr.fromPtr[CFuncPtr6[P, P, CInt, P, CInt, CInt, CInt]](Com.method(list, 19)).apply(list, bb, 0, msaa, 0, 87) // ResolveSubresource
     val to2 = z(64)
-    string.memcpy(to2, barrier(msaa, 0x40, 0x4), 32.toCSize); string.memcpy(to2 + 32, barrier(bb, 0x10, 0), 32.toCSize)
+    string.memcpy(to2, barrier(msaa, 0x2000, 0x4), 32.toCSize); string.memcpy(to2 + 32, barrier(bb, 0x1000, 0), 32.toCSize)
     resourceBarrier(to2, 2)
     endList()
     val sameAsPrevious = presentedW == pw && presentedH == ph && lastScale == frame.scale
