@@ -72,8 +72,7 @@ lazy val docx = module("docx").dependsOn(xmlstub, geom, deflate).settings(
 lazy val pdf = module("pdf").dependsOn(raster, shaping, codecs, deflate, cms, imaging)
 
 // --- platform (wgpu + naga, winit, rfd, arboard) ---
-lazy val shader = module("shader")
-lazy val gpu = module("gpu").dependsOn(geom, color, raster, shader, window, codecs)
+lazy val gpu = module("gpu").dependsOn(geom, color, raster, window, codecs)
 lazy val window = module("window").dependsOn(geom)
   // the Linux window tests start threads (compiled on every OS), so this one test binary stays multithreaded
   .settings(Test / nativeConfig ~= (_.withMultithreading(true)))
@@ -103,6 +102,6 @@ lazy val bench = (project in file("modules/bench"))
 lazy val root = (project in file("."))
   .aggregate(
     testkit, geom, deflate, brotli, color, imaging, svg, raster, codecs, font, shaping, text, pdf,
-    shader, gpu, window, examples, dialogs, clipboard, ui, docx, unicode, cms, xmlstub
+    gpu, window, examples, dialogs, clipboard, ui, docx, unicode, cms, xmlstub
   )
   .settings(name := "scalaui", publish / skip := true)
