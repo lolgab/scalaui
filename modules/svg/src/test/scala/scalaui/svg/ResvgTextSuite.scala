@@ -47,7 +47,7 @@ class ResvgTextSuite extends scalaui.testkit.LoggedSuite:
     assert(svgs.size >= 35, s"fixtures missing under $root")
     val report = new StringBuilder
     val failures = svgs.flatMap { f =>
-      val name = root.relativize(f).toString
+      val name = root.relativize(f).toString.replace('\\', '/')
       try
         val doc = SvgDocument.parse(new String(Files.readAllBytes(f), "UTF-8"), SvgOptions(resourceDir = Some(f.getParent.toString), fonts = fonts, systemFonts = false))
         val ours = scalaui.imaging.Pixmaps.toImage(doc.renderScaled(300.0 / doc.width))
