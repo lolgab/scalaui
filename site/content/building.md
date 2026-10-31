@@ -80,7 +80,7 @@ Publishing uses sbt-ci-release 1.12.1 (declared in `project/plugins.sbt`; it sup
 git tag v0.1.0 && git push origin v0.1.0
 ```
 
-`.github/workflows/release.yml` then runs `sbt ci-release` (sign and upload every module to Sonatype Central) and builds release binaries on all four OS runners and attaches them to the GitHub release. Required repository secrets: `PGP_SECRET` (base64 of the armored private key), `PGP_PASSPHRASE`, `SONATYPE_USERNAME` and `SONATYPE_PASSWORD` (a Central user token). The namespace `com.github.lolgab` must be verified in Central and the public key published to a keyserver. This workflow has not run yet. `sbt publishLocal` is the local equivalent and has been verified.
+`.github/workflows/release.yml` then runs `sbt ci-release` (sign and upload every module to Sonatype Central) and builds release binaries on all four OS runners and attaches them to the GitHub release. Required repository secrets: `SONATYPE_PGP_PRIVATE_KEY` (base64 of the armored private key), `SONATYPE_PGP_PRIVATE_KEY_PASSWORD`, `SONATYPE_USER` and `SONATYPE_PASSWORD` (a Central user token, not the old OSSRH login). The namespace `com.github.lolgab` must be verified in Central and the public key published to a keyserver. This workflow has not run yet. `sbt publishLocal` is the local equivalent and has been verified, and a signed `publishSigned` under a simulated tag produces the expected bundle layout (jar, sources, javadoc and POM, each with `.asc`, `.md5` and `.sha1`).
 
 ## Environment variables
 
