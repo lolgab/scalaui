@@ -192,6 +192,19 @@ final class Ui(val ctx: Context, initialRegion: Rect, val vertical: Boolean, pri
     ctx.canvas.drawImage(texture, rect, tint = tint)
     Response(rect)
 
+  /** A live libmpv video: each frame, pulls the surface's current picture into a texture and draws it stretched over `size`
+    * (black until the first frame arrives). Keeps the UI repainting while shown. Feed the surface with `pushBytes` from
+    * elsewhere; call `surface.close()` when done. */
+  def video(surface: scalaui.gpu.MpvSurface, size: Size): Response =
+    val rect = allocate(size.width, size.height)
+    val (tex, had) = ctx.videoTextures.getOrElseUpdate(surface, (ctx.backend.createTexture(surface.width, surface.height, new Array[Byte](surface.width * surface.height * 4)), false))
+    ctx.canvas.fillRect(rect, Color.Black)
+    val got = surface.renderInto(tex)
+    if got && !had then ctx.videoTextures(surface) = (tex, true)
+    if got || had then ctx.canvas.drawImage(tex, rect)
+    ctx.requestRepaint()
+    Response(rect)
+
   /** Draws an SVG at `size` logical points, rasterized crisply for the current display scale. */
   def svg(doc: scalaui.svg.SvgDocument, size: Size, tint: Color = Color.White): Response =
     val rect = allocate(size.width, size.height)

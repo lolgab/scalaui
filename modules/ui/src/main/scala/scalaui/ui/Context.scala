@@ -41,6 +41,8 @@ final class EditState(var cursor: Int, var anchor: Int, var scrollX: Double = 0)
 
 /** Per-app UI state: input, retained widget memory (focus, scroll, open sections), text caches and the canvas. */
 final class Context(val backend: GpuBackend):
+  /** Per-surface upload texture and whether a frame has been rendered into it yet (see `Ui.video`). */
+  private[ui] val videoTextures = scala.collection.mutable.HashMap.empty[scalaui.gpu.MpvSurface, (scalaui.gpu.Texture, Boolean)]
   var style: Style = Style.Dark
   /** Margin between the window edge and the root [[Ui]]'s content; panels extend over it. */
   var padX = 10.0
