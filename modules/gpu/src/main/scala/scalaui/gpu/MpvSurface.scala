@@ -194,11 +194,6 @@ object MpvSurface:
         if gl != null then Mpv.mpv_set_option_string(handle, c"hwdec", c"auto-copy-safe") // best effort
         // broadcast streams are often interlaced (visible as combing lines on motion); this is a no-op for progressive video
         Mpv.mpv_set_option_string(handle, c"deinterlace", c"yes")
-        // keep mpv's own read-ahead small: the feeder (e.g. an on-disk time-shift buffer) is the real buffer, and a player that
-        // slurps its whole input into a big internal cache would erase the delay the feeder is holding back
-        Mpv.mpv_set_option_string(handle, c"demuxer-max-bytes", c"8MiB")
-        Mpv.mpv_set_option_string(handle, c"demuxer-readahead-secs", c"2")
-        Mpv.mpv_set_option_string(handle, c"cache-secs", c"2")
         check("mpv_initialize", Mpv.mpv_initialize(handle))
         val ctxOut = stackalloc[Ptr[Byte]]()
         if gl != null then
