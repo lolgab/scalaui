@@ -6,9 +6,13 @@ import scalaui.window.{AccessNode, Event, MenuEntry, MouseButton, Modifiers, The
 /** Desktop app runner (eframe equivalent): owns the window, GPU backend and frame loop. */
 object App:
   /** Opens a window and calls `frame` with a root [[Ui]] each time the UI needs repainting. Returns when the window closes.
-    * With `followSystemTheme`, `style` is replaced by [[Style.Dark]]/[[Style.Light]] to match the OS and kept in sync. */
+    * With `followSystemTheme`, `style` is replaced by [[Style.Dark]]/[[Style.Light]] to match the OS and kept in sync.
+    * `onUrlOpened` fires for [[Event.UrlOpened]] (macOS: the app was opened via a registered URL scheme, or handed one
+    * while already running) — it has no widget to land on otherwise, so without this hook it would just fall into the
+    * generic `ctx.input.handle` below and do nothing observable. Can fire before the first `frame` call ever runs, since
+    * the OS can deliver it before a window exists (see [[Event.UrlOpened]]'s doc). */
   def run(title: String, width: Int = 900, height: Int = 600, style: Style = Style.Dark, followSystemTheme: Boolean = false,
-      menuBar: Seq[MenuEntry.Submenu] = Nil)(frame: Ui => Unit): Unit =
+      menuBar: Seq[MenuEntry.Submenu] = Nil, onUrlOpened: String => Unit = _ => ())(frame: Ui => Unit): Unit =
     val win = Window.create(title, width, height)
     val backend = GpuBackend.create(win)
     // Textures are tracked and each frame is compared tile by tile with the previous one, so only the changed region is redrawn
@@ -73,6 +77,9 @@ object App:
           if accessTree.lift(i).exists(_.text.isDefined) then { ctx.accessEdits(i) = (Some(t), ctx.accessEdits.get(i).flatMap(_._2)); dirty = math.max(dirty, 2) }
         case Event.AccessSetSelection(i, a, b) =>
           if accessTree.lift(i).exists(_.text.isDefined) then { ctx.accessEdits(i) = (ctx.accessEdits.get(i).flatMap(_._1), Some((a, b))); dirty = math.max(dirty, 2) }
+        case Event.UrlOpened(url) =>
+          onUrlOpened(url)
+          dirty = math.max(dirty, 1) // the callback likely changed state `frame` should now reflect
         case e => ctx.input.handle(e); dirty = math.max(dirty, 1)
       }
       if pendingRelease.isDefined && !ctx.input.pressed then

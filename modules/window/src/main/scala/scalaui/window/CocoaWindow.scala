@@ -91,12 +91,27 @@ final class CocoaWindow private (private val app: Id, private val win: Id, priva
         case 9 => out += Event.CloseRequested
         case _ => ()
       if text != null then ViewShim.scalaui_free(text.asInstanceOf[Ptr[Byte]])
+    // "open URL" requests arrive as an Apple Event at the application level (see scalaui_install_url_handler), not
+    // through any particular view, and may even be queued before this window existed; drained here so it still
+    // surfaces through the same pollEvents()/waitEvents() loop as every other event.
+    var url = ViewShim.scalaui_app_poll_url()
+    while url != null do
+      out += Event.UrlOpened(fromCString(url))
+      ViewShim.scalaui_free(url.asInstanceOf[Ptr[Byte]])
+      url = ViewShim.scalaui_app_poll_url()
 
   private var lastFocused = true
-  /** Gives the main menu a chance to handle a Cmd shortcut; true when an item consumed it (its action is queued as MenuAction). */
+  /** Gives the main menu a chance to handle a Cmd shortcut; true when an item consumed it (its action is queued as MenuAction).
+    * An app that never calls `App.run(menuBar = ...)` has no main menu at all (`NSApp.mainMenu` stays nil): `send`
+    * can hand back a genuinely-null `Id` in that case, and `Ptr`'s own `!=` dispatches a method on it to compare,
+    * which NPEs on a null receiver before ever reaching the "no menu" branch it was meant to detect. Caught here so
+    * the absence of a menu bar means "nothing claims this shortcut" (falls through to normal key handling, e.g. a
+    * text field's native Cmd+V), not a crash. */
   private def menuClaims(ev: Id): Boolean =
-    val menu = send(app, "mainMenu")
-    menu != null && (C.msgP(menu, sel("performKeyEquivalent:"), ev).toLong & 0xff) != 0 // BOOL: low byte only
+    try
+      val menu = send(app, "mainMenu")
+      menu != null && (C.msgP(menu, sel("performKeyEquivalent:"), ev).toLong & 0xff) != 0 // BOOL: low byte only
+    catch case _: NullPointerException => false
   private var lastTheme = Theme.Light
   private var hoverPaths: Seq[String] = Nil
   private var hiddenByUser = false
@@ -338,6 +353,9 @@ object CocoaWindow:
     val app = send(cls("NSApplication"), "sharedApplication")
     if !appStarted then
       appStarted = true
+      // installed before finishLaunching so a URL used to *launch* the app (custom scheme, or Finder's "Open With")
+      // is caught too: that Apple Event can be pending before the app has a window, or even a run loop, of its own
+      ViewShim.scalaui_install_url_handler()
       sendL(app, "setActivationPolicy:", 0) // regular app: dock icon, menu bar, keyboard focus
       send(app, "finishLaunching")
       bool(app, "activateIgnoringOtherApps:", true)

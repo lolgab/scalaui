@@ -51,6 +51,9 @@ enum Event:
   case AccessSetSelection(index: Int, anchor: Int, caret: Int)
   /** A native menu item (see [[Window.setMenuBar]]) was chosen, by mouse or by its shortcut. */
   case MenuAction(id: Int)
+  /** The OS asked this app to open `url` (a custom URL scheme like `myapp://...`, or a `file://` from Finder's "Open
+    * With"). May be delivered before any window exists, when it's what launched the app. macOS only. */
+  case UrlOpened(url: String)
 
 enum Theme:
   case Light, Dark
