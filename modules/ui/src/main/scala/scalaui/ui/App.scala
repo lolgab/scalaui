@@ -26,6 +26,7 @@ object App:
     ctx.nativeMenus = menuBar.nonEmpty && win.hasNativeMenus
     val debug = sys.env.contains("SCALAUI_DEBUG")
     var running = true
+    var lastPaintAt = System.nanoTime()
     var dirty = 3 // always paint the first frames
     var accessTree = Vector.empty[AccessNode]
     var pendingRelease: Option[scalaui.geom.Point] = None
@@ -99,10 +100,14 @@ object App:
       if pendingRelease.isDefined && !ctx.input.pressed then
         pendingRelease.foreach(c => ctx.input.handle(Event.MouseUp(MouseButton.Left, c.x, c.y)))
         pendingRelease = None
+      // An idle window still repaints a few times a second: the app's state can change on other threads (a status line, a
+      // request the frame function serves), and with no input events nothing else would ever wake the loop to show it.
+      if dirty == 0 && !ctx.repaintRequested && System.nanoTime() - lastPaintAt > 250000000L then dirty = 1
       if dirty > 0 || ctx.repaintRequested then
         if dirty > 0 then dirty -= 1
         val tp0 = System.nanoTime()
         if paint() then dirty = math.max(dirty, 1)
+        lastPaintAt = System.nanoTime()
         if loopStats then { lsPaint += System.nanoTime() - tp0; lsPaints += 1 }
     tracker.backend.close()
     win.close()
