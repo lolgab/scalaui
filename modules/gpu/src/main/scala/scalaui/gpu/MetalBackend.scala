@@ -58,10 +58,19 @@ final class MetalBackend(window: Window) extends GpuBackend:
   private[gpu] var capture = false
   private[gpu] var captured: Option[(Array[Byte], Int, Int)] = None
 
-  final class MetalTexture(val handle: Id, val width: Int, val height: Int) extends Texture:
+  final class MetalTexture(val handle: Id, val width: Int, val height: Int, imported: Boolean = false) extends Texture:
+    override def dispose(): Unit = if imported then { send(handle, "release"); () }
     def update(x: Int, y: Int, w: Int, h: Int, rgba: Array[Byte]): Unit =
       require(rgba.length >= w * h * 4, "pixel buffer too small")
       Shim.scalaui_replace_region(handle, sel("replaceRegion:mipmapLevel:withBytes:bytesPerRow:"), x.toULong, y.toULong, w.toULong, h.toULong, rgba.atUnsafe(0), (w * 4).toULong)
+
+  override def supportsIOSurface: Boolean = true
+  override def importIOSurface(surface: Ptr[Byte], width: Int, height: Int): Option[Texture] =
+    val desc = C.msgLLLC(cls("MTLTextureDescriptor"), sel("texture2DDescriptorWithPixelFormat:width:height:mipmapped:"), BGRA8Unorm, width.toLong, height.toLong, 0)
+    sendL(desc, "setUsage:", 1) // shader read
+    val tex = C.msgPPP(device, sel("newTextureWithDescriptor:iosurface:plane:"), desc, surface, null)
+    if tex == null then None
+    else Some(new MetalTexture(tex, width, height, imported = true))
 
   val whiteTexture: Texture = createTexture(1, 1, Array(-1, -1, -1, -1))
 
