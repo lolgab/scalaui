@@ -203,26 +203,37 @@ final class Ui(val ctx: Context, initialRegion: Rect, val vertical: Boolean, pri
     * elsewhere; call `surface.close()` when done. */
   def video(surface: scalaui.gpu.MpvSurface, size: Size): Response =
     val rect = allocate(size.width, size.height)
-    val (tex, had) = ctx.videoTextures.getOrElseUpdate(surface, (ctx.backend.createTexture(surface.width, surface.height, new Array[Byte](surface.width * surface.height * 4)), false))
     ctx.canvas.fillRect(rect, Color.Black)
-    val got = surface.renderInto(tex)
-    if got && !had then ctx.videoTextures(surface) = (tex, true)
-    if got || had then ctx.canvas.drawImage(tex, rect)
+    drawVideo(surface, rect)
     ctx.requestRepaint()
     ctx.interact(rect, nextId()) // hover and double-click (returned) for e.g. toggling fullscreen
+
+  /** Draws `surface` into `rect`. A surface that owns its texture (GPU path) is resized to the rect's pixel size so it is
+    * shown 1:1 at native resolution; an old-style surface is uploaded into a context-owned texture and stretched. */
+  private def drawVideo(surface: scalaui.gpu.MpvSurface, area: Rect, fit: Boolean = false): Unit =
+    // fixed-size (software) surfaces keep their own aspect: fit them inside `area` when asked; GPU surfaces letterbox internally
+    val rect =
+      if fit && !surface.isGpu then
+        val aspect = surface.width.toDouble / surface.height
+        val w = math.min(area.width, area.height * aspect); val h = w / aspect
+        Rect(area.x0 + (area.width - w) / 2, area.y0 + (area.height - h) / 2, area.x0 + (area.width + w) / 2, area.y0 + (area.height + h) / 2)
+      else area
+    if surface.managesTexture then
+      val sc = ctx.canvas.scaleFactor
+      surface.resize(math.max(1, math.round(rect.width * sc).toInt), math.max(1, math.round(rect.height * sc).toInt))
+      surface.renderTexture().foreach(t => ctx.canvas.drawImage(t, rect))
+    else
+      val (tex, had) = ctx.videoTextures.getOrElseUpdate(surface, (ctx.backend.createTexture(surface.width, surface.height, new Array[Byte](surface.width * surface.height * 4)), false))
+      val got = surface.renderInto(tex)
+      if got && !had then ctx.videoTextures(surface) = (tex, true)
+      if got || had then ctx.canvas.drawImage(tex, rect)
 
   /** Covers the whole window in black and shows the video centered at its own aspect ratio, as large as fits — for fullscreen
     * playback. Ignores the layout cursor; call it instead of building other widgets. */
   def videoFullscreen(surface: scalaui.gpu.MpvSurface): Response =
     val win = ctx.windowRect
     ctx.canvas.fillRect(win, Color.Black)
-    val aspect = surface.width.toDouble / surface.height
-    val w = math.min(win.width, win.height * aspect); val h = w / aspect
-    val rect = Rect(win.x0 + (win.width - w) / 2, win.y0 + (win.height - h) / 2, win.x0 + (win.width + w) / 2, win.y0 + (win.height + h) / 2)
-    val (tex, had) = ctx.videoTextures.getOrElseUpdate(surface, (ctx.backend.createTexture(surface.width, surface.height, new Array[Byte](surface.width * surface.height * 4)), false))
-    val got = surface.renderInto(tex)
-    if got && !had then ctx.videoTextures(surface) = (tex, true)
-    if got || had then ctx.canvas.drawImage(tex, rect)
+    drawVideo(surface, win, fit = true) // a GPU surface renders at the window's pixel size and letterboxes the video itself
     ctx.requestRepaint()
     ctx.interact(win, nextId())
 

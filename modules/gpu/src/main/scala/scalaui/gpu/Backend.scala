@@ -9,6 +9,8 @@ trait Texture:
   def height: Int
   /** Overwrites a sub-rectangle; `rgba` is tightly packed premultiplied RGBA8, `w * h * 4` bytes. */
   def update(x: Int, y: Int, w: Int, h: Int, rgba: Array[Byte]): Unit
+  /** Releases the native resource of a texture that was imported ([[GpuBackend.importIOSurface]]); ordinary textures keep the default no-op. */
+  def dispose(): Unit = ()
 
 /** Vertex layout: x, y, u, v, r, g, b, a (premultiplied), 8 floats. */
 object Vertex:
@@ -39,6 +41,11 @@ trait GpuBackend:
     * describe the whole picture: damage is an optimization hint, never a clip.
     */
   def submit(frame: Frame, @annotation.unused damage: Option[Rect]): Unit = submit(frame)
+  /** True when [[importIOSurface]] works (Metal only). */
+  def supportsIOSurface: Boolean = false
+  /** Wraps a BGRA8 `IOSurfaceRef` of `width` x `height` as a texture sharing its memory (no copy). The caller keeps ownership
+    * of the surface and calls `dispose()` on the texture before releasing it. */
+  def importIOSurface(surface: scala.scalanative.unsafe.Ptr[Byte], width: Int, height: Int): Option[Texture] = None
   def close(): Unit
 
 object GpuBackend:

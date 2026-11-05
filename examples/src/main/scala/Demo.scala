@@ -5,6 +5,7 @@ import scalaui.ui.*
 @main def demo(args: String*): Unit =
   if args.headOption.contains("damageBench") then return scalaui.examples.damageBench()
   if args.contains("canvas") then return canvasDemo()
+  if args.headOption.contains("mpvgpu") then return mpvGpuDemo(args.lift(1), args.lift(2).flatMap(_.toIntOption).getOrElse(10), args.contains("software"))
   if args.headOption.contains("mpv") then return mpvDemo(args.lift(1))
   if args.headOption.contains("viewer") then return viewerDemo(args.lift(1))
   val name = Var("Ferris")
