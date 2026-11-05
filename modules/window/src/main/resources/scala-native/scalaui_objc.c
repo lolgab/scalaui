@@ -531,4 +531,74 @@ void scalaui_set_app_icon(void *cgimage, double w, double h) {
     id app = ((id (*)(id, SEL))objc_msgSend)((id)objc_getClass("NSApplication"), sel_registerName("sharedApplication"));
     ((void (*)(id, SEL, id))objc_msgSend)(app, sel_registerName("setApplicationIconImage:"), ns);
 }
+
+// ---------------------------------------------------------------------------------------------------------------------
+// "Open URL" requests (a custom URL scheme like myapp://..., or a file:// from Finder's "Open With") are delivered to
+// macOS apps as an Apple Event (kAEGetURL in kInternetEventClass) -- never through argv, not even for a process that
+// the URL itself launched. AEInstallEventHandler/AEGetParamPtr live in the Apple Event Manager, part of the Carbon
+// umbrella that CoreServices.framework re-exports; dlopen'ed/dlsym'ed like every other system symbol here so no
+// `-framework` flag is needed. There is no view (possibly no window at all) when this fires, so requests are queued
+// in a small app-level ring buffer instead of a ScaluiView's per-view queue, and drained from Scala alongside it.
+typedef signed short OSErr;
+typedef unsigned int FourCharCode, DescType, AEKeyword, AEEventClass, AEEventID;
+typedef long AESize;
+typedef struct { DescType descriptorType; void *dataHandle; } AEDesc;
+typedef AEDesc AppleEvent;
+typedef long SRefCon;
+typedef OSErr (*AEEventHandlerProcPtr)(const AppleEvent *theAppleEvent, AppleEvent *reply, SRefCon handlerRefcon);
+
+#define kInternetEventClass 0x4755524Cu // 'GURL'
+#define kAEGetURL           0x4755524Cu // 'GURL'
+#define keyDirectObject     0x2D2D2D2Du // '----'
+#define typeUTF8Text        0x75746638u // 'utf8'
+#define typeChar            0x54455854u // 'TEXT'
+
+#define SA_URL_QUEUE 16
+static char *sa_url_q[SA_URL_QUEUE];
+static int sa_url_head = 0, sa_url_count = 0;
+
+static void sa_url_push(const char *url) {
+    if (sa_url_count == SA_URL_QUEUE) return; // best-effort: an app that never polls for these is not using the feature
+    sa_url_q[(sa_url_head + sa_url_count) % SA_URL_QUEUE] = url ? strdup(url) : NULL;
+    sa_url_count++;
+}
+
+// pops one pending "open URL" request; the caller owns the returned string and releases it with scalaui_free
+char *scalaui_app_poll_url(void) {
+    if (sa_url_count == 0) return NULL;
+    char *u = sa_url_q[sa_url_head];
+    sa_url_head = (sa_url_head + 1) % SA_URL_QUEUE; sa_url_count--;
+    return u;
+}
+
+static OSErr (*ae_install_event_handler)(AEEventClass, AEEventID, AEEventHandlerProcPtr, SRefCon, unsigned char) = NULL;
+static OSErr (*ae_get_param_ptr)(const AppleEvent *, AEKeyword, DescType, DescType *, void *, AESize, AESize *) = NULL;
+
+static OSErr sa_handle_get_url(const AppleEvent *event, AppleEvent *reply, SRefCon refcon) {
+    (void)reply; (void)refcon;
+    if (!ae_get_param_ptr) return 0;
+    char buf[4096];
+    DescType actualType = 0; AESize actualSize = 0;
+    OSErr err = ae_get_param_ptr(event, keyDirectObject, typeUTF8Text, &actualType, buf, (AESize)sizeof(buf) - 1, &actualSize);
+    if (err != 0) err = ae_get_param_ptr(event, keyDirectObject, typeChar, &actualType, buf, (AESize)sizeof(buf) - 1, &actualSize);
+    if (err == 0) {
+        if (actualSize < 0) actualSize = 0;
+        if ((size_t)actualSize > sizeof(buf) - 1) actualSize = (AESize)sizeof(buf) - 1;
+        buf[actualSize] = 0;
+        sa_url_push(buf);
+    }
+    return 0; // noErr
+}
+
+// installs the handler; idempotent, so Scala can call it unconditionally the first time it touches NSApplication.
+// Must run before -[NSApplication finishLaunching] (or earlier still) to not miss a launch-by-URL.
+void scalaui_install_url_handler(void) {
+    static int installed = 0;
+    if (installed) return;
+    installed = 1;
+    dlopen("/System/Library/Frameworks/CoreServices.framework/CoreServices", 1 /* RTLD_LAZY */); // makes AE symbols visible below
+    ae_install_event_handler = (OSErr (*)(AEEventClass, AEEventID, AEEventHandlerProcPtr, SRefCon, unsigned char))dlsym(RTLD_DEFAULT, "AEInstallEventHandler");
+    ae_get_param_ptr = (OSErr (*)(const AppleEvent *, AEKeyword, DescType, DescType *, void *, AESize, AESize *))dlsym(RTLD_DEFAULT, "AEGetParamPtr");
+    if (ae_install_event_handler) ae_install_event_handler(kInternetEventClass, kAEGetURL, sa_handle_get_url, 0, 0);
+}
 #endif // __APPLE__

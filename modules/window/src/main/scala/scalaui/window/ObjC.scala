@@ -38,6 +38,12 @@ type Id = Ptr[Byte]
   def scalaui_set_resize_callback(cb: CFuncPtr0[Unit]): Unit = extern
   def scalaui_nsimage(cgImage: Ptr[Byte], w: CDouble, h: CDouble): Ptr[Byte] = extern
   def scalaui_set_app_icon(cgImage: Ptr[Byte], w: CDouble, h: CDouble): Unit = extern
+  /** Installs the Apple Event handler that catches "open URL" (custom scheme / `file://`) requests, including the
+    * one that launched the app. Idempotent; call once, as early as possible during app setup. */
+  def scalaui_install_url_handler(): Unit = extern
+  /** Pops one pending "open URL" request from the app-level queue the Apple Event handler fills, or null. The
+    * caller owns the string and frees it with [[scalaui_free]]. */
+  def scalaui_app_poll_url(): CString = extern
 
 /** Objective-C runtime plus the handful of CoreGraphics/CoreFoundation C functions we need. All Apple system libraries. */
 @link("objc") @extern private[scalaui] object C:
