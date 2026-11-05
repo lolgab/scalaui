@@ -5,6 +5,7 @@ import scalaui.ui.*
 @main def demo(args: String*): Unit =
   if args.headOption.contains("damageBench") then return scalaui.examples.damageBench()
   if args.contains("canvas") then return canvasDemo()
+  if args.headOption.contains("mpv") then return mpvDemo(args.lift(1))
   if args.headOption.contains("viewer") then return viewerDemo(args.lift(1))
   val name = Var("Ferris")
   val notes = Var("Multi-line\ntext editing:\nselect, copy, paste.")
