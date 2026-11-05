@@ -47,6 +47,9 @@ final class Context(val backend: GpuBackend):
   /** The whole window, in logical points. */
   var windowRect = Rect(0, 0, 0, 0)
   var fullscreenRequest: Option[Boolean] = None
+  /** Per GPU video surface: the size it renders at, the size the layout now wants, and since when it has wanted it. */
+  private[ui] final class VideoResize(var appliedW: Int, var appliedH: Int, var wantW: Int, var wantH: Int, var since: Long)
+  private[ui] val videoResize = scala.collection.mutable.HashMap.empty[scalaui.gpu.MpvSurface, VideoResize]
   private[ui] val videoTextures = scala.collection.mutable.HashMap.empty[scalaui.gpu.MpvSurface, (scalaui.gpu.Texture, Boolean)]
   var style: Style = Style.Dark
   /** Margin between the window edge and the root [[Ui]]'s content; panels extend over it. */
