@@ -70,6 +70,10 @@ private[gpu] object Mpv:
   def getInt(h: Ptr[Byte], name: CString): Long =
     val out = stackalloc[CLongLong]()
     if fGetProperty(h, name, 4, out.asInstanceOf[Ptr[Byte]]) < 0 then -1L else !out
+  /** A double-valued property (`MPV_FORMAT_DOUBLE` = 5), or -1.0 if mpv has no value for it right now. */
+  def getDouble(h: Ptr[Byte], name: CString): Double =
+    val out = stackalloc[CDouble]()
+    if fGetProperty(h, name, 5, out.asInstanceOf[Ptr[Byte]]) < 0 then -1.0 else !out
   def errorString(code: Int): String = fromCString(fErrorString(code))
 
 /** An in-process libmpv player whose frames end up in a scalaui [[Texture]], so video composites with the rest of the
@@ -129,6 +133,9 @@ trait MpvSurface:
     * change identity after [[resize]]: fetch it again every frame. Only for surfaces from [[MpvSurface.createGpu]].
     */
   def renderTexture(): Option[Texture] = None
+  /** Seconds of video mpv has already buffered ahead of the picture on screen (its demuxer cache), 0 if unknown. Data handed
+    * to the player is not "behind" the player's position until this much of it has played. */
+  def cacheSeconds: Double = 0.0
   /** Pauses or resumes playback (mpv's `pause` property). A paused player stops reading the pipe, which back-pressures the feeder. */
   def setPause(paused: Boolean): Unit = ()
   /** Stops playback and releases the render context, the player and the pipe. Idempotent. */
@@ -194,6 +201,11 @@ object MpvSurface:
         if gl != null then Mpv.mpv_set_option_string(handle, c"hwdec", c"auto-copy-safe") // best effort
         // broadcast streams are often interlaced (visible as combing lines on motion); this is a no-op for progressive video
         Mpv.mpv_set_option_string(handle, c"deinterlace", c"yes")
+        // Bound mpv's own read-ahead: whatever it buffers is video the feeder has already handed over, so it is no longer
+        // "behind" in the feeder's books (pausing and jumping to live both need that to stay small and measurable).
+        Mpv.mpv_set_option_string(handle, c"demuxer-max-bytes", c"48MiB")
+        Mpv.mpv_set_option_string(handle, c"demuxer-readahead-secs", c"10")
+        Mpv.mpv_set_option_string(handle, c"cache-secs", c"10")
         check("mpv_initialize", Mpv.mpv_initialize(handle))
         val ctxOut = stackalloc[Ptr[Byte]]()
         if gl != null then
@@ -247,6 +259,10 @@ object MpvSurface:
     override def managesTexture: Boolean = gpu != null
     override def isGpu: Boolean = gl != null
     override def resize(nw: Int, nh: Int): Unit = lock.synchronized { if gl != null then { wantW = math.max(1, nw); wantH = math.max(1, nh) } }
+
+    override def cacheSeconds: Double = lock.synchronized {
+      if closed then 0.0 else math.max(0.0, Mpv.getDouble(handle, c"demuxer-cache-duration"))
+    }
 
     override def videoSize: Option[(Int, Int)] = lock.synchronized {
       if known.isEmpty && !closed then
