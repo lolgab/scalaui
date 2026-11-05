@@ -222,11 +222,26 @@ final class Ui(val ctx: Context, initialRegion: Rect, val vertical: Boolean, pri
       else area
     if surface.managesTexture then
       val sc = ctx.canvas.scaleFactor
-      surface.resize(math.max(1, math.round(rect.width * sc).toInt), math.max(1, math.round(rect.height * sc).toInt))
+      val wantW = math.max(1, math.round(rect.width * sc).toInt); val wantH = math.max(1, math.round(rect.height * sc).toInt)
+      // Re-creating the render target (IOSurface, GL texture, framebuffer, Metal texture) on every step of a window drag is
+      // what made resizing laggy. So the surface only follows the layout once the wanted size has stayed put for a moment;
+      // until then the frame it already has is scaled to fit by the compositor (below), which costs nothing.
+      val now = System.currentTimeMillis()
+      val vr = ctx.videoResize.get(surface) match
+        case Some(v) => v
+        case None => val v = new ctx.VideoResize(wantW, wantH, wantW, wantH, now); surface.resize(wantW, wantH); ctx.videoResize(surface) = v; v
+      if wantW != vr.wantW || wantH != vr.wantH then { vr.wantW = wantW; vr.wantH = wantH; vr.since = now }
+      if (vr.wantW != vr.appliedW || vr.wantH != vr.appliedH) then
+        if now - vr.since >= 150 then { surface.resize(vr.wantW, vr.wantH); vr.appliedW = vr.wantW; vr.appliedH = vr.wantH }
+        else ctx.requestRepaint() // come back to apply it once the size settles
       surface.renderTexture().foreach { t =>
         // the GPU wrote new pixels into it behind the damage tracker's back: mark the whole texture changed
         t match { case tt: TrackedTexture => tt.updates += ((0, 0, tt.width, tt.height)); case _ => () }
-        ctx.canvas.drawImage(t, rect)
+        // while the render size lags the layout, fit the frame (it has its own letterboxing) inside the area at its own aspect
+        val texAspect = t.width.toDouble / math.max(1, t.height)
+        val w = math.min(rect.width, rect.height * texAspect); val h = w / texAspect
+        val dst = Rect(rect.x0 + (rect.width - w) / 2, rect.y0 + (rect.height - h) / 2, rect.x0 + (rect.width + w) / 2, rect.y0 + (rect.height + h) / 2)
+        ctx.canvas.drawImage(t, dst)
       }
     else
       val (tex, had) = ctx.videoTextures.getOrElseUpdate(surface, (ctx.backend.createTexture(surface.width, surface.height, new Array[Byte](surface.width * surface.height * 4)), false))
