@@ -186,7 +186,10 @@ object MpvSurface:
       Zone {
         // mpv must not open a window of its own; frames only go to the render context below
         check("vo option", Mpv.mpv_set_option_string(handle, c"vo", c"libmpv"))
-        if gl != null then Mpv.mpv_set_option_string(handle, c"hwdec", c"auto-safe") // best effort
+        // copy-back hardware decoding, not zero-copy: deinterlacing is a software filter and needs the frames in system memory
+        if gl != null then Mpv.mpv_set_option_string(handle, c"hwdec", c"auto-copy-safe") // best effort
+        // broadcast streams are often interlaced (visible as combing lines on motion); this is a no-op for progressive video
+        Mpv.mpv_set_option_string(handle, c"deinterlace", c"yes")
         check("mpv_initialize", Mpv.mpv_initialize(handle))
         val ctxOut = stackalloc[Ptr[Byte]]()
         if gl != null then
