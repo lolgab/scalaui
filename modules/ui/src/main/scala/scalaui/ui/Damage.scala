@@ -9,6 +9,7 @@ import scalaui.gpu.{DrawCall, Frame, GpuBackend, Texture}
 final class TrackedTexture private[ui] (val inner: Texture, private[ui] val id: Long) extends Texture:
   def width: Int = inner.width
   def height: Int = inner.height
+  override def dispose(): Unit = inner.dispose()
   private[ui] val updates = ArrayBuffer.empty[(Int, Int, Int, Int)] // x, y, w, h since the last frame was analysed
   def update(x: Int, y: Int, w: Int, h: Int, rgba: Array[Byte]): Unit =
     inner.update(x, y, w, h, rgba)
@@ -24,6 +25,9 @@ final class TrackedBackend(val inner: GpuBackend) extends GpuBackend:
   def createTexture(width: Int, height: Int, rgba: Array[Byte]): Texture =
     nextId += 1
     new TrackedTexture(inner.createTexture(width, height, rgba), nextId)
+  override def supportsIOSurface: Boolean = inner.supportsIOSurface
+  override def importIOSurface(surface: scala.scalanative.unsafe.Ptr[Byte], width: Int, height: Int): Option[Texture] =
+    inner.importIOSurface(surface, width, height).map { t => nextId += 1; new TrackedTexture(t, nextId) }
   /** The frame with the real backend's textures. */
   def unwrap(frame: Frame): Frame =
     frame.copy(calls = frame.calls.map(c => c.texture match
