@@ -192,6 +192,8 @@ final class Ui(val ctx: Context, initialRegion: Rect, val vertical: Boolean, pri
     ctx.canvas.drawImage(texture, rect, tint = tint)
     Response(rect)
 
+  /** The window's GPU backend, for `MpvSurface.createGpu`. */
+  def gpu: scalaui.gpu.GpuBackend = ctx.backend
   def isFullscreen: Boolean = ctx.fullscreen
   /** Asks the app runner to enter or leave fullscreen after this frame. */
   def setFullscreen(on: Boolean): Unit = ctx.fullscreenRequest = Some(on)
@@ -221,7 +223,11 @@ final class Ui(val ctx: Context, initialRegion: Rect, val vertical: Boolean, pri
     if surface.managesTexture then
       val sc = ctx.canvas.scaleFactor
       surface.resize(math.max(1, math.round(rect.width * sc).toInt), math.max(1, math.round(rect.height * sc).toInt))
-      surface.renderTexture().foreach(t => ctx.canvas.drawImage(t, rect))
+      surface.renderTexture().foreach { t =>
+        // the GPU wrote new pixels into it behind the damage tracker's back: mark the whole texture changed
+        t match { case tt: TrackedTexture => tt.updates += ((0, 0, tt.width, tt.height)); case _ => () }
+        ctx.canvas.drawImage(t, rect)
+      }
     else
       val (tex, had) = ctx.videoTextures.getOrElseUpdate(surface, (ctx.backend.createTexture(surface.width, surface.height, new Array[Byte](surface.width * surface.height * 4)), false))
       val got = surface.renderInto(tex)
