@@ -288,7 +288,11 @@ object MpvSurface:
           }
           known
 
-    def pushBytes(data: Array[Byte], offset: Int, length: Int): Int = lock.synchronized {
+    // The pipe has its own lock. A feeder whose pipe is full retries every millisecond, and if those retries took the same lock as
+    // rendering, painting would queue behind them (frames of hundreds of ms once the buffer was deep). `close()` takes both.
+    private val pipeLock = new Object
+
+    def pushBytes(data: Array[Byte], offset: Int, length: Int): Int = pipeLock.synchronized {
       require(offset >= 0 && length >= 0 && offset + length <= data.length, "range out of bounds")
       if closed || !writeOpen then -1
       else if length == 0 then 0
@@ -299,7 +303,7 @@ object MpvSurface:
         else -1
     }
 
-    def endOfStream(): Unit = lock.synchronized {
+    def endOfStream(): Unit = pipeLock.synchronized {
       if writeOpen then { writeOpen = false; MpvLibc.close(writeFd) }
     }
 
@@ -386,5 +390,6 @@ object MpvSurface:
         if gl != null then gl.destroy()
     }
 
-    private def endOfStreamLocked(): Unit =
+    private def endOfStreamLocked(): Unit = pipeLock.synchronized {
       if writeOpen then { writeOpen = false; MpvLibc.close(writeFd) }
+    }
