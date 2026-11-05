@@ -192,6 +192,12 @@ final class Ui(val ctx: Context, initialRegion: Rect, val vertical: Boolean, pri
     ctx.canvas.drawImage(texture, rect, tint = tint)
     Response(rect)
 
+  def isFullscreen: Boolean = ctx.fullscreen
+  /** Asks the app runner to enter or leave fullscreen after this frame. */
+  def setFullscreen(on: Boolean): Unit = ctx.fullscreenRequest = Some(on)
+  /** True during the frame Escape was pressed. */
+  def escapePressed: Boolean = ctx.input.keys.exists(_.key == Key.Escape)
+
   /** A live libmpv video: each frame, pulls the surface's current picture into a texture and draws it stretched over `size`
     * (black until the first frame arrives). Keeps the UI repainting while shown. Feed the surface with `pushBytes` from
     * elsewhere; call `surface.close()` when done. */
@@ -203,7 +209,7 @@ final class Ui(val ctx: Context, initialRegion: Rect, val vertical: Boolean, pri
     if got && !had then ctx.videoTextures(surface) = (tex, true)
     if got || had then ctx.canvas.drawImage(tex, rect)
     ctx.requestRepaint()
-    Response(rect)
+    ctx.interact(rect, nextId()) // hover and double-click (returned) for e.g. toggling fullscreen
 
   /** Draws an SVG at `size` logical points, rasterized crisply for the current display scale. */
   def svg(doc: scalaui.svg.SvgDocument, size: Size, tint: Color = Color.White): Response =

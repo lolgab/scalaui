@@ -36,7 +36,9 @@ object App:
       try
           ctx.begin(win.width, win.height, win.scaleFactor)
           val root = new Ui(ctx, scalaui.geom.Rect(10, 8, win.width - 10.0, win.height.toDouble), true, 1L)
+          ctx.fullscreen = win.isFullscreen
           frame(root)
+          ctx.fullscreenRequest.foreach { f => ctx.fullscreenRequest = None; win.setFullscreen(f); dirty = math.max(dirty, 3) }
           val hadInput = ctx.input.anyEvent
           if sys.env.contains("SCALAUI_DEBUG") then System.err.println(s"frame dirty=$dirty input=$hadInput repaint=${ctx.repaintRequested}")
           val t0 = System.nanoTime()
