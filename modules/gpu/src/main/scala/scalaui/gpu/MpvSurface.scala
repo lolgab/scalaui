@@ -242,7 +242,7 @@ object MpvSurface:
   private val EAGAIN = 35 // macOS value
 
   private final class MpvSurfaceImpl(handle: Ptr[Byte], ctx: Ptr[Byte], readFd: Int, writeFd: Int, initW: Int, initH: Int, gpu: GpuBackend, gl: MpvGl) extends MpvSurface:
-    private var closed = false
+    @volatile private var closed = false
     private var writeOpen = true
     private val lock = new Object
     private var w = math.max(1, initW)
@@ -260,7 +260,11 @@ object MpvSurface:
     override def isGpu: Boolean = gl != null
     override def resize(nw: Int, nh: Int): Unit = lock.synchronized { if gl != null then { wantW = math.max(1, nw); wantH = math.max(1, nh) } }
 
-    override def cacheSeconds: Double = lock.synchronized {
+    // Reading an mpv property can wait on mpv's internal locks (the demuxer lock is held while it ingests data), so it must
+    // not run under `lock`, which the render path needs: that would stall painting. It has its own lock, which `close()` also
+    // takes before destroying the handle. Callers should still poll it from a background thread, not the paint loop.
+    private val propLock = new Object
+    override def cacheSeconds: Double = propLock.synchronized {
       if closed then 0.0 else math.max(0.0, Mpv.getDouble(handle, c"demuxer-cache-duration"))
     }
 
@@ -352,7 +356,7 @@ object MpvSurface:
 
     def close(): Unit = lock.synchronized {
       if !closed then
-        closed = true
+        propLock.synchronized { closed = true } // waits out a property read in flight on another thread
         // order matters: the render context must go before the core (libmpv docs), and the pipe's write end closes first so the demuxer sees EOF
         endOfStreamLocked()
         if gl != null then gl.makeCurrent()
