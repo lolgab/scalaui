@@ -39,6 +39,16 @@ final class MetalBackend(window: Window) extends GpuBackend:
   bool(layer, "setFramebufferOnly:", true)
   send(layer, "setContentsGravity:", nsString("topLeft")) // never stretch a stale frame while resizing
   send(view, "setLayer:", layer)
+  // Core Animation animates changes to a layer's geometry and contents (about 0.25 s by default). For a layer that is only a
+  // presentation surface that shows up as the first frames easing in from the wrong size when the window appears. Switch the
+  // implicit actions off: a layer's `actions` dictionary maps a property key to NSNull to mean "no animation".
+  locally {
+    val none = send(cls("NSNull"), "null")
+    val actions = send(cls("NSMutableDictionary"), "dictionary")
+    Seq("bounds", "position", "anchorPoint", "frame", "transform", "contents", "contentsRect", "contentsScale", "contentsCenter",
+      "opacity", "hidden", "zPosition", "sublayers", "onOrderIn", "onOrderOut").foreach(k => C.msgPP(actions, sel("setObject:forKey:"), none, nsString(k)))
+    send(layer, "setActions:", actions)
+  }
   bool(view, "setWantsLayer:", true)
   private val queue: Id = send(device, "newCommandQueue")
   private val pipeline: Id = buildPipeline(blend = true)
