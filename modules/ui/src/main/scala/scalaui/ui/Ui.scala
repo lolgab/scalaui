@@ -620,4 +620,18 @@ final class Ui(val ctx: Context, initialRegion: Rect, val vertical: Boolean, pri
     else Vector.empty
     ctx.access(scalaui.window.AccessRole.TextInput, hint, rect, value = value.value, focused = isFocused,
       text = Some(scalaui.window.AccessText(edit.cursor, edit.selStart, edit.selEnd, multiline, true, charBounds)))
+    // right-click menu: Cut / Copy / Paste / Select All, acting on the saved cursor and selection (opening the menu drops focus)
+    this.contextMenu(r, minWidth = 150) { m =>
+      val cur = Edit(value.value, st.cursor, st.anchor).clamp
+      def commit(e: Edit, kind: Int): Unit =
+        if e.text != cur.text then { st.record(cur, kind, true); value.value = e.text; r = r.copy(changed = true) }
+        st.cursor = e.cursor; st.anchor = e.anchor; ctx.focusId = id
+      val mod = if scala.util.Properties.isMac then "Cmd+" else "Ctrl+"
+      if m.menuItem("Cut", mod + "X").clicked && cur.hasSelection then { Clipboard.setText(cur.selected); commit(cur.deleteSelection, 2) }
+      if m.menuItem("Copy", mod + "C").clicked && cur.hasSelection then { Clipboard.setText(cur.selected); ctx.focusId = id }
+      if m.menuItem("Paste", mod + "V").clicked then
+        Clipboard.getText().foreach { t => commit(cur.insert(if multiline then t else t.replace("\n", " ").replace("\r", "")), 1) }
+      m.separator()
+      if m.menuItem("Select All", mod + "A").clicked then commit(cur.selectAll, 0)
+    }
     r.copy(focused = isFocused)
