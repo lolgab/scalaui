@@ -53,10 +53,13 @@ private[gpu] object Mpv:
   private lazy val fRenderCreate = CFuncPtr.fromPtr[CFuncPtr3[Ptr[Ptr[Byte]], Ptr[Byte], Ptr[RenderParam], CInt]](sym("mpv_render_context_create"))
   private lazy val fRender = CFuncPtr.fromPtr[CFuncPtr2[Ptr[Byte], Ptr[RenderParam], CInt]](sym("mpv_render_context_render"))
   private lazy val fGetProperty = CFuncPtr.fromPtr[CFuncPtr4[Ptr[Byte], CString, CInt, Ptr[Byte], CInt]](sym("mpv_get_property"))
+  private lazy val fCommandAsync = CFuncPtr.fromPtr[CFuncPtr3[Ptr[Byte], CUnsignedLongLong, Ptr[CString], CInt]](sym("mpv_command_async"))
   private lazy val fSetProperty = CFuncPtr.fromPtr[CFuncPtr3[Ptr[Byte], CString, CString, CInt]](sym("mpv_set_property_string"))
   private lazy val fRenderFree = CFuncPtr.fromPtr[CFuncPtr1[Ptr[Byte], Unit]](sym("mpv_render_context_free"))
 
   def mpv_set_property_string(h: Ptr[Byte], name: CString, value: CString): Int = fSetProperty(h, name, value)
+  /** Queues a command and returns at once (the result would arrive as an event, which nobody reads here). */
+  def mpv_command_async(h: Ptr[Byte], args: Ptr[CString]): Int = fCommandAsync(h, 0.toULong, args)
   def mpv_create(): Ptr[Byte] = fCreate()
   def mpv_initialize(h: Ptr[Byte]): Int = fInitialize(h)
   def mpv_set_option_string(h: Ptr[Byte], name: CString, value: CString): Int = fSetOption(h, name, value)
@@ -268,12 +271,22 @@ object MpvSurface:
       if closed then 0.0 else math.max(0.0, Mpv.getDouble(handle, c"demuxer-cache-duration"))
     }
 
-    override def videoSize: Option[(Int, Int)] = lock.synchronized {
-      if known.isEmpty && !closed then
-        val vw = Mpv.getInt(handle, c"dwidth"); val vh = Mpv.getInt(handle, c"dheight")
-        if vw > 0 && vh > 0 then known = Some((vw.toInt, vh.toInt))
-      known
-    }
+    // Asked every frame until the size is known; each ask is a synchronous mpv call, so ask at most a few times a second.
+    private var lastSizeAsk = 0L
+    override def videoSize: Option[(Int, Int)] =
+      val k = known
+      if k.isDefined then k
+      else
+        val now = System.currentTimeMillis()
+        if now - lastSizeAsk < 250 then None
+        else
+          lastSizeAsk = now
+          propLock.synchronized {
+            if !closed then
+              val vw = Mpv.getInt(handle, c"dwidth"); val vh = Mpv.getInt(handle, c"dheight")
+              if vw > 0 && vh > 0 then known = Some((vw.toInt, vh.toInt))
+          }
+          known
 
     def pushBytes(data: Array[Byte], offset: Int, length: Int): Int = lock.synchronized {
       require(offset >= 0 && length >= 0 && offset + length <= data.length, "range out of bounds")
@@ -350,8 +363,15 @@ object MpvSurface:
         }
     }
 
-    override def setPause(paused: Boolean): Unit = lock.synchronized {
-      if !closed then Zone { Mpv.mpv_set_property_string(handle, c"pause", if paused then c"yes" else c"no"); () }
+    // Pausing is queued to mpv instead of set synchronously. A synchronous call from the UI thread can wait on mpv's core, which
+    // in turn can wait on its video-output thread, which needs the UI thread to call render: a deadlock that showed up as the
+    // player freezing after pausing and resuming. The command goes through `propLock` only (never the render lock).
+    override def setPause(paused: Boolean): Unit = propLock.synchronized {
+      if !closed then Zone {
+        val args = stackalloc[CString](4)
+        args(0) = c"set"; args(1) = c"pause"; args(2) = if paused then c"yes" else c"no"; args(3) = null
+        Mpv.mpv_command_async(handle, args); ()
+      }
     }
 
     def close(): Unit = lock.synchronized {
