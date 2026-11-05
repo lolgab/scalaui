@@ -53,8 +53,10 @@ private[gpu] object Mpv:
   private lazy val fRenderCreate = CFuncPtr.fromPtr[CFuncPtr3[Ptr[Ptr[Byte]], Ptr[Byte], Ptr[RenderParam], CInt]](sym("mpv_render_context_create"))
   private lazy val fRender = CFuncPtr.fromPtr[CFuncPtr2[Ptr[Byte], Ptr[RenderParam], CInt]](sym("mpv_render_context_render"))
   private lazy val fGetProperty = CFuncPtr.fromPtr[CFuncPtr4[Ptr[Byte], CString, CInt, Ptr[Byte], CInt]](sym("mpv_get_property"))
+  private lazy val fSetProperty = CFuncPtr.fromPtr[CFuncPtr3[Ptr[Byte], CString, CString, CInt]](sym("mpv_set_property_string"))
   private lazy val fRenderFree = CFuncPtr.fromPtr[CFuncPtr1[Ptr[Byte], Unit]](sym("mpv_render_context_free"))
 
+  def mpv_set_property_string(h: Ptr[Byte], name: CString, value: CString): Int = fSetProperty(h, name, value)
   def mpv_create(): Ptr[Byte] = fCreate()
   def mpv_initialize(h: Ptr[Byte]): Int = fInitialize(h)
   def mpv_set_option_string(h: Ptr[Byte], name: CString, value: CString): Int = fSetOption(h, name, value)
@@ -127,6 +129,8 @@ trait MpvSurface:
     * change identity after [[resize]]: fetch it again every frame. Only for surfaces from [[MpvSurface.createGpu]].
     */
   def renderTexture(): Option[Texture] = None
+  /** Pauses or resumes playback (mpv's `pause` property). A paused player stops reading the pipe, which back-pressures the feeder. */
+  def setPause(paused: Boolean): Unit = ()
   /** Stops playback and releases the render context, the player and the pipe. Idempotent. */
   def close(): Unit
 
@@ -190,6 +194,11 @@ object MpvSurface:
         if gl != null then Mpv.mpv_set_option_string(handle, c"hwdec", c"auto-copy-safe") // best effort
         // broadcast streams are often interlaced (visible as combing lines on motion); this is a no-op for progressive video
         Mpv.mpv_set_option_string(handle, c"deinterlace", c"yes")
+        // keep mpv's own read-ahead small: the feeder (e.g. an on-disk time-shift buffer) is the real buffer, and a player that
+        // slurps its whole input into a big internal cache would erase the delay the feeder is holding back
+        Mpv.mpv_set_option_string(handle, c"demuxer-max-bytes", c"8MiB")
+        Mpv.mpv_set_option_string(handle, c"demuxer-readahead-secs", c"2")
+        Mpv.mpv_set_option_string(handle, c"cache-secs", c"2")
         check("mpv_initialize", Mpv.mpv_initialize(handle))
         val ctxOut = stackalloc[Ptr[Byte]]()
         if gl != null then
@@ -324,6 +333,10 @@ object MpvSurface:
             gl.finish() // Metal reads the same IOSurface next
             Some(gl.texture)
         }
+    }
+
+    override def setPause(paused: Boolean): Unit = lock.synchronized {
+      if !closed then Zone { Mpv.mpv_set_property_string(handle, c"pause", if paused then c"yes" else c"no"); () }
     }
 
     def close(): Unit = lock.synchronized {
