@@ -58,9 +58,21 @@ object App:
       finally { painting = false; ctx.accessEdits.clear() }
     // the OS runs its own modal loop while the user drags a window edge: repaint from inside it so content follows the frame
     win.setLiveResizeCallback { () => if !painting then paint(); () }
+    // SCALAUI_LOOP=1: every 2 s, where the event loop's time goes (waiting for events, polling them, painting)
+    val loopStats = sys.env.contains("SCALAUI_LOOP")
+    var lsWait = 0L; var lsPaint = 0L; var lsIters = 0; var lsPaints = 0; var lsSince = System.nanoTime(); var lsMaxIter = 0L
+    var lsIterStart = System.nanoTime()
     while running do
+      if loopStats then
+        val now = System.nanoTime(); lsMaxIter = math.max(lsMaxIter, now - lsIterStart); lsIterStart = now
+        if now - lsSince >= 2000000000L then
+          System.err.println(f"[loop] ${lsIters / ((now - lsSince) / 1e9)}%.0f iter/s, ${lsPaints / ((now - lsSince) / 1e9)}%.0f paints/s; avg wait/poll ${lsWait / 1e6 / math.max(1, lsIters)}%.1f ms, avg paint ${lsPaint / 1e6 / math.max(1, lsPaints)}%.1f ms; longest iteration ${lsMaxIter / 1e6}%.0f ms")
+          lsWait = 0; lsPaint = 0; lsIters = 0; lsPaints = 0; lsSince = now; lsMaxIter = 0
+        lsIters += 1
       // block for OS events when idle: no CPU use until input arrives (or the next animation tick)
+      val tw0 = System.nanoTime()
       val events = if dirty > 0 then win.pollEvents() else win.waitEvents(if ctx.repaintRequested then 8 else 250)
+      if loopStats then lsWait += System.nanoTime() - tw0
       if debug && events.nonEmpty then System.err.println(s"events: ${events.take(4)}")
       events.foreach {
         case Event.CloseRequested => running = false
@@ -89,7 +101,9 @@ object App:
         pendingRelease = None
       if dirty > 0 || ctx.repaintRequested then
         if dirty > 0 then dirty -= 1
+        val tp0 = System.nanoTime()
         if paint() then dirty = math.max(dirty, 1)
+        if loopStats then { lsPaint += System.nanoTime() - tp0; lsPaints += 1 }
     tracker.backend.close()
     win.close()
 
