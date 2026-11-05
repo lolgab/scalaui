@@ -211,6 +211,21 @@ final class Ui(val ctx: Context, initialRegion: Rect, val vertical: Boolean, pri
     ctx.requestRepaint()
     ctx.interact(rect, nextId()) // hover and double-click (returned) for e.g. toggling fullscreen
 
+  /** Covers the whole window in black and shows the video centered at its own aspect ratio, as large as fits — for fullscreen
+    * playback. Ignores the layout cursor; call it instead of building other widgets. */
+  def videoFullscreen(surface: scalaui.gpu.MpvSurface): Response =
+    val win = ctx.windowRect
+    ctx.canvas.fillRect(win, Color.Black)
+    val aspect = surface.width.toDouble / surface.height
+    val w = math.min(win.width, win.height * aspect); val h = w / aspect
+    val rect = Rect(win.x0 + (win.width - w) / 2, win.y0 + (win.height - h) / 2, win.x0 + (win.width + w) / 2, win.y0 + (win.height + h) / 2)
+    val (tex, had) = ctx.videoTextures.getOrElseUpdate(surface, (ctx.backend.createTexture(surface.width, surface.height, new Array[Byte](surface.width * surface.height * 4)), false))
+    val got = surface.renderInto(tex)
+    if got && !had then ctx.videoTextures(surface) = (tex, true)
+    if got || had then ctx.canvas.drawImage(tex, rect)
+    ctx.requestRepaint()
+    ctx.interact(win, nextId())
+
   /** Draws an SVG at `size` logical points, rasterized crisply for the current display scale. */
   def svg(doc: scalaui.svg.SvgDocument, size: Size, tint: Color = Color.White): Response =
     val rect = allocate(size.width, size.height)
