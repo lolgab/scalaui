@@ -44,6 +44,8 @@ final class Context(val backend: GpuBackend):
   /** Per-surface upload texture and whether a frame has been rendered into it yet (see `Ui.video`). */
   /** Whether the window is fullscreen (refreshed each frame by `App.run`), and a pending request to change it. */
   var fullscreen = false
+  /** The whole window, in logical points. */
+  var windowRect = Rect(0, 0, 0, 0)
   var fullscreenRequest: Option[Boolean] = None
   private[ui] val videoTextures = scala.collection.mutable.HashMap.empty[scalaui.gpu.MpvSurface, (scalaui.gpu.Texture, Boolean)]
   var style: Style = Style.Dark
@@ -163,6 +165,7 @@ final class Context(val backend: GpuBackend):
   def begin(width: Double, height: Double, scale: Double): Unit =
     val now = time; frameDt = (now - lastFrameTime).max(1.0 / 240).min(0.1); lastFrameTime = now
     canvas.begin(width, height, scale, style.background)
+    windowRect = Rect(0, 0, width, height)
     clips = Vector(Rect(0, 0, width, height)); focusClaimed = false; repaintRequested = false
     focusOrder.clear(); overlayFocusStart = -1; focusTrap = false; tabConsumed = false
     cursorIcon = scalaui.window.CursorIcon.Default; imeRect = None; accessNodes.clear()
