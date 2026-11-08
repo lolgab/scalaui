@@ -9,15 +9,15 @@ import java.nio.charset.StandardCharsets.UTF_8
 /** libc calls for the Wayland client: ancillary-data sockets, shared memory and pipes (Linux). */
 @extern private[window] object WlLibc:
   @blocking def sendmsg(fd: CInt, msg: Ptr[Byte], flags: CInt): CSSize = extern
-  def recvmsg(fd: CInt, msg: Ptr[Byte], flags: CInt): CSSize = extern
-  def memfd_create(name: CString, flags: CUnsignedInt): CInt = extern
-  def ftruncate(fd: CInt, length: CLongLong): CInt = extern
-  def mmap(addr: Ptr[Byte], length: CSize, prot: CInt, flags: CInt, fd: CInt, offset: CLongLong): Ptr[Byte] = extern
-  def munmap(addr: Ptr[Byte], length: CSize): CInt = extern
-  def pipe(fds: Ptr[CInt]): CInt = extern
+  @blocking def recvmsg(fd: CInt, msg: Ptr[Byte], flags: CInt): CSSize = extern
+  @blocking def memfd_create(name: CString, flags: CUnsignedInt): CInt = extern
+  @blocking def ftruncate(fd: CInt, length: CLongLong): CInt = extern
+  @blocking def mmap(addr: Ptr[Byte], length: CSize, prot: CInt, flags: CInt, fd: CInt, offset: CLongLong): Ptr[Byte] = extern
+  @blocking def munmap(addr: Ptr[Byte], length: CSize): CInt = extern
+  @blocking def pipe(fds: Ptr[CInt]): CInt = extern
   @blocking def write(fd: CInt, buf: Ptr[Byte], n: CSize): CSSize = extern
   @blocking def read(fd: CInt, buf: Ptr[Byte], n: CSize): CSSize = extern
-  def close(fd: CInt): CInt = extern
+  @blocking def close(fd: CInt): CInt = extern
   @blocking def poll(fds: Ptr[Byte], n: CSize, timeoutMs: CInt): CInt = extern
 
 /** Little-endian Wayland argument encoder. */

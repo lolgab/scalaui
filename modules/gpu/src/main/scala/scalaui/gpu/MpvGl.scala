@@ -2,7 +2,7 @@ package scalaui.gpu
 
 import scala.scalanative.unsafe.*
 import scala.scalanative.unsigned.*
-import scalaui.window.{Dl, DynLib, Frameworks, ObjC}
+import scalaui.window.{Dl, DynLib, Frameworks, Native, ObjC}
 import ObjC.*
 
 /** Headless CGL (OpenGL) context plus an IOSurface-backed render target for libmpv's OpenGL renderer on macOS.
@@ -25,8 +25,8 @@ private[gpu] final class MpvGl private (cglCtx: Ptr[Byte], pixelFormat: Ptr[Byte
   def fbo: Int = fboId
   def texture: Texture = tex
 
-  def makeCurrent(): Unit = fSetCurrent(cglCtx)
-  def finish(): Unit = fFinish()
+  def makeCurrent(): Unit = Native.blocking(fSetCurrent(cglCtx))
+  def finish(): Unit = Native.blocking(fFinish())
 
   /** Makes the target exactly `w` x `h` (recreating the IOSurface, GL texture, FBO and Metal texture when it differs).
     * The context must be current. Returns true when a new target was created. */
@@ -41,14 +41,14 @@ private[gpu] final class MpvGl private (cglCtx: Ptr[Byte], pixelFormat: Ptr[Byte
       io = newIo
       tex = imported.get
       val ids = stackalloc[CUnsignedInt](1)
-      fGenTextures(1, ids); glTex = ids(0).toInt
-      fBindTexture(GL_TEXTURE_RECTANGLE, glTex)
-      val err = fTexImageIOSurface(cglCtx, GL_TEXTURE_RECTANGLE, GL_RGBA, w, h, GL_BGRA, GL_UNSIGNED_INT_8_8_8_8_REV, io, 0)
+      Native.blocking(fGenTextures(1, ids)); glTex = ids(0).toInt
+      Native.blocking(fBindTexture(GL_TEXTURE_RECTANGLE, glTex))
+      val err = Native.blocking(fTexImageIOSurface(cglCtx, GL_TEXTURE_RECTANGLE, GL_RGBA, w, h, GL_BGRA, GL_UNSIGNED_INT_8_8_8_8_REV, io, 0))
       if err != 0 then throw new RuntimeException(s"CGLTexImageIOSurface2D failed: $err")
-      fGenFramebuffers(1, ids); fboId = ids(0).toInt
-      fBindFramebuffer(GL_FRAMEBUFFER, fboId)
-      fFramebufferTexture2D(GL_FRAMEBUFFER, GL_COLOR_ATTACHMENT0, GL_TEXTURE_RECTANGLE, glTex, 0)
-      val status = fCheckFramebuffer(GL_FRAMEBUFFER)
+      Native.blocking(fGenFramebuffers(1, ids)); fboId = ids(0).toInt
+      Native.blocking(fBindFramebuffer(GL_FRAMEBUFFER, fboId))
+      Native.blocking(fFramebufferTexture2D(GL_FRAMEBUFFER, GL_COLOR_ATTACHMENT0, GL_TEXTURE_RECTANGLE, glTex, 0))
+      val status = Native.blocking(fCheckFramebuffer(GL_FRAMEBUFFER))
       if status != GL_FRAMEBUFFER_COMPLETE then throw new RuntimeException(s"framebuffer incomplete: 0x${status.toHexString}")
       curW = w; curH = h
       true
@@ -56,8 +56,8 @@ private[gpu] final class MpvGl private (cglCtx: Ptr[Byte], pixelFormat: Ptr[Byte
   private def releaseTarget(): Unit =
     if tex != null then
       val ids = stackalloc[CUnsignedInt](1)
-      ids(0) = fboId.toUInt; fDeleteFramebuffers(1, ids)
-      ids(0) = glTex.toUInt; fDeleteTextures(1, ids)
+      ids(0) = fboId.toUInt; Native.blocking(fDeleteFramebuffers(1, ids))
+      ids(0) = glTex.toUInt; Native.blocking(fDeleteTextures(1, ids))
       tex.dispose()
       Frameworks.CFRelease(io)
       tex = null; io = null; fboId = 0; glTex = 0
@@ -65,9 +65,9 @@ private[gpu] final class MpvGl private (cglCtx: Ptr[Byte], pixelFormat: Ptr[Byte
   def destroy(): Unit =
     makeCurrent()
     releaseTarget()
-    fSetCurrent(null)
-    fDestroyContext(cglCtx)
-    fDestroyPixelFormat(pixelFormat)
+    Native.blocking(fSetCurrent(null))
+    Native.blocking(fDestroyContext(cglCtx))
+    Native.blocking(fDestroyPixelFormat(pixelFormat))
 
 private[gpu] object MpvGl:
   private val GL_TEXTURE_RECTANGLE = 0x84F5
@@ -116,7 +116,7 @@ private[gpu] object MpvGl:
     def put(key: String, value: Long): Unit =
       C_msgPP(dict, "setObject:forKey:", sendL(cls("NSNumber"), "numberWithLongLong:", value), nsString(key))
     put("IOSurfaceWidth", w); put("IOSurfaceHeight", h); put("IOSurfaceBytesPerElement", 4); put("IOSurfacePixelFormat", BGRA_FOURCC)
-    fIOSurfaceCreate(dict)
+    Native.blocking(fIOSurfaceCreate(dict))
 
   private def C_msgPP(o: Ptr[Byte], s: String, a: Ptr[Byte], b: Ptr[Byte]): Unit = scalaui.window.C.msgPP(o, sel(s), a, b)
 
@@ -128,11 +128,11 @@ private[gpu] object MpvGl:
     attrs(5) = 0
     val pix = stackalloc[Ptr[Byte]]()
     val n = stackalloc[CInt]()
-    var err = fChoosePixelFormat(attrs, pix, n)
+    var err = Native.blocking(fChoosePixelFormat(attrs, pix, n))
     if err != 0 || !pix == null then throw new RuntimeException(s"CGLChoosePixelFormat failed: $err")
     val ctx = stackalloc[Ptr[Byte]]()
-    err = fCreateContext(!pix, null, ctx)
+    err = Native.blocking(fCreateContext(!pix, null, ctx))
     if err != 0 || !ctx == null then
-      fDestroyPixelFormat(!pix)
+      Native.blocking(fDestroyPixelFormat(!pix))
       throw new RuntimeException(s"CGLCreateContext failed: $err")
     new MpvGl(!ctx, !pix)

@@ -331,8 +331,9 @@ final class CocoaWindow private (private val app: Id, private val win: Id, priva
 
 object CocoaWindow:
   private[window] var liveResize: () => Unit = () => ()
-  // a plain function (no captures), as C callbacks require
-  private[window] def liveResizeTrampoline(): Unit = liveResize()
+  // a plain function (no captures), as C callbacks require. AppKit calls it from inside one of our `@blocking` native calls
+  // (event polling, window changes), i.e. with the thread Unmanaged: run the frame as ordinary Scala, then hand the thread back.
+  private[window] def liveResizeTrampoline(): Unit = Native.managed(liveResize())
   private[window] def menuKey(k: String): String = k match
     case "enter" => "\r"; case "tab" => "\t"; case "esc" => "\u001b"; case "space" => " "
     case "delete" => "\u007f"; case "backspace" => "\b"

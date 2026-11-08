@@ -7,69 +7,69 @@ type Id = Ptr[Byte]
 
 /** Pointer-based wrappers around struct-by-value calls, implemented in `resources/scala-native/scalaui_objc.c`. */
 @link("objc") @extern private[scalaui] object Shim:
-  def scalaui_ret_rect(self: Ptr[Byte], sel: Ptr[Byte], out: Ptr[CDouble]): Unit = extern
-  def scalaui_ret_point(self: Ptr[Byte], sel: Ptr[Byte], out: Ptr[CDouble]): Unit = extern
-  def scalaui_init_window(self: Ptr[Byte], sel: Ptr[Byte], rect: Ptr[CDouble], style: CUnsignedLongLong, backing: CLongLong, defer: CChar): Ptr[Byte] = extern
-  def scalaui_set_drawable_size(self: Ptr[Byte], sel: Ptr[Byte], w: CDouble, h: CDouble): Unit = extern
-  def scalaui_set_clear_color(self: Ptr[Byte], sel: Ptr[Byte], r: CDouble, g: CDouble, b: CDouble, a: CDouble): Unit = extern
-  def scalaui_set_scissor(self: Ptr[Byte], sel: Ptr[Byte], x: CUnsignedLongLong, y: CUnsignedLongLong, w: CUnsignedLongLong, h: CUnsignedLongLong): Unit = extern
-  def scalaui_replace_region(self: Ptr[Byte], sel: Ptr[Byte], x: CUnsignedLongLong, y: CUnsignedLongLong, w: CUnsignedLongLong, h: CUnsignedLongLong, bytes: Ptr[Byte], bytesPerRow: CUnsignedLongLong): Unit = extern
-  def scalaui_get_bytes(self: Ptr[Byte], sel: Ptr[Byte], bytes: Ptr[Byte], bytesPerRow: CUnsignedLongLong, w: CUnsignedLongLong, h: CUnsignedLongLong): Unit = extern
-  def scalaui_set_viewport(self: Ptr[Byte], sel: Ptr[Byte], w: CDouble, h: CDouble): Unit = extern
+  @blocking def scalaui_ret_rect(self: Ptr[Byte], sel: Ptr[Byte], out: Ptr[CDouble]): Unit = extern
+  @blocking def scalaui_ret_point(self: Ptr[Byte], sel: Ptr[Byte], out: Ptr[CDouble]): Unit = extern
+  @blocking def scalaui_init_window(self: Ptr[Byte], sel: Ptr[Byte], rect: Ptr[CDouble], style: CUnsignedLongLong, backing: CLongLong, defer: CChar): Ptr[Byte] = extern
+  @blocking def scalaui_set_drawable_size(self: Ptr[Byte], sel: Ptr[Byte], w: CDouble, h: CDouble): Unit = extern
+  @blocking def scalaui_set_clear_color(self: Ptr[Byte], sel: Ptr[Byte], r: CDouble, g: CDouble, b: CDouble, a: CDouble): Unit = extern
+  @blocking def scalaui_set_scissor(self: Ptr[Byte], sel: Ptr[Byte], x: CUnsignedLongLong, y: CUnsignedLongLong, w: CUnsignedLongLong, h: CUnsignedLongLong): Unit = extern
+  @blocking def scalaui_replace_region(self: Ptr[Byte], sel: Ptr[Byte], x: CUnsignedLongLong, y: CUnsignedLongLong, w: CUnsignedLongLong, h: CUnsignedLongLong, bytes: Ptr[Byte], bytesPerRow: CUnsignedLongLong): Unit = extern
+  @blocking def scalaui_get_bytes(self: Ptr[Byte], sel: Ptr[Byte], bytes: Ptr[Byte], bytesPerRow: CUnsignedLongLong, w: CUnsignedLongLong, h: CUnsignedLongLong): Unit = extern
+  @blocking def scalaui_set_viewport(self: Ptr[Byte], sel: Ptr[Byte], w: CDouble, h: CDouble): Unit = extern
 
 /** ScaluiView and window helpers from the C shim. */
 @link("objc") @extern private[scalaui] object ViewShim:
   /** Mirrors `ScaluiViewEvent` in the shim: type, 3 doubles, malloc'ed UTF-8 text. */
   type ViewEvent = CStruct5[CInt, CDouble, CDouble, CDouble, CString]
-  def scalaui_view_create(w: CDouble, h: CDouble): Ptr[Byte] = extern
-  def scalaui_view_poll(view: Ptr[Byte], out: Ptr[ViewEvent]): CInt = extern
+  @blocking def scalaui_view_create(w: CDouble, h: CDouble): Ptr[Byte] = extern
+  @blocking def scalaui_view_poll(view: Ptr[Byte], out: Ptr[ViewEvent]): CInt = extern
   def scalaui_free(p: Ptr[Byte]): Unit = extern
-  def scalaui_view_set_ime_rect(view: Ptr[Byte], x: CDouble, y: CDouble, w: CDouble, h: CDouble): Unit = extern
-  def scalaui_view_set_cursor(view: Ptr[Byte], cursor: Ptr[Byte]): Unit = extern
-  def scalaui_window_set_min_size(win: Ptr[Byte], w: CDouble, h: CDouble): Unit = extern
-  def scalaui_window_set_origin(win: Ptr[Byte], x: CDouble, y: CDouble): Unit = extern
-  def scalaui_window_origin(win: Ptr[Byte], out: Ptr[CDouble]): Unit = extern
-  def scalaui_view_set_access(view: Ptr[Byte], n: CInt, roles: Ptr[CString], labels: Ptr[CString], values: Ptr[CString], bounds: Ptr[CDouble], flags: Ptr[CInt]): Unit = extern
-  def scalaui_view_set_access_text(view: Ptr[Byte], n: CInt, info: Ptr[CInt]): Unit = extern
-  def scalaui_access_selection(e: Ptr[Byte], out: Ptr[CLongLong]): Unit = extern
-  def scalaui_access_set_selection(e: Ptr[Byte], loc: CLongLong, len: CLongLong): Unit = extern
-  def scalaui_access_string_for_range(e: Ptr[Byte], loc: CLongLong, len: CLongLong): Ptr[Byte] = extern
-  def scalaui_view_post_text(view: Ptr[Byte], index: CInt, kind: CInt): Unit = extern
+  @blocking def scalaui_view_set_ime_rect(view: Ptr[Byte], x: CDouble, y: CDouble, w: CDouble, h: CDouble): Unit = extern
+  @blocking def scalaui_view_set_cursor(view: Ptr[Byte], cursor: Ptr[Byte]): Unit = extern
+  @blocking def scalaui_window_set_min_size(win: Ptr[Byte], w: CDouble, h: CDouble): Unit = extern
+  @blocking def scalaui_window_set_origin(win: Ptr[Byte], x: CDouble, y: CDouble): Unit = extern
+  @blocking def scalaui_window_origin(win: Ptr[Byte], out: Ptr[CDouble]): Unit = extern
+  @blocking def scalaui_view_set_access(view: Ptr[Byte], n: CInt, roles: Ptr[CString], labels: Ptr[CString], values: Ptr[CString], bounds: Ptr[CDouble], flags: Ptr[CInt]): Unit = extern
+  @blocking def scalaui_view_set_access_text(view: Ptr[Byte], n: CInt, info: Ptr[CInt]): Unit = extern
+  @blocking def scalaui_access_selection(e: Ptr[Byte], out: Ptr[CLongLong]): Unit = extern
+  @blocking def scalaui_access_set_selection(e: Ptr[Byte], loc: CLongLong, len: CLongLong): Unit = extern
+  @blocking def scalaui_access_string_for_range(e: Ptr[Byte], loc: CLongLong, len: CLongLong): Ptr[Byte] = extern
+  @blocking def scalaui_view_post_text(view: Ptr[Byte], index: CInt, kind: CInt): Unit = extern
   def scalaui_set_resize_callback(cb: CFuncPtr0[Unit]): Unit = extern
-  def scalaui_nsimage(cgImage: Ptr[Byte], w: CDouble, h: CDouble): Ptr[Byte] = extern
-  def scalaui_set_app_icon(cgImage: Ptr[Byte], w: CDouble, h: CDouble): Unit = extern
+  @blocking def scalaui_nsimage(cgImage: Ptr[Byte], w: CDouble, h: CDouble): Ptr[Byte] = extern
+  @blocking def scalaui_set_app_icon(cgImage: Ptr[Byte], w: CDouble, h: CDouble): Unit = extern
   /** Installs the Apple Event handler that catches "open URL" (custom scheme / `file://`) requests, including the
     * one that launched the app. Idempotent; call once, as early as possible during app setup. */
-  def scalaui_install_url_handler(): Unit = extern
+  @blocking def scalaui_install_url_handler(): Unit = extern
   /** Pops one pending "open URL" request from the app-level queue the Apple Event handler fills, or null. The
     * caller owns the string and frees it with [[scalaui_free]]. */
-  def scalaui_app_poll_url(): CString = extern
+  @blocking def scalaui_app_poll_url(): CString = extern
 
 /** Objective-C runtime plus the handful of CoreGraphics/CoreFoundation C functions we need. All Apple system libraries. */
 @link("objc") @extern private[scalaui] object C:
   def objc_getClass(name: CString): Id = extern
   def sel_registerName(name: CString): Id = extern
 
-  @name("objc_msgSend") def msg(self: Id, sel: Id): Id = extern
-  @name("objc_msgSend") def msgP(self: Id, sel: Id, a: Id): Id = extern
-  @name("objc_msgSend") def msgL(self: Id, sel: Id, a: CLongLong): Id = extern
-  @name("objc_msgSend") def msgPL(self: Id, sel: Id, a: Id, b: CLongLong): Id = extern
-  @name("objc_msgSend") def msgPLL(self: Id, sel: Id, a: Id, b: CLongLong, c: CLongLong): Id = extern
-  @name("objc_msgSend") def msgLLLC(self: Id, sel: Id, a: CLongLong, b: CLongLong, c: CLongLong, d: CChar): Id = extern
-  @name("objc_msgSend") def msgLLL(self: Id, sel: Id, a: CLongLong, b: CLongLong, c: CLongLong): Id = extern
-  @name("objc_msgSend") def msgPPP(self: Id, sel: Id, a: Id, b: Id, c: Id): Id = extern
-  @name("objc_msgSend") def msgPPPP(self: Id, sel: Id, a: Id, b: Id, c: Id, d: Id): Id = extern
-  @name("objc_msgSend") def msgPP(self: Id, sel: Id, a: Id, b: Id): Id = extern
-  @name("objc_msgSend") def msgD(self: Id, sel: Id, a: CDouble): Id = extern
-  @name("objc_msgSend") def msgEvent(self: Id, sel: Id, mask: CUnsignedLongLong, date: Id, mode: Id, dequeue: CChar): Id = extern
-  @name("objc_msgSend") def retLong(self: Id, sel: Id): CLongLong = extern
-  @name("objc_msgSend") def retDouble(self: Id, sel: Id): CDouble = extern
-  @name("objc_msgSend") def retCStr(self: Id, sel: Id): CString = extern
+  @name("objc_msgSend") @blocking def msg(self: Id, sel: Id): Id = extern
+  @name("objc_msgSend") @blocking def msgP(self: Id, sel: Id, a: Id): Id = extern
+  @name("objc_msgSend") @blocking def msgL(self: Id, sel: Id, a: CLongLong): Id = extern
+  @name("objc_msgSend") @blocking def msgPL(self: Id, sel: Id, a: Id, b: CLongLong): Id = extern
+  @name("objc_msgSend") @blocking def msgPLL(self: Id, sel: Id, a: Id, b: CLongLong, c: CLongLong): Id = extern
+  @name("objc_msgSend") @blocking def msgLLLC(self: Id, sel: Id, a: CLongLong, b: CLongLong, c: CLongLong, d: CChar): Id = extern
+  @name("objc_msgSend") @blocking def msgLLL(self: Id, sel: Id, a: CLongLong, b: CLongLong, c: CLongLong): Id = extern
+  @name("objc_msgSend") @blocking def msgPPP(self: Id, sel: Id, a: Id, b: Id, c: Id): Id = extern
+  @name("objc_msgSend") @blocking def msgPPPP(self: Id, sel: Id, a: Id, b: Id, c: Id, d: Id): Id = extern
+  @name("objc_msgSend") @blocking def msgPP(self: Id, sel: Id, a: Id, b: Id): Id = extern
+  @name("objc_msgSend") @blocking def msgD(self: Id, sel: Id, a: CDouble): Id = extern
+  @name("objc_msgSend") @blocking def msgEvent(self: Id, sel: Id, mask: CUnsignedLongLong, date: Id, mode: Id, dequeue: CChar): Id = extern
+  @name("objc_msgSend") @blocking def retLong(self: Id, sel: Id): CLongLong = extern
+  @name("objc_msgSend") @blocking def retDouble(self: Id, sel: Id): CDouble = extern
+  @name("objc_msgSend") @blocking def retCStr(self: Id, sel: Id): CString = extern
 
 
 
 @extern private[scalaui] object Dl:
-  def dlopen(path: CString, mode: CInt): Ptr[Byte] = extern
+  @blocking def dlopen(path: CString, mode: CInt): Ptr[Byte] = extern
   def dlsym(handle: Ptr[Byte], name: CString): Ptr[Byte] = extern
 
 /** Apple system frameworks are loaded with dlopen and their C functions looked up with dlsym, so binaries need no
@@ -103,7 +103,7 @@ private[scalaui] object Frameworks:
   def CGImageCreate(w: CSize, h: CSize, bpc: CSize, bpp: CSize, bpr: CSize, space: Id, info: CUnsignedInt, provider: Id,
       decode: Ptr[CDouble], interpolate: CChar, intent: CInt): Id = fImage(w, h, bpc, bpp, bpr, space, info, provider, decode, interpolate, intent)
   def CFRelease(o: Id): Unit = fRelease(o)
-  def MTLCreateSystemDefaultDevice(): Id = fDevice()
+  def MTLCreateSystemDefaultDevice(): Id = Native.blocking(fDevice()) // enumerates GPUs: can take a while the first time
 
 /** Thin, string-based Objective-C messaging helpers. */
 private[scalaui] object ObjC:

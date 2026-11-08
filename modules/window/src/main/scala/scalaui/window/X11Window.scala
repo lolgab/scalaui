@@ -7,12 +7,12 @@ import java.nio.file.{Files, Paths}
 
 /** libc socket calls (musl/glibc): X11 is spoken directly over the Unix socket, so no libX11/xcb is linked. */
 @extern private[window] object Sock:
-  def socket(domain: CInt, typ: CInt, proto: CInt): CInt = extern
+  @blocking def socket(domain: CInt, typ: CInt, proto: CInt): CInt = extern
   @blocking def connect(fd: CInt, addr: Ptr[Byte], len: CUnsignedInt): CInt = extern
   @blocking def read(fd: CInt, buf: Ptr[Byte], n: CSize): CSSize = extern
   @blocking def write(fd: CInt, buf: Ptr[Byte], n: CSize): CSSize = extern
-  def recv(fd: CInt, buf: Ptr[Byte], n: CSize, flags: CInt): CSSize = extern
-  def close(fd: CInt): CInt = extern
+  @blocking def recv(fd: CInt, buf: Ptr[Byte], n: CSize, flags: CInt): CSSize = extern
+  @blocking def close(fd: CInt): CInt = extern
   @blocking def poll(fds: Ptr[Byte], n: CSize, timeoutMs: CInt): CInt = extern
 
 /** Minimal X11 core-protocol client: connection setup, window, events, keyboard mapping and PutImage presentation. */
