@@ -205,6 +205,7 @@ private[shaping] abstract class Engine(val t: LayoutTable, val gdef: Gdef):
         -1
       case 3 =>
         val n = u16(d, o + 2); val subCount = u16(d, o + 4)
+        if n == 0 || coverage(o + u16(d, o + 6)).index(g.id) < 0 then return -1
         val covs = Array.tabulate(n)(k => coverage(o + u16(d, o + 6 + k * 2)))
         val m = matchForward(i, n, (k, gl) => covs(k).covers(gl.id))
         if m != null then applyRecords(m, o + 6 + n * 2, subCount) else -1
@@ -252,20 +253,34 @@ private[shaping] abstract class Engine(val t: LayoutTable, val gdef: Gdef):
           r += 1
         -1
       case 3 =>
-        val bt = u16(d, o + 2)
-        val btCov = Array.tabulate(bt)(k => coverage(o + u16(d, o + 4 + k * 2)))
-        val inO = o + 4 + bt * 2
-        val n = u16(d, inO)
-        val inCov = Array.tabulate(n)(k => coverage(o + u16(d, inO + 2 + k * 2)))
-        val laO = inO + 2 + n * 2
-        val la = u16(d, laO)
-        val laCov = Array.tabulate(la)(k => coverage(o + u16(d, laO + 2 + k * 2)))
-        val recO = laO + 2 + la * 2
-        val m = matchForward(i, n, (k, gl) => inCov(k).covers(gl.id))
-        if m != null && matchBackward(i, bt, (k, gl) => btCov(k).covers(gl.id)) &&
-           lookaheadOk(m, la, (k, gl) => laCov(k).covers(gl.id)) then applyRecords(m, recO + 2, u16(d, recO))
+        val inO0 = o + 4 + u16(d, o + 2) * 2
+        // most glyphs aren't covered by the first input coverage: reject them before touching the rest of the subtable
+        if u16(d, inO0) == 0 || coverage(o + u16(d, inO0 + 2)).index(g.id) < 0 then return -1
+        val c = chain3(o)
+        val m = matchForward(i, c.in.length, (k, gl) => c.in(k).covers(gl.id))
+        if m != null && matchBackward(i, c.bt.length, (k, gl) => c.bt(k).covers(gl.id)) &&
+           lookaheadOk(m, c.la.length, (k, gl) => c.la(k).covers(gl.id)) then applyRecords(m, c.recO + 2, u16(d, c.recO))
         else -1
       case _ => -1
+
+  private final class Chain3(val bt: Array[Coverage], val in: Array[Coverage], val la: Array[Coverage], val recO: Int)
+  private val chain3Cache = new java.util.HashMap[Int, Chain3]()
+  /** The parsed coverages of a format 3 chained context subtable, built once per subtable. */
+  private def chain3(o: Int): Chain3 =
+    val hit = chain3Cache.get(o)
+    if hit != null then hit
+    else
+      val bt = u16(d, o + 2)
+      val btCov = Array.tabulate(bt)(k => coverage(o + u16(d, o + 4 + k * 2)))
+      val inO = o + 4 + bt * 2
+      val n = u16(d, inO)
+      val inCov = Array.tabulate(n)(k => coverage(o + u16(d, inO + 2 + k * 2)))
+      val laO = inO + 2 + n * 2
+      val la = u16(d, laO)
+      val laCov = Array.tabulate(la)(k => coverage(o + u16(d, laO + 2 + k * 2)))
+      val c = new Chain3(btCov, inCov, laCov, laO + 2 + la * 2)
+      chain3Cache.put(o, c)
+      c
 
   private def defOff(o: Int, field: Int): Int = { val off = u16(d, o + field); if off == 0 then -1 else o + off }
 
