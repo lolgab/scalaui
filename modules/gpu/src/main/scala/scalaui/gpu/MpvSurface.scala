@@ -3,17 +3,21 @@ package scalaui.gpu
 import scala.scalanative.unsafe.*
 import scala.scalanative.unsigned.*
 import scala.scalanative.libc.errno.errno
-import scalaui.window.DynLib
+import scalaui.window.{DynLib, Native}
 
 /** The few libc calls needed to feed libmpv a live byte stream through a pipe. */
 @extern private object MpvLibc:
-  def pipe(fds: Ptr[CInt]): CInt = extern
-  def write(fd: CInt, buf: Ptr[Byte], n: CSize): CSSize = extern
-  def close(fd: CInt): CInt = extern
-  def fcntl(fd: CInt, cmd: CInt, args: CVarArg*): CInt = extern
+  @blocking def pipe(fds: Ptr[CInt]): CInt = extern
+  @blocking def write(fd: CInt, buf: Ptr[Byte], n: CSize): CSSize = extern
+  @blocking def close(fd: CInt): CInt = extern
+  @blocking def fcntl(fd: CInt, cmd: CInt, args: CVarArg*): CInt = extern
 
 /** libmpv's render API, resolved at run time: `libmpv` is a Homebrew package that may not be installed, so it is never
   * linked. A build without it still links; [[MpvSurface.create]] then fails with a readable message.
+  *
+  * These are calls through function pointers, which Scala Native never treats as blocking, so each one that can wait on mpv's
+  * internal locks (the demuxer lock is held while it ingests data) is wrapped in [[Native.blocking]]: otherwise a garbage
+  * collection started on any thread would wait for it, with the whole app stopped.
   */
 private[gpu] object Mpv:
   /** `mpv_render_param`: a type tag followed by a pointer whose meaning depends on the tag. */
@@ -57,26 +61,28 @@ private[gpu] object Mpv:
   private lazy val fSetProperty = CFuncPtr.fromPtr[CFuncPtr3[Ptr[Byte], CString, CString, CInt]](sym("mpv_set_property_string"))
   private lazy val fRenderFree = CFuncPtr.fromPtr[CFuncPtr1[Ptr[Byte], Unit]](sym("mpv_render_context_free"))
 
-  def mpv_set_property_string(h: Ptr[Byte], name: CString, value: CString): Int = fSetProperty(h, name, value)
+  def mpv_set_property_string(h: Ptr[Byte], name: CString, value: CString): Int = Native.blocking(fSetProperty(h, name, value))
   /** Queues a command and returns at once (the result would arrive as an event, which nobody reads here). */
-  def mpv_command_async(h: Ptr[Byte], args: Ptr[CString]): Int = fCommandAsync(h, 0.toULong, args)
+  def mpv_command_async(h: Ptr[Byte], args: Ptr[CString]): Int = Native.blocking(fCommandAsync(h, 0.toULong, args))
   def mpv_create(): Ptr[Byte] = fCreate()
-  def mpv_initialize(h: Ptr[Byte]): Int = fInitialize(h)
-  def mpv_set_option_string(h: Ptr[Byte], name: CString, value: CString): Int = fSetOption(h, name, value)
+  def mpv_initialize(h: Ptr[Byte]): Int = Native.blocking(fInitialize(h))
+  def mpv_set_option_string(h: Ptr[Byte], name: CString, value: CString): Int = Native.blocking(fSetOption(h, name, value))
   /** `args` is a null-terminated array of C strings. */
-  def mpv_command(h: Ptr[Byte], args: Ptr[CString]): Int = fCommand(h, args)
-  def mpv_terminate_destroy(h: Ptr[Byte]): Unit = fDestroy(h)
+  def mpv_command(h: Ptr[Byte], args: Ptr[CString]): Int = Native.blocking(fCommand(h, args))
+  def mpv_terminate_destroy(h: Ptr[Byte]): Unit = Native.blocking(fDestroy(h))
+  /** Not wrapped in `Native.blocking`: with the OpenGL path mpv calls back into [[MpvGl.getProcAddress]] from in here, and that
+    * is Scala code. It runs once per player. */
   def mpv_render_context_create(out: Ptr[Ptr[Byte]], h: Ptr[Byte], params: Ptr[RenderParam]): Int = fRenderCreate(out, h, params)
-  def mpv_render_context_render(ctx: Ptr[Byte], params: Ptr[RenderParam]): Int = fRender(ctx, params)
-  def mpv_render_context_free(ctx: Ptr[Byte]): Unit = fRenderFree(ctx)
+  def mpv_render_context_render(ctx: Ptr[Byte], params: Ptr[RenderParam]): Int = Native.blocking(fRender(ctx, params))
+  def mpv_render_context_free(ctx: Ptr[Byte]): Unit = Native.blocking(fRenderFree(ctx))
   /** `MPV_FORMAT_INT64` (4) property, or -1 while unavailable. */
   def getInt(h: Ptr[Byte], name: CString): Long =
     val out = stackalloc[CLongLong]()
-    if fGetProperty(h, name, 4, out.asInstanceOf[Ptr[Byte]]) < 0 then -1L else !out
+    if Native.blocking(fGetProperty(h, name, 4, out.asInstanceOf[Ptr[Byte]])) < 0 then -1L else !out
   /** A double-valued property (`MPV_FORMAT_DOUBLE` = 5), or -1.0 if mpv has no value for it right now. */
   def getDouble(h: Ptr[Byte], name: CString): Double =
     val out = stackalloc[CDouble]()
-    if fGetProperty(h, name, 5, out.asInstanceOf[Ptr[Byte]]) < 0 then -1.0 else !out
+    if Native.blocking(fGetProperty(h, name, 5, out.asInstanceOf[Ptr[Byte]])) < 0 then -1.0 else !out
   def errorString(code: Int): String = fromCString(fErrorString(code))
 
 /** An in-process libmpv player whose frames end up in a scalaui [[Texture]], so video composites with the rest of the

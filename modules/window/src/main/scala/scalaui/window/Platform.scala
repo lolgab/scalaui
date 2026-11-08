@@ -3,10 +3,10 @@ package scalaui.window
 import scala.scalanative.unsafe.*
 
 @extern private object Libc:
-  def system(command: CString): CInt = extern
-  def popen(command: CString, mode: CString): Ptr[Byte] = extern
-  def pclose(stream: Ptr[Byte]): CInt = extern
-  def fgets(buf: CString, n: CInt, stream: Ptr[Byte]): CString = extern
+  @blocking def system(command: CString): CInt = extern
+  @blocking def popen(command: CString, mode: CString): Ptr[Byte] = extern
+  @blocking def pclose(stream: Ptr[Byte]): CInt = extern
+  @blocking def fgets(buf: CString, n: CInt, stream: Ptr[Byte]): CString = extern
 
 /** Small OS services that need no window. */
 object Platform:
