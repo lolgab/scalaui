@@ -44,13 +44,7 @@ lazy val myapp = (project in file("myapp"))
 
 ### Using it from a separate build
 
-Each module is an ordinary sbt project named `scalaui-<module>` in organization `com.github.lolgab`. Versions come from git tags (sbt-dynver via sbt-ci-release): the tag `v0.1.0` publishes `0.1.0`. Until a release is on Maven Central, publish every module from a checkout and depend on the version it prints:
-
-```sh
-sbt publishLocal    # all modules: `ui/publishLocal` alone is not enough, its dependencies are separate artifacts
-```
-
-An untagged checkout gets a version such as `0.0.0+36-fd153dfd+20261025-1025-SNAPSHOT` (commits since the last tag, hash, and a timestamp when the tree is dirty). Look in `~/.ivy2/local/com.github.lolgab/scalaui-ui_native0.5_3/` for the exact string. Then in your build:
+Each module is an ordinary sbt project named `scalaui-<module>` in organization `com.github.lolgab`, published to Maven Central. Versions come from git tags (sbt-dynver via sbt-ci-release): the tag `v0.1.0` publishes `0.1.0`. Depending on `scalaui-ui` pulls in every module it needs.
 
 ```scala
 ThisBuild / scalaVersion := "3.9.0"
@@ -59,16 +53,29 @@ lazy val app = project
   .enablePlugins(ScalaNativePlugin)
   .settings(
     // sbt 2: plain `%%` is platform aware and resolves scalaui-ui_native0.5_3 (there is no `%%%`)
-    libraryDependencies += "com.github.lolgab" %% "scalaui-ui" % "<version>",
+    libraryDependencies += "com.github.lolgab" %% "scalaui-ui" % "0.1.0",
     nativeConfig ~= (_.withEmbedResources(true)   // bundled fonts are classpath resources
                       .withMultithreading(true)   // AT-SPI runs a bus thread on Linux
                       .withMode(scala.scalanative.build.Mode.releaseFast)) // the CPU renderer is ~10x slower in debug mode
   )
 ```
 
-::: note
-Verified locally (macOS, sbt 2.0.10): `sbt publishLocal` in the repository followed by `sbt nativeLink` in a separate one-file build that depends on `scalaui-ui` links a working binary. Resolving from Maven Central has not been exercised because nothing has been released yet, and CI has not run the Windows and Linux variants of this check.
-:::
+With scala-cli (or scalino):
+
+```scala
+//> using platform native
+//> using scala 3.9.0
+//> using nativeEmbedResources true
+//> using dep com.github.lolgab::scalaui-ui::0.1.0
+```
+
+To use unreleased commits, publish every module from a checkout and depend on the version it prints:
+
+```sh
+sbt publishLocal    # all modules: `ui/publishLocal` alone is not enough, its dependencies are separate artifacts
+```
+
+An untagged checkout gets a version such as `0.1.0+3-fd153dfd+20261025-1025-SNAPSHOT` (commits since the last tag, hash, and a timestamp when the tree is dirty). Look in `~/.ivy2/local/com.github.lolgab/scalaui-ui_native0.5_3/` for the exact string, and add `//> using repository ivy2Local` for scala-cli.
 
 ## Your first app
 
