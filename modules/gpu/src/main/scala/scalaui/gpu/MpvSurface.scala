@@ -176,9 +176,12 @@ object MpvSurface:
   def createGpu(gpu: GpuBackend, width: Int, height: Int): Either[String, MpvSurface] =
     if !Mpv.available then Left(missingMessage)
     else
+      // `isMac` must be the `if` condition itself for the linker to drop the Objective-C code (MpvGl.create) elsewhere
       val glTarget: Option[MpvGl] =
-        if MpvGl.supported && gpu.supportsIOSurface then
-          try Some(MpvGl.create()) catch case e: Throwable => { debug(s"GL setup failed: ${e.getMessage}"); None }
+        if scala.scalanative.meta.LinktimeInfo.isMac then
+          if MpvGl.supported && gpu.supportsIOSurface then
+            try Some(MpvGl.create()) catch case e: Throwable => { debug(s"GL setup failed: ${e.getMessage}"); None }
+          else None
         else None
       try Right(open(width, height, gpu, glTarget.orNull))
       catch
@@ -197,6 +200,11 @@ object MpvSurface:
 
   /** `gl` non-null selects the OpenGL render path, `gpu` non-null makes the surface own its texture. */
   private def open(width: Int, height: Int, gpu: GpuBackend, gl: MpvGl): MpvSurface =
+    // the stream goes through a POSIX pipe; `isWindows` as the `if` condition keeps pipe/fcntl/dlsym out of Windows links
+    if scala.scalanative.meta.LinktimeInfo.isWindows then throw new RuntimeException("libmpv playback is not supported on Windows")
+    else openPipe(width, height, gpu, gl)
+
+  private def openPipe(width: Int, height: Int, gpu: GpuBackend, gl: MpvGl): MpvSurface =
     val handle = Mpv.mpv_create()
     if handle == null then throw new RuntimeException("mpv_create failed")
     var ctx: Ptr[Byte] = null
